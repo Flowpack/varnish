@@ -1,8 +1,8 @@
 MOC Varnish Neos integration
 -----------------------------
 
-This extensions provides a bridge between TYPO3 Neos and Varnish. If basically make Varnish send cache-control headers
-and BAN requests to Varnish when nodes are published.
+This extensions provides a bridge between TYPO3 Neos and Varnish. It basically makes Neos send cache-control headers
+and BAN requests to Varnish for all Document nodes.
 
 When installed, Varnish will send two extra headers when nodes are rendered in the live-workspace. It will send
 the Cache-control: s-maxage=86400 instructing shared cached (ie. Varnish) to cache this for a certain amount of time,
@@ -26,7 +26,7 @@ can be done, by adding the following snippet to your vcl_recv:
 
 ::
 
-if (req.request == "BAN") {
+ if (req.request == "BAN") {
 	if(req.http.Varnish-Ban-All) {
 	  ban("req.url ~ / && req.http.host == " + req.http.host);
 	  error 200 "Banned all";
@@ -37,5 +37,5 @@ if (req.request == "BAN") {
 	}
 }
 
-You shoudl possibly create an ACL so only certain hosts can actually ban in Varnish.
+You should possibly create an ACL so only certain hosts can actually ban in Varnish.
 

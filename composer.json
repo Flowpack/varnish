@@ -1,0 +1,14 @@
+{
+    "name": "moc/varnish",
+    "type": "typo3-flow-package",
+    "license": "LGPL-3.0+",
+    "description": "Neos integration for varnish",
+    "require": {
+        "typo3/flow": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "MOC\\Varnish": "Classes"
+        }
+    }
+}

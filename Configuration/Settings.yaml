@@ -1,0 +1,5 @@
+MOC:
+  Varnish:
+    cacheHeaders:
+      defaultSharedMaximumAge: 86400
+    varnishUrl: http://127.0.0.1/

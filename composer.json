@@ -2,7 +2,14 @@
     "name": "moc/varnish",
     "type": "typo3-flow-package",
     "license": "LGPL-3.0+",
-    "description": "Neos integration for varnish",
+    "description": "Varnish integration for TYPO3 Neos",
+	"authors": [
+         {
+                 "name": "Jan-Erik Revsbech",
+                 "email": "janerik@moc.net",
+                 "role": "Developer"
+         }
+ 	],
     "require": {
         "typo3/flow": "*"
     },

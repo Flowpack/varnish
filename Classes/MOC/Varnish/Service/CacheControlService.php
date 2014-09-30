@@ -61,8 +61,15 @@ class CacheControlService {
 				$node = $arguments->getArgument('node')->getValue();
 
 				if ($node instanceof NodeInterface && $node->getContext()->getWorkspaceName() === 'live') {
-					$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
-					$response->setSharedMaximumAge(intval($this->settings['cacheHeaders']['defaultSharedMaximumAge']));
+					if($node->getProperty('disableVarnishCache') === NULL || $node->getProperty('disableVarnishCache') === 0) {
+						$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
+						$timeToLive = $node->getProperty('cacheTimeToLive');
+						if ($timeToLive === '' || $timeToLive === NULL) {
+							$timeToLive = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
+						}
+						$response->setSharedMaximumAge(intval($timeToLive));
+					};
+
 				}
 			}
 		}

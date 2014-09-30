@@ -1,0 +1,27 @@
+'TYPO3.Neos:Document':
+  ui:
+    inspector:
+      groups:
+        caching:
+          label: 'Varnish cache'
+          position: 50
+
+  properties:
+    disableVarnishCache:
+      type: boolean
+      ui:
+        label: 'Disable varnish cache'
+        reloadIfChanged: FALSE
+        inspector:
+          group: 'caching'
+    cacheTimeToLive:
+      type: string
+      ui:
+        label: 'Time-to-live'
+        reloadIfChanged: FALSE
+        inspector:
+          group: 'caching'
+      validation:
+        'TYPO3.Neos/Validation/IntegerValidator': []
+
+

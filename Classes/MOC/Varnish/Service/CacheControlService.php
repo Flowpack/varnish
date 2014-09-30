@@ -87,7 +87,10 @@ class CacheControlService {
 		 * * Find cache lifetime from the cache of this particular node
 		 * * Implement async banning*
 		 */
-		$this->varnishBanService->banByNode($documentNode);
+		if ($this->settings['enableCacheBanningWhenNodePublished'] === TRUE) {
+			$this->varnishBanService->banByNode($documentNode);
+		}
+
 	}
 
 	/**

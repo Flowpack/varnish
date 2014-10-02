@@ -61,7 +61,7 @@ class CacheControlService {
 				$node = $arguments->getArgument('node')->getValue();
 
 				if ($node instanceof NodeInterface && $node->getContext()->getWorkspaceName() === 'live') {
-					if($node->getProperty('disableVarnishCache') === NULL || $node->getProperty('disableVarnishCache') === 0) {
+					if ($node->getProperty('disableVarnishCache') === NULL || $node->getProperty('disableVarnishCache') === 0) {
 						$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
 						$timeToLive = $node->getProperty('cacheTimeToLive');
 						if ($timeToLive === '' || $timeToLive === NULL) {
@@ -87,7 +87,7 @@ class CacheControlService {
 		 * * Find cache lifetime from the cache of this particular node
 		 * * Implement async banning*
 		 */
-		if ($this->settings['enableCacheBanningWhenNodePublished'] === TRUE) {
+		if ($documentNode && $this->settings['enableCacheBanningWhenNodePublished'] === TRUE) {
 			$this->varnishBanService->banByNode($documentNode);
 		}
 

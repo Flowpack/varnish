@@ -1,0 +1,15 @@
+<f:layout name="BackendSubModule" />
+
+<f:section name="content">
+	<f:render partial="Module/SearchForm"/>
+
+	&nbsp;<br />
+	<f:form action="purgeAllVarnishCache">
+		<fieldset>
+			<legend>Clear all cache</legend>
+			<f:form.textfield name="domain" value="{currentDomain}"/>
+			<f:form.submit  class="neos-button neos-button-primary" value="Clear all cache!!" />
+		</fieldset>
+	</f:form>
+
+</f:section>

@@ -1,0 +1,28 @@
+<f:layout name="BackendSubModule" />
+
+<f:section name="content">
+	<f:render partial="Module/SearchForm" arguments="{searchWord: searchWord}"/>
+	<div>
+		&nbsp;<br />
+		<h2>Result</h2>
+		<table class="neos-table">
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Path</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+				<f:for each="{nodes}" as="node">
+					<tr>
+						<td>{node.name}</td>
+						<td>{node.path}</td>
+						<td><f:link.action action="purgeCache" arguments="{node: node, searchWord: searchWord}">Clear varnish cache</f:link.action></td>
+					</tr>
+				</f:for>
+			</tbody>
+		</table>
+	</div>
+
+</f:section>

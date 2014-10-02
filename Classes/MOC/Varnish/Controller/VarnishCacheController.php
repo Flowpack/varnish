@@ -35,7 +35,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 *
 	 */
 	public function indexAction() {
-		$this->view->assign('currentDomain', $_SERVER['HTTP_HOST']);
+		$this->view->assign('currentDomain', $this->request->getHttpRequest()->getUri()->getHost());
 	}
 
 	/**

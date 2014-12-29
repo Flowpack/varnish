@@ -5,6 +5,7 @@
         caching:
           label: 'Varnish cache'
           position: 50
+          tab: meta
 
   properties:
     disableVarnishCache:
@@ -23,5 +24,3 @@
           group: 'caching'
       validation:
         'TYPO3.Neos/Validation/IntegerValidator': []
-
-

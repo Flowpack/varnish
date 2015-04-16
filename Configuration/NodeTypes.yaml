@@ -10,6 +10,7 @@
   properties:
     disableVarnishCache:
       type: boolean
+      defaultValue: FALSE
       ui:
         label: 'Disable varnish cache'
         reloadIfChanged: FALSE

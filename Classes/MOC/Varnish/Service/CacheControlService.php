@@ -55,24 +55,29 @@ class CacheControlService {
 	 * @return void
 	 */
 	public function addHeaders(RequestInterface $request, ResponseInterface $response, ControllerInterface $controller) {
-		if ($response instanceof Response && $controller instanceof NodeController) {
-			$arguments = $controller->getControllerContext()->getArguments();
-			if ($arguments->hasArgument('node')) {
-				$node = $arguments->getArgument('node')->getValue();
-
-				if ($node instanceof NodeInterface && $node->getContext()->getWorkspaceName() === 'live') {
-					if ($node->getProperty('disableVarnishCache') === NULL || $node->getProperty('disableVarnishCache') === 0) {
-						$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
-						$timeToLive = $node->getProperty('cacheTimeToLive');
-						if ($timeToLive === '' || $timeToLive === NULL) {
-							$timeToLive = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
-						}
-						$response->setSharedMaximumAge(intval($timeToLive));
-					};
-
-				}
-			}
+		if (!$response instanceof Response || !$controller instanceof NodeController) {
+			return;
 		}
+		$arguments = $controller->getControllerContext()->getArguments();
+		if (!$arguments->hasArgument('node')) {
+			return;
+		}
+		$node = $arguments->getArgument('node')->getValue();
+		if (!$node instanceof NodeInterface) {
+			return;
+		}
+		if ($node->getContext()->getWorkspaceName() !== 'live') {
+			return;
+		}
+		if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === TRUE) {
+			return;
+		}
+		$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
+		$timeToLive = $node->getProperty('cacheTimeToLive');
+		if ($timeToLive === '' || $timeToLive === NULL) {
+			$timeToLive = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
+		}
+		$response->setSharedMaximumAge(intval($timeToLive));
 	}
 
 	/**

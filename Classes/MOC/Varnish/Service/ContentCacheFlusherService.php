@@ -59,7 +59,7 @@ class ContentCacheFlusherService {
 	 */
 	public function shutdownObject() {
 		if ($this->tagsToFlush !== array()) {
-			$this->varnishBanService->flushTags($this->tagsToFlush);
+			$this->varnishBanService->banByTags(array_keys($this->tagsToFlush));
 		}
 	}
 

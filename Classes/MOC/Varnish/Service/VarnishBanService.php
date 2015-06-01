@@ -72,6 +72,9 @@ class VarnishBanService {
 	 * @return void
 	 */
 	public function banByTags(array $tags) {
+		if (count($this->settings['ignoredCacheTags']) > 0) {
+			$tags = array_diff($tags, $this->settings['ignoredCacheTags']);
+		}
 		$this->tagHandler->invalidateTags($tags);
 		$this->systemLogger->log(sprintf('Cleared varnish cache for tags "%s"', implode(',', $tags)));
 		$this->execute();

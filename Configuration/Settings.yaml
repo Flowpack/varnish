@@ -1,9 +1,10 @@
 MOC:
   Varnish:
-    enableCacheBanningWhenNodePublished: TRUE
     cacheHeaders:
       defaultSharedMaximumAge: ~
     varnishUrl: 'http://127.0.0.1'
+    # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
+    ignoredCacheTags: []
 
 TYPO3:
   Neos:

@@ -36,7 +36,7 @@ class ContentCacheFlusherService {
 
 		$nodeTypesToFlush = $this->getAllImplementedNodeTypes($node->getNodeType());
 		foreach ($nodeTypesToFlush as $nodeType) {
-			/** @var NodeType $nodeTypeName */
+			/** @var NodeType $nodeType */
 			$nodeTypeName = $nodeType->getName();
 			$this->tagsToFlush['NodeType_' . $nodeTypeName] = sprintf('which were tagged with "NodeType_%s" because node "%s" has changed and was of type "%s".', $nodeTypeName, $node->getPath(), $node->getNodeType()->getName());
 		}

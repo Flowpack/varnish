@@ -1,21 +1,36 @@
 {
-    "name": "moc/varnish",
-    "type": "typo3-flow-package",
-    "license": "LGPL-3.0+",
-    "description": "Varnish integration for TYPO3 Neos",
+	"name": "moc/varnish",
+	"type": "typo3-flow-package",
+	"license": "LGPL-3.0+",
+	"description": "Varnish integration for Neos",
 	"authors": [
-         {
-                 "name": "Jan-Erik Revsbech",
-                 "email": "janerik@moc.net",
-                 "role": "Developer"
-         }
- 	],
-    "require": {
-        "typo3/flow": "*"
-    },
-    "autoload": {
-        "psr-0": {
-            "MOC\\Varnish": "Classes"
-        }
-    }
+		{
+			"name": "Jan-Erik Revsbech",
+			"email": "janerik@moc.net",
+			"role": "Developer"
+		},
+		{
+			"name": "Aske Ertmann",
+			"email": "aske@moc.net",
+			"role": "Developer"
+		},
+		{
+			"name": "Christopher Hlubek",
+			"email": "hlubek@networkteam.com",
+			"role": "Developer"
+		},
+		{
+			"name": "Christoph Lehmann",
+			"email": "lehmann@networkteam.com",
+			"role": "Developer"
+		}
+	],
+	"require": {
+		"typo3/flow": "*"
+	},
+	"autoload": {
+		"psr-0": {
+			"MOC\\Varnish": "Classes"
+		}
+	}
 }

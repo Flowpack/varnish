@@ -18,7 +18,7 @@ Required Varnish VCL
 =========================
 
 The extension expects Varnish to handle BAN requests with the HTTP-Headers X-Host, X-Content-Type and X-Cache-Tags.
-This can be done by adding the following snippet to your vcl_recv:
+This can be done by using the following example vcl:
 
 ::
 

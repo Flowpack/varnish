@@ -2,7 +2,7 @@ MOC:
   Varnish:
     enableCacheBanningWhenNodePublished: TRUE
     cacheHeaders:
-      defaultSharedMaximumAge: 86400
+      defaultSharedMaximumAge: NULL
     varnishUrl: http://127.0.0.1/
 
 TYPO3:
@@ -16,3 +16,6 @@ TYPO3:
             description: 'Clear Varnish cache.'
             icon: 'icon-gear'
             resource: 'MOC_Varnish_Backend_Module_Varnish_ClearCache'
+    typoScript:
+      autoInclude:
+        'MOC.Varnish': TRUE

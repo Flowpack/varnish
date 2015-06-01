@@ -1,0 +1,3 @@
+TYPO3_TypoScript_Content:
+  # Set up a special cache frontend to store metadata (tags, lifetime) in entries
+  frontend: MOC\Varnish\Cache\MetadataAwareStringFrontend

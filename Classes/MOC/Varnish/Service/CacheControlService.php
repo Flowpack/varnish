@@ -10,12 +10,12 @@ use TYPO3\Flow\Http\Response;
 
 use TYPO3\Neos\Controller\Frontend\NodeController;
 use TYPO3\Flow\Log\SystemLoggerInterface;
+
 /**
  * Service for adding cache headers to a to-be-sent response
  *
  * Heavily inspired by https://github.com/techdivision/TechDivision.NeosVarnishAdaptor/blob/master/Classes/TechDivision/NeosVarnishAdaptor/Service/CacheControlService.php
  *
- * @package MOC\Varnish
  * @Flow\Scope("singleton")
  */
 class CacheControlService {
@@ -45,6 +45,18 @@ class CacheControlService {
 	protected $varnishBanService;
 
 	/**
+	 * @var \MOC\Varnish\Aspects\ContentCacheAspect
+	 * @Flow\Inject
+	 */
+	protected $contentCacheAspect;
+
+	/**
+	 * @var \MOC\Varnish\Cache\MetadataAwareStringFrontend
+	 * @Flow\Inject
+	 */
+	protected $contentCacheFrontend;
+
+	/**
 	 * Adds cache headers to the response.
 	 *
 	 * Called via a signal triggered by the MVC Dispatcher
@@ -72,12 +84,30 @@ class CacheControlService {
 		if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === TRUE) {
 			return;
 		}
-		$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
-		$timeToLive = $node->getProperty('cacheTimeToLive');
-		if ($timeToLive === '' || $timeToLive === NULL) {
-			$timeToLive = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
+
+		if ($this->contentCacheAspect->isEvaluatedUncached()) {
+			$response->getHeaders()->setCacheControlDirective('no-cache');
+		} else {
+			$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
+
+			list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
+			$response->setHeader('X-Neos-Tags', implode(',', $tags));
+
+			$nodeLifetime = $node->getProperty('cacheTimeToLive');
+			if ($nodeLifetime === '' || $nodeLifetime === NULL) {
+				$defaultLifetime = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
+				if ($defaultLifetime === NULL) {
+					$timeToLive = $cacheLifetime;
+				} elseif ($cacheLifetime !== NULL) {
+					$timeToLive = min($defaultLifetime, $cacheLifetime);
+				} else {
+					$timeToLive = $cacheLifetime;
+				}
+			} else {
+				$timeToLive = $nodeLifetime;
+			}
+			$response->setSharedMaximumAge(intval($timeToLive));
 		}
-		$response->setSharedMaximumAge(intval($timeToLive));
 	}
 
 	/**
@@ -108,5 +138,30 @@ class CacheControlService {
 			$node = $node->getParent();
 		}
 		return $node;
+	}
+
+	/**
+	 * Get cache tags and lifetime from the cache metadata that was extracted by the special cache frontend
+	 *
+	 * @return array
+	 */
+	protected function getCacheTagsAndLifetime() {
+		$lifetime = NULL;
+		$tags = array();
+		$entriesMetadata = $this->contentCacheFrontend->getAllMetadata();
+		foreach ($entriesMetadata as $identifier => $metadata) {
+			$entryTags = isset($metadata['tags']) ? $metadata['tags'] : array();
+			$entryLifetime = isset($metadata['lifetime']) ? $metadata['lifetime'] : NULL;
+
+			if ($entryLifetime !== NULL) {
+				if ($lifetime === NULL) {
+					$lifetime = $entryLifetime;
+				} else {
+					$lifetime = min($lifetime, $entryLifetime);
+				}
+			}
+			$tags = array_unique(array_merge($tags, $entryTags));
+		}
+		return array($tags, $lifetime);
 	}
 }

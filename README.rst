@@ -4,10 +4,7 @@ MOC Varnish Neos integration
 This extensions provides a bridge between TYPO3 Neos and Varnish. It basically makes Neos send cache-control headers
 and BAN requests to Varnish for all Document nodes.
 
-When installed, Varnish will send two extra headers when nodes are rendered in the live-workspace. It will send
-the Cache-control: s-maxage=86400 instructing shared cached (ie. Varnish) to cache this for a certain amount of time,
-and it will send the header X-Neos-NodeIdentifier which is can be used for purging varnish cache for certain
-node identifiers.
+When installed, Neos send headers for cache lifetime and cache invalidation.
 
 =========================
 Configuration
@@ -20,22 +17,54 @@ By default the Varnish cache is expected to run on 127.0.0.1
 Required Varnish VCL
 =========================
 
-The extension expects varnish to handle BAN requests with the http-header "X-Varnish-Ban-Neos-NodeIdentifier". This
-can be done, by adding the following snippet to your vcl_recv:
+The extension expects Varnish to handle BAN requests with the HTTP-Headers X-Host, X-Content-Type and X-Cache-Tags.
+This can be done by adding the following snippet to your vcl_recv:
 
 ::
 
-  if (req.request == "BAN") {
-  	if (req.http.Varnish-Ban-All) {
-  		ban("req.url ~ / && req.http.host == " + req.http.host);
-  		error 200 "Banned all";
-  	}
-  
-  	if (req.http.X-Varnish-Ban-Neos-NodeIdentifier) {
-                  ban("obj.http.X-Neos-NodeIdentifier == " + req.http.X-Varnish-Ban-Neos-NodeIdentifier);
-                  error 200 "Banned Neos node identifier " + req.http.X-Varnish-Ban-Neos-NodeIdentifier;
-          }
-  }
+	vcl 4.0;
 
+	backend default {
+		.host = "127.0.0.1";
+		.port = "8080";
+	}
 
-You should possibly create an ACL so only certain hosts can actually ban in Varnish.
+	acl invalidators {
+		"127.0.0.1";
+	}
+
+	sub vcl_recv {
+
+		if (req.method == "BAN") {
+			if (!client.ip ~ invalidators) {
+				return (synth(405, "Not allowed"));
+			}
+
+			if (req.http.X-Cache-Tags) {
+				ban("obj.http.X-Host ~ " + req.http.X-Host
+					+ " && obj.http.X-Url ~ " + req.http.X-Url
+					+ " && obj.http.content-type ~ " + req.http.X-Content-Type
+					+ " && obj.http.X-Cache-Tags ~ " + req.http.X-Cache-Tags
+				);
+			} else {
+				ban("obj.http.X-Host ~ " + req.http.X-Host
+					+ " && obj.http.X-Url ~ " + req.http.X-Url
+					+ " && obj.http.content-type ~ " + req.http.X-Content-Type
+				);
+			}
+
+			return (synth(200, "Banned"));
+		}
+	}
+
+	sub vcl_backend_response {
+		# Set ban-lurker friendly custom headers
+		set beresp.http.X-Url = bereq.url;
+		set beresp.http.X-Host = bereq.http.host;
+	}
+
+	sub vcl_deliver {
+		unset resp.http.X-Url;
+		unset resp.http.X-Host;
+		unset resp.http.X-Cache-Tags;
+	}

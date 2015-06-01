@@ -34,7 +34,6 @@ This can be done by adding the following snippet to your vcl_recv:
 	}
 
 	sub vcl_recv {
-
 		if (req.method == "BAN") {
 			if (!client.ip ~ invalidators) {
 				return (synth(405, "Not allowed"));
@@ -61,6 +60,55 @@ This can be done by adding the following snippet to your vcl_recv:
 		# Set ban-lurker friendly custom headers
 		set beresp.http.X-Url = bereq.url;
 		set beresp.http.X-Host = bereq.http.host;
+	}
+
+	sub vcl_deliver {
+		unset resp.http.X-Url;
+		unset resp.http.X-Host;
+		unset resp.http.X-Cache-Tags;
+	}
+
+
+Or use this for the old Varnish 3:
+
+::
+
+	backend default {
+		.host = "127.0.0.1";
+		.port = "8080";
+	}
+
+	acl invalidators {
+		"127.0.0.1";
+	}
+
+	sub vcl_recv {
+		if (req.request == "BAN") {
+			if (!client.ip ~ invalidators) {
+				error 405 "Not allowed.";
+			}
+
+			if (req.http.X-Cache-Tags) {
+				ban("obj.http.X-Host ~ " + req.http.X-Host
+					+ " && obj.http.X-Url ~ " + req.http.X-Url
+					+ " && obj.http.content-type ~ " + req.http.X-Content-Type
+					+ " && obj.http.X-Cache-Tags ~ " + req.http.X-Cache-Tags
+				);
+			} else {
+				ban("obj.http.X-Host ~ " + req.http.X-Host
+					+ " && obj.http.X-Url ~ " + req.http.X-Url
+					+ " && obj.http.content-type ~ " + req.http.X-Content-Type
+				);
+			}
+
+			error 200 "Banned";
+		}
+	}
+
+	sub vcl_fetch {
+		# Set ban-lurker friendly custom headers
+		set beresp.http.X-Url = req.url;
+		set beresp.http.X-Host = req.http.host;
 	}
 
 	sub vcl_deliver {

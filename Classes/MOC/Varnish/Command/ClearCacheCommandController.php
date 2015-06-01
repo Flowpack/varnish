@@ -21,7 +21,8 @@ class ClearCacheCommandController extends \TYPO3\Flow\Cli\CommandController {
 	/**
 	 * Send BAN request to Varnish to clear all cache for a given domain.
 	 *
-	 * @param string domain
+	 * @param string $domain
+	 * @return void
 	 */
 	public function clearAllCacheCommand($domain) {
 		$this->outputLine('Clear all cache on domain ' . $domain);

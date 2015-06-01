@@ -3,7 +3,7 @@ MOC:
     enableCacheBanningWhenNodePublished: TRUE
     cacheHeaders:
       defaultSharedMaximumAge: 86400
-    varnishUrl: http://127.0.0.1/
+    varnishUrl: 'http://127.0.0.1'
 
 TYPO3:
   Neos:
@@ -16,3 +16,8 @@ TYPO3:
             description: 'Clear Varnish cache.'
             icon: 'icon-gear'
             resource: 'MOC_Varnish_Backend_Module_Varnish_ClearCache'
+
+  Flow:
+    object:
+      excludeClasses:
+        'friendsofsymfony.httpcache': ['FOS\\HttpCache\\.*']

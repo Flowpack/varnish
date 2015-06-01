@@ -6,7 +6,6 @@
           label: 'Varnish cache'
           position: 50
           tab: meta
-
   properties:
     disableVarnishCache:
       type: boolean

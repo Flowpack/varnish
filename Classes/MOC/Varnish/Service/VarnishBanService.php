@@ -86,11 +86,11 @@ class VarnishBanService {
 		} catch(ExceptionCollection $exceptions) {
 			foreach ($exceptions as $exception) {
 				if ($exception instanceof ProxyResponseException) {
-					$this->systemLogger->log(sprintf('Content cache: Removed %s entries %s', $exception->getMessage()), LOG_ERR);
+					$this->systemLogger->log(sprintf('Error calling Varnish with BAN request (cannot connect to the caching proxy). Error %s', $exception->getMessage()), LOG_ERR);
 				} elseif ($exception instanceof ProxyUnreachableException) {
-					$this->systemLogger->log(sprintf('Error calling varnish with BAN all request. Error %s', $exception->getMessage()), LOG_ERR);
+					$this->systemLogger->log(sprintf('Error calling Varnish with BAN request (caching proxy returned an error response). Error %s', $exception->getMessage()), LOG_ERR);
 				} else {
-					$this->systemLogger->log(sprintf('Error calling varnish with BAN all request. Error %s', $exception->getMessage()), LOG_ERR);
+					$this->systemLogger->log(sprintf('Error calling Varnish with BAN request. Error %s', $exception->getMessage()), LOG_ERR);
 				}
 			}
 		}

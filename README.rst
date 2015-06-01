@@ -9,7 +9,6 @@ the Cache-control: s-maxage=86400 instructing shared cached (ie. Varnish) to cac
 and it will send the header X-Neos-NodeIdentifier which is can be used for purging varnish cache for certain
 node identifiers.
 
-
 =========================
 Configuration
 =========================
@@ -26,16 +25,17 @@ can be done, by adding the following snippet to your vcl_recv:
 
 ::
 
- if (req.request == "BAN") {
-	if(req.http.Varnish-Ban-All) {
-	  ban("req.url ~ / && req.http.host == " + req.http.host);
-	  error 200 "Banned all";
-	}
-	if(req.http.X-Varnish-Ban-Neos-NodeIdentifier) {
-			ban("obj.http.X-Neos-NodeIdentifier == " + req.http.X-Varnish-Ban-Neos-NodeIdentifier);
-			error 200 "Banned TYPO3 pid " + req.http.X-Varnish-Ban-Neos-NodeIdentifier;
-	}
-}
+  if (req.request == "BAN") {
+  	if (req.http.Varnish-Ban-All) {
+  		ban("req.url ~ / && req.http.host == " + req.http.host);
+  		error 200 "Banned all";
+  	}
+  
+  	if (req.http.X-Varnish-Ban-Neos-NodeIdentifier) {
+                  ban("obj.http.X-Neos-NodeIdentifier == " + req.http.X-Varnish-Ban-Neos-NodeIdentifier);
+                  error 200 "Banned Neos node identifier " + req.http.X-Varnish-Ban-Neos-NodeIdentifier;
+          }
+  }
+
 
 You should possibly create an ACL so only certain hosts can actually ban in Varnish.
-

@@ -61,6 +61,7 @@ class VarnishBanService {
 	 */
 	public function banAll($domain = NULL, $contentType = NULL) {
 		$this->cacheInvalidator->invalidateRegex('.*', $contentType, $domain);
+		$this->systemLogger->log(sprintf('Cleared all cache%s%s', $domain ? ' for domain "' . $domain . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
 		$this->execute();
 	}
 
@@ -72,6 +73,7 @@ class VarnishBanService {
 	 */
 	public function banByTags(array $tags) {
 		$this->tagHandler->invalidateTags($tags);
+		$this->systemLogger->log(sprintf('Cleared varnish cache for tags "%s"', implode(',', $tags)));
 		$this->execute();
 	}
 

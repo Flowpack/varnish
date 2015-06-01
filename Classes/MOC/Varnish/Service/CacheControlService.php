@@ -7,42 +7,15 @@ use TYPO3\Flow\Mvc\RequestInterface;
 use TYPO3\Flow\Mvc\ResponseInterface;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 use TYPO3\Flow\Http\Response;
-
 use TYPO3\Neos\Controller\Frontend\NodeController;
 use TYPO3\Flow\Log\SystemLoggerInterface;
 
 /**
  * Service for adding cache headers to a to-be-sent response
  *
- * Heavily inspired by https://github.com/techdivision/TechDivision.NeosVarnishAdaptor/blob/master/Classes/TechDivision/NeosVarnishAdaptor/Service/CacheControlService.php
- *
  * @Flow\Scope("singleton")
  */
 class CacheControlService {
-
-	/**
-	 * @var array
-	 */
-	protected $settings;
-
-	/**
-	 * @param array $settings
-	 */
-	public function injectSettings(array $settings) {
-		$this->settings = $settings;
-	}
-
-	/**
-	 * @Flow\Inject
-	 * @var SystemLoggerInterface
-	 */
-	protected $systemLogger;
-
-	/**
-	 * @var VarnishBanService
-	 * @Flow\Inject
-	 */
-	protected $varnishBanService;
 
 	/**
 	 * @var \MOC\Varnish\Aspects\ContentCacheAspect
@@ -55,6 +28,18 @@ class CacheControlService {
 	 * @Flow\Inject
 	 */
 	protected $contentCacheFrontend;
+
+	/**
+	 * @var array
+	 */
+	protected $settings;
+
+	/**
+	 * @param array $settings
+	 */
+	public function injectSettings(array $settings) {
+		$this->settings = $settings;
+	}
 
 	/**
 	 * Adds cache headers to the response.
@@ -88,10 +73,8 @@ class CacheControlService {
 		if ($this->contentCacheAspect->isEvaluatedUncached()) {
 			$response->getHeaders()->setCacheControlDirective('no-cache');
 		} else {
-			$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
-
 			list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
-			$response->setHeader('X-Neos-Tags', implode(',', $tags));
+			$response->setHeader('X-Cache-Tags', implode(',', $tags));
 
 			$nodeLifetime = $node->getProperty('cacheTimeToLive');
 			if ($nodeLifetime === '' || $nodeLifetime === NULL) {
@@ -110,36 +93,6 @@ class CacheControlService {
 				$response->setSharedMaximumAge(intval($timeToLive));
 			}
 		}
-	}
-
-	/**
-	 *
-	 * @param NodeInterface $node The node which has changed in some way
-	 * @return void
-	 */
-	public function handleNodePublished(NodeInterface $node) {
-		$documentNode = $this->getClosestDocumentNode($node);
-		/** @todo:
-		 * * Figure out which cache-tags the document is cached with.... Not sure if this makes sense
-		 * * Find cache lifetime from the cache of this particular node
-		 * * Implement async banning*
-		 */
-		if ($documentNode && $this->settings['enableCacheBanningWhenNodePublished'] === TRUE) {
-			$this->varnishBanService->banByNode($documentNode);
-		}
-
-	}
-
-	/**
-	 * Duplicated from TypoScriptView
-	 * @param NodeInterface $node
-	 * @return NodeInterface
-	 */
-	protected function getClosestDocumentNode(NodeInterface $node) {
-		while ($node !== NULL && !$node->getNodeType()->isOfType('TYPO3.Neos:Document')) {
-			$node = $node->getParent();
-		}
-		return $node;
 	}
 
 	/**
@@ -166,4 +119,5 @@ class CacheControlService {
 		}
 		return array($tags, $lifetime);
 	}
+
 }

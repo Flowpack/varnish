@@ -1,25 +1,41 @@
 <?php
 namespace MOC\Varnish\Service;
 
+use FOS\HttpCache\CacheInvalidator;
+use FOS\HttpCache\Exception\ExceptionCollection;
+use FOS\HttpCache\Exception\ProxyResponseException;
+use FOS\HttpCache\Exception\ProxyUnreachableException;
+use FOS\HttpCache\Handler\TagHandler;
+use FOS\HttpCache\ProxyClient;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
-use TYPO3\Flow\Http\Client\CurlEngine;
-use TYPO3\Flow\Http\Uri;
-use TYPO3\Flow\Http\Request;
-use TYPO3\Flow\Log\SystemLoggerInterface;
+use TYPO3\TypoScript\Core\Cache\ContentCache;
 
 /**
- * Class VarnishBanService
- *
- * @package MOC\Varnish
  * @Flow\Scope("singleton")
  */
 class VarnishBanService {
 
 	/**
+	 * @Flow\Inject
+	 * @var \TYPO3\Flow\Log\SystemLoggerInterface
+	 */
+	protected $systemLogger;
+
+	/**
 	 * @var array
 	 */
 	protected $settings;
+
+	/**
+	 * @var CacheInvalidator
+	 */
+	protected $cacheInvalidator;
+
+	/**
+	 * @var TagHandler
+	 */
+	protected $tagHandler;
 
 	/**
 	 * @param array $settings
@@ -29,63 +45,52 @@ class VarnishBanService {
 	}
 
 	/**
-	 * @Flow\Inject
-	 * @var SystemLoggerInterface
-	 */
-	protected $systemLogger;
-
-	/**
-	 * Ban a document in varnish by sending a BAN request to varnish
-	 *
-	 * @param NodeInterface $node The node to ban in Varnish
 	 * @return void
 	 */
-	public function banByNode(NodeInterface $node) {
-		$this->banByNodeIdentifier($node->getIdentifier());
+	public function initializeObject() {
+		$this->cacheInvalidator = new CacheInvalidator(new ProxyClient\Varnish(array(rtrim($this->settings['varnishUrl'], '/') ?: 'http://127.0.0.1')));
+		$this->tagHandler = new TagHandler($this->cacheInvalidator);
 	}
 
 	/**
-	 * Ban a document in varnish by sending a BAN request to varnish
+	 * Clear all cache in Varnish for a optionally given domain & content type
 	 *
-	 * @param integer $nodeIdentifier The identifier of the node to ban in Varnish
+	 * @param string $domain The domain to flush, e.g. "example.com"
+	 * @param string $contentType The mime type to flush, e.g. "image/png"
 	 * @return void
 	 */
-	public function banByNodeIdentifier($nodeIdentifier) {
-		$varnishUrl = $this->settings['varnishUrl'] ? $this->settings['varnishUrl'] : 'http://127.0.0.1/';
-		$url = new Uri($varnishUrl);
-		$request = Request::create($url, 'BAN');
-		$request->setHeader('X-Varnish-Ban-Neos-NodeIdentifier', $nodeIdentifier);
-		$engine = new CurlEngine();
-		$varnishResponse = $engine->sendRequest($request);
-		if ($varnishResponse->getStatusCode() === 200) {
-			$this->systemLogger->log('Cleared varnish cache for node identifier ' . $nodeIdentifier);
-		} else {
-			$this->systemLogger->log('Error calling varnish with BAN request. Error: ' . $varnishResponse->getStatusCode() . ' ' . $varnishResponse->getStatusMessageByCode($varnishResponse->getStatusCode()), LOG_ERR);
-		}
+	public function banAll($domain = NULL, $contentType = NULL) {
+		$this->cacheInvalidator->invalidateRegex('.*', $contentType, $domain);
+		$this->execute();
 	}
 
 	/**
-	 * Clear all cache for a given domain.
+	 * Clear all cache in Varnish for given tags
 	 *
-	 * The domain is required since the expected VCL only bans for a given domain.
-	 *
-	 * @param string $domain
+	 * @param array $tags
 	 * @return void
 	 */
-	public function banAll($domain = NULL) {
-		$varnishUrl = $this->settings['varnishUrl'] ? $this->settings['varnishUrl'] : 'http://127.0.0.1/';
-		$url = new Uri($varnishUrl);
-		$request = Request::create($url, 'BAN');
-		$request->setHeader('Varnish-Ban-All', '1');
-		if ($domain !== NULL) {
-			$request->setHeader('Host', $domain);
-		}
-		$engine = new CurlEngine();
-		$varnishResponse = $engine->sendRequest($request);
-		if ($varnishResponse->getStatusCode() === 200) {
-			$this->systemLogger->log('Cleared all cache on domain ' . $domain);
-		} else {
-			$this->systemLogger->log('Error calling varnish with BAN all request. Error: ' . $varnishResponse->getStatusCode() . ' ' . $varnishResponse->getStatusMessageByCode($varnishResponse->getStatusCode()), LOG_ERR);
+	public function banByTags(array $tags) {
+		$this->tagHandler->invalidateTags($tags);
+		$this->execute();
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function execute() {
+		try {
+			$this->cacheInvalidator->flush();
+		} catch(ExceptionCollection $exceptions) {
+			foreach ($exceptions as $exception) {
+				if ($exception instanceof ProxyResponseException) {
+					$this->systemLogger->log(sprintf('Content cache: Removed %s entries %s', $exception->getMessage()), LOG_ERR);
+				} elseif ($exception instanceof ProxyUnreachableException) {
+					$this->systemLogger->log(sprintf('Error calling varnish with BAN all request. Error %s', $exception->getMessage()), LOG_ERR);
+				} else {
+					$this->systemLogger->log(sprintf('Error calling varnish with BAN all request. Error %s', $exception->getMessage()), LOG_ERR);
+				}
+			}
 		}
 	}
 

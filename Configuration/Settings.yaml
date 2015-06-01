@@ -3,7 +3,7 @@ MOC:
     enableCacheBanningWhenNodePublished: TRUE
     cacheHeaders:
       defaultSharedMaximumAge: ~
-    varnishUrl: http://127.0.0.1/
+    varnishUrl: 'http://127.0.0.1'
 
 TYPO3:
   Neos:
@@ -19,3 +19,8 @@ TYPO3:
     typoScript:
       autoInclude:
         'MOC.Varnish': TRUE
+
+  Flow:
+    object:
+      excludeClasses:
+        'friendsofsymfony.httpcache': ['FOS\\HttpCache\\.*']

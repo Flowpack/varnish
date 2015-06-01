@@ -2,7 +2,7 @@ MOC:
   Varnish:
     enableCacheBanningWhenNodePublished: TRUE
     cacheHeaders:
-      defaultSharedMaximumAge: NULL
+      defaultSharedMaximumAge: ~
     varnishUrl: http://127.0.0.1/
 
 TYPO3:

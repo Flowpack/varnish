@@ -106,7 +106,9 @@ class CacheControlService {
 			} else {
 				$timeToLive = $nodeLifetime;
 			}
-			$response->setSharedMaximumAge(intval($timeToLive));
+			if ($timeToLive !== NULL) {
+				$response->setSharedMaximumAge(intval($timeToLive));
+			}
 		}
 	}
 

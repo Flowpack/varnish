@@ -7,7 +7,7 @@ php:
 before_script:
   - env
   - mkdir Build; cd Build
-  - |
+  - >
     cat <<EOF > composer.json
     {
       "name": "typo3/neos-base-distribution",

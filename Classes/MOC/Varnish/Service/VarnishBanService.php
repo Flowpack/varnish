@@ -23,8 +23,8 @@ class VarnishBanService {
 	protected $systemLogger;
 
 	/**
-	 * @var \MOC\Varnish\Service\TokenStorage
 	 * @Flow\Inject
+	 * @var \MOC\Varnish\Service\TokenStorage
 	 */
 	protected $tokenStorage;
 
@@ -32,6 +32,11 @@ class VarnishBanService {
 	 * @var array
 	 */
 	protected $settings;
+
+	/**
+	 * @var ProxyClient\Varnish
+	 */
+	protected $varnishProxyClient;
 
 	/**
 	 * @var CacheInvalidator
@@ -45,6 +50,7 @@ class VarnishBanService {
 
 	/**
 	 * @param array $settings
+	 * @return void
 	 */
 	public function injectSettings(array $settings) {
 		$this->settings = $settings;
@@ -54,9 +60,9 @@ class VarnishBanService {
 	 * @return void
 	 */
 	public function initializeObject() {
-		$varnishProxyClient = new ProxyClient\Varnish(array(rtrim($this->settings['varnishUrl'], '/') ?: 'http://127.0.0.1'));
-		$varnishProxyClient->setDefaultBanHeader('X-Site', $this->tokenStorage->getToken());
-		$this->cacheInvalidator = new CacheInvalidator($varnishProxyClient);
+		$this->varnishProxyClient = new ProxyClient\Varnish(array(rtrim($this->settings['varnishUrl'], '/') ?: 'http://127.0.0.1'));
+		$this->varnishProxyClient->setDefaultBanHeader('X-Site', $this->tokenStorage->getToken());
+		$this->cacheInvalidator = new CacheInvalidator($this->varnishProxyClient);
 		$this->tagHandler = new TagHandler($this->cacheInvalidator);
 	}
 
@@ -77,13 +83,20 @@ class VarnishBanService {
 	 * Clear all cache in Varnish for given tags
 	 *
 	 * @param array $tags
+	 * @param string $domain The domain to flush, e.g. "example.com"
 	 * @return void
 	 */
-	public function banByTags(array $tags) {
+	public function banByTags(array $tags, $domain = NULL) {
 		if (count($this->settings['ignoredCacheTags']) > 0) {
 			$tags = array_diff($tags, $this->settings['ignoredCacheTags']);
 		}
+		if ($domain !== NULL) {
+			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, $domain);
+		}
 		$this->tagHandler->invalidateTags($tags);
+		if ($domain !== NULL) {
+			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, ProxyClient\Varnish::REGEX_MATCH_ALL);
+		}
 		$this->systemLogger->log(sprintf('Cleared varnish cache for tags "%s"', implode(',', $tags)));
 		$this->execute();
 	}

@@ -21,9 +21,7 @@ Required Varnish VCL
 =========================
 
 The extension expects Varnish to handle BAN requests with the HTTP-Headers X-Host, X-Content-Type and X-Cache-Tags.
-This can be done by using the following example vcl:
-
-::
+This can be done by using the following example vcl::
 
 	vcl 4.0;
 
@@ -68,16 +66,23 @@ This can be done by using the following example vcl:
 	}
 
 	sub vcl_deliver {
-		unset resp.http.X-Url;
-		unset resp.http.X-Host;
-		unset resp.http.X-Cache-Tags;
-		unset resp.http.X-Site;
+		# Send debug headers if a X-Cache-Debug header is present from the client or the backend
+		if (req.http.X-Cache-Debug || resp.http.X-Cache-Debug) {
+			if (resp.http.X-Varnish ~ " ") {
+				set resp.http.X-Cache = "HIT";
+			} else {
+				set resp.http.X-Cache = "MISS";
+			}
+		} else {
+			# Remove ban-lurker friendly custom headers when delivering to client
+			unset resp.http.X-Url;
+			unset resp.http.X-Host;
+			unset resp.http.X-Cache-Tags;
+			unset resp.http.X-Site;
+		}
 	}
 
-
-Or use this for the old Varnish 3:
-
-::
+Or use this for the old Varnish 3::
 
 	backend default {
 		.host = "127.0.0.1";
@@ -120,8 +125,18 @@ Or use this for the old Varnish 3:
 	}
 
 	sub vcl_deliver {
-		unset resp.http.X-Url;
-		unset resp.http.X-Host;
-		unset resp.http.X-Cache-Tags;
-		unset resp.http.X-Site;
+		# Send debug headers if a X-Cache-Debug header is present from the client or the backend
+		if (req.http.X-Cache-Debug || resp.http.X-Cache-Debug) {
+			if (resp.http.X-Varnish ~ " ") {
+				set resp.http.X-Cache = "HIT";
+			} else {
+				set resp.http.X-Cache = "MISS";
+			}
+		} else {
+			# Remove ban-lurker friendly custom headers when delivering to client
+			unset resp.http.X-Url;
+			unset resp.http.X-Host;
+			unset resp.http.X-Cache-Tags;
+			unset resp.http.X-Site;
+		}
 	}

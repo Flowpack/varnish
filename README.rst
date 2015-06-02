@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/mocdk/MOC.Varnish.svg)](https://travis-ci.org/mocdk/MOC.Varnish)
+
+
 MOC Varnish Neos integration
 -----------------------------
 

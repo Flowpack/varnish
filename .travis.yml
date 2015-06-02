@@ -7,7 +7,7 @@ php:
 before_script:
   - env
   - mkdir Build; cd Build
-  - >
+  - |
     cat <<EOF > composer.json
     {
       "name": "typo3/neos-base-distribution",
@@ -38,7 +38,7 @@ before_script:
           "post-package-install": "TYPO3\\\\Flow\\\\Composer\\\\InstallerScripts::postPackageUpdateAndInstall"
       }
     }
-    EOF
+  EOF
   - cat composer.json
   - composer update --dev
 

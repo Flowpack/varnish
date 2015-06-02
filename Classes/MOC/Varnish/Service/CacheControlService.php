@@ -7,18 +7,33 @@ use TYPO3\Flow\Mvc\RequestInterface;
 use TYPO3\Flow\Mvc\ResponseInterface;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 use TYPO3\Flow\Http\Response;
-
 use TYPO3\Neos\Controller\Frontend\NodeController;
 use TYPO3\Flow\Log\SystemLoggerInterface;
+
 /**
  * Service for adding cache headers to a to-be-sent response
  *
- * Heavily inspired by https://github.com/techdivision/TechDivision.NeosVarnishAdaptor/blob/master/Classes/TechDivision/NeosVarnishAdaptor/Service/CacheControlService.php
- *
- * @package MOC\Varnish
  * @Flow\Scope("singleton")
  */
 class CacheControlService {
+
+	/**
+	 * @var \MOC\Varnish\Aspects\ContentCacheAspect
+	 * @Flow\Inject
+	 */
+	protected $contentCacheAspect;
+
+	/**
+	 * @var \MOC\Varnish\Cache\MetadataAwareStringFrontend
+	 * @Flow\Inject
+	 */
+	protected $contentCacheFrontend;
+
+	/**
+	 * @var \MOC\Varnish\Service\TokenStorage
+	 * @Flow\Inject
+	 */
+	protected $tokenStorage;
 
 	/**
 	 * @var array
@@ -31,18 +46,6 @@ class CacheControlService {
 	public function injectSettings(array $settings) {
 		$this->settings = $settings;
 	}
-
-	/**
-	 * @Flow\Inject
-	 * @var SystemLoggerInterface
-	 */
-	protected $systemLogger;
-
-	/**
-	 * @var VarnishBanService
-	 * @Flow\Inject
-	 */
-	protected $varnishBanService;
 
 	/**
 	 * Adds cache headers to the response.
@@ -72,41 +75,57 @@ class CacheControlService {
 		if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === TRUE) {
 			return;
 		}
-		$response->setHeader('X-Neos-NodeIdentifier', $node->getIdentifier());
-		$timeToLive = $node->getProperty('cacheTimeToLive');
-		if ($timeToLive === '' || $timeToLive === NULL) {
-			$timeToLive = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
+
+		if ($this->contentCacheAspect->isEvaluatedUncached()) {
+			$response->getHeaders()->setCacheControlDirective('no-cache');
+		} else {
+			list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
+			$response->setHeader('X-Cache-Tags', implode(',', $tags));
+
+			$nodeLifetime = $node->getProperty('cacheTimeToLive');
+			if ($nodeLifetime === '' || $nodeLifetime === NULL) {
+				$defaultLifetime = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
+				if ($defaultLifetime === NULL) {
+					$timeToLive = $cacheLifetime;
+				} elseif ($cacheLifetime !== NULL) {
+					$timeToLive = min($defaultLifetime, $cacheLifetime);
+				} else {
+					$timeToLive = $cacheLifetime;
+				}
+			} else {
+				$timeToLive = $nodeLifetime;
+			}
+			if ($timeToLive !== NULL) {
+				$response->setSharedMaximumAge(intval($timeToLive));
+			}
+
+			$response->setHeader('X-Site', $this->tokenStorage->getToken());
 		}
-		$response->setSharedMaximumAge(intval($timeToLive));
 	}
 
 	/**
+	 * Get cache tags and lifetime from the cache metadata that was extracted by the special cache frontend
 	 *
-	 * @param NodeInterface $node The node which has changed in some way
-	 * @return void
+	 * @return array
 	 */
-	public function handleNodePublished(NodeInterface $node) {
-		$documentNode = $this->getClosestDocumentNode($node);
-		/** @todo:
-		 * * Figure out which cache-tags the document is cached with.... Not sure if this makes sense
-		 * * Find cache lifetime from the cache of this particular node
-		 * * Implement async banning*
-		 */
-		if ($documentNode && $this->settings['enableCacheBanningWhenNodePublished'] === TRUE) {
-			$this->varnishBanService->banByNode($documentNode);
-		}
+	protected function getCacheTagsAndLifetime() {
+		$lifetime = NULL;
+		$tags = array();
+		$entriesMetadata = $this->contentCacheFrontend->getAllMetadata();
+		foreach ($entriesMetadata as $identifier => $metadata) {
+			$entryTags = isset($metadata['tags']) ? $metadata['tags'] : array();
+			$entryLifetime = isset($metadata['lifetime']) ? $metadata['lifetime'] : NULL;
 
+			if ($entryLifetime !== NULL) {
+				if ($lifetime === NULL) {
+					$lifetime = $entryLifetime;
+				} else {
+					$lifetime = min($lifetime, $entryLifetime);
+				}
+			}
+			$tags = array_unique(array_merge($tags, $entryTags));
+		}
+		return array($tags, $lifetime);
 	}
 
-	/**
-	 * Duplicated from TypoScriptView
-	 * @param NodeInterface $node
-	 * @return NodeInterface
-	 */
-	protected function getClosestDocumentNode(NodeInterface $node) {
-		while ($node !== NULL && !$node->getNodeType()->isOfType('TYPO3.Neos:Document')) {
-			$node = $node->getParent();
-		}
-		return $node;
-	}
 }

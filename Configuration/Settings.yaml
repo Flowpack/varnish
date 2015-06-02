@@ -1,9 +1,10 @@
 MOC:
   Varnish:
-    enableCacheBanningWhenNodePublished: TRUE
     cacheHeaders:
-      defaultSharedMaximumAge: 86400
-    varnishUrl: http://127.0.0.1/
+      defaultSharedMaximumAge: ~
+    varnishUrl: 'http://127.0.0.1'
+    # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
+    ignoredCacheTags: []
 
 TYPO3:
   Neos:
@@ -16,3 +17,11 @@ TYPO3:
             description: 'Clear Varnish cache.'
             icon: 'icon-gear'
             resource: 'MOC_Varnish_Backend_Module_Varnish_ClearCache'
+    typoScript:
+      autoInclude:
+        'MOC.Varnish': TRUE
+
+  Flow:
+    object:
+      excludeClasses:
+        'friendsofsymfony.httpcache': ['FOS\\HttpCache\\.*']

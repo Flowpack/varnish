@@ -1,0 +1,19 @@
+MOC\Varnish\Service\CacheControlService:
+  properties:
+    contentCacheFrontend:
+      object:
+        factoryObjectName: TYPO3\Flow\Cache\CacheManager
+        factoryMethodName: getCache
+        arguments:
+          1:
+            value: TYPO3_TypoScript_Content
+
+MOC\Varnish\Service\TokenStorage:
+  properties:
+    cache:
+      object:
+        factoryObjectName: TYPO3\Flow\Cache\CacheManager
+        factoryMethodName: getCache
+        arguments:
+          1:
+            value: Moc_Varnish_Site_Token

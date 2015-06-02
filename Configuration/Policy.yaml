@@ -1,8 +1,11 @@
-resources:
-  methods:
-    MOC_Varnish_Backend_Module_Varnish_ClearCache: 'method(MOC\Varnish\Controller\VarnishCacheController->.*Action())'
+privilegeTargets:
+  'TYPO3\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
+    'MOC.Varnish:BackendModuleClearCache':
+      matcher: 'within(MOC\Varnish\Controller\VarnishCacheController) && method(public .*->(?!initialize).*Action())'
 
-acls:
-  Everybody:
-    methods:
-      MOC_Varnish_Backend_Module_Varnish_ClearCache: GRANT
+roles:
+  'TYPO3.Flow:Everybody':
+    privileges:
+      -
+        privilegeTarget: 'MOC.Varnish:BackendModuleClearCache'
+        permission: GRANT

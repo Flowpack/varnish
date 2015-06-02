@@ -1,16 +1,10 @@
 <?php
 namespace MOC\Varnish\Controller;
 
+use MOC\Varnish\Service\ContentCacheFlusherService;
 use MOC\Varnish\Service\VarnishBanService;
 use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Mvc\Controller\ActionController;
-use Langeland\DeveloperTools\Domain\Model\Configuration;
 
-/**
- * Class ConfigurationController
- *
- * @author Jan-Erik Revsbech <janerik@moc.net>
- */
 class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModuleController {
 
 	/**
@@ -32,7 +26,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	protected $nodeSearchService;
 
 	/**
-	 *
+	 * @return void
 	 */
 	public function indexAction() {
 		$this->view->assign('currentDomain', $this->request->getHttpRequest()->getUri()->getHost());
@@ -40,6 +34,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 
 	/**
 	 * @param string $searchWord
+	 * @return void
 	 */
 	public function searchForNodeAction($searchWord) {
 		$liveContext = $this->contextFactory->create(array(
@@ -56,20 +51,22 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	/**
 	 * @param \TYPO3\TYPO3CR\Domain\Model\Node $node
 	 * @param string $searchWord
+	 * @return void
 	 */
 	public function purgeCacheAction(\TYPO3\TYPO3CR\Domain\Model\Node $node, $searchWord) {
-		$service = new VarnishBanService();
-		$service->banByNode($node);
-		$this->flashMessageContainer->addMessage(new \TYPO3\Flow\Error\Message('Varnish cache clearer for node ' . $node->getName()));
+		$service = new ContentCacheFlusherService();
+		$service->flushForNode($node);
+		$this->flashMessageContainer->addMessage(new \TYPO3\Flow\Error\Message('Varnish cache cleared for node ' . $node->getName()));
 		$this->redirect('searchForNode', NULL, NULL, array('searchWord' => $searchWord));
 	}
 
 	/**
-	 * @param string $searchWord
+	 * @param string $domain
+	 * @return void
 	 */
 	public function purgeAllVarnishCacheAction($domain = NULL) {
 		if ($domain === NULL) {
-			$domain = $_SERVER['HTTP_HOST'];
+			$domain = $this->request->getHttpRequest()->getUri()->getHost();
 		}
 		$service = new VarnishBanService();
 		$service->banAll($domain);

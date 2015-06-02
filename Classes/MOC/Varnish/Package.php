@@ -13,7 +13,7 @@ class Package extends BasePackage {
 	 */
 	public function boot(\TYPO3\Flow\Core\Bootstrap $bootstrap) {
 		$dispatcher = $bootstrap->getSignalSlotDispatcher();
-		$dispatcher->connect('TYPO3\Neos\Service\PublishingService', 'nodePublished', 'MOC\Varnish\Service\CacheControlService', 'handleNodePublished');
+		$dispatcher->connect('TYPO3\Neos\Service\PublishingService', 'nodePublished', 'MOC\Varnish\Service\ContentCacheFlusherService', 'flushForNode');
 		$dispatcher->connect('TYPO3\Flow\Mvc\Dispatcher', 'afterControllerInvocation', 'MOC\Varnish\Service\CacheControlService', 'addHeaders');
 	}
 

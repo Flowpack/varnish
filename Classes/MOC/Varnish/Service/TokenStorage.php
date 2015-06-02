@@ -27,14 +27,11 @@ class TokenStorage {
 	 */
 	public function getToken() {
 		$token = $this->cache->get($this->tokenName);
-
 		if ($token === FALSE) {
-			$newToken = Algorithms::generateRandomToken(20);
-			$this->storeToken($newToken);
-			return $newToken;
-		} else {
-			return $token;
+			$token = Algorithms::generateRandomToken(20);
+			$this->storeToken($token);
 		}
+		return $token;
 	}
 
 	/**

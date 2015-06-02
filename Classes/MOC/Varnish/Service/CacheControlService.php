@@ -84,10 +84,12 @@ class CacheControlService {
 				$response->setHeader('X-Cache-Tags', implode(',', $tags));
 			}
 
+			$response->setHeader('X-Site', $this->tokenStorage->getToken());
+
 			$nodeLifetime = $node->getProperty('cacheTimeToLive');
 			if ($nodeLifetime === '' || $nodeLifetime === NULL) {
 				$defaultLifetime = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
-				$timeToLive = $cacheLifetime;
+				$timeToLive = $defaultLifetime;
 				if ($defaultLifetime === NULL) {
 					$timeToLive = $cacheLifetime;
 				} elseif ($cacheLifetime !== NULL) {
@@ -100,8 +102,6 @@ class CacheControlService {
 			if ($timeToLive !== NULL) {
 				$response->setSharedMaximumAge(intval($timeToLive));
 			}
-
-			$response->setHeader('X-Site', $this->tokenStorage->getToken());
 		}
 	}
 

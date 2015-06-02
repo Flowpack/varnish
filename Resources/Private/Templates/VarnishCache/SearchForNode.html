@@ -66,22 +66,57 @@
 				$(this).toggleClass('icon-chevron-down icon-chevron-up');
 				$('tr.' + $(this).data('toggle')).toggle();
 			});
-			$('.neos-button[data-toggle="modal"]').on('click.load', function() {
-				var modalContent = $('.neos-modal-footer', $(this).attr('href')),
-					url = $(this).off('click.load').data('check-url');
+			$('.neos-button[data-toggle="modal"]').on('click', function() {
+				var modalContainer = $($(this).attr('href')),
+					modalContent = $('.neos-modal-footer', modalContainer),
+					url = $(this).data('check-url');
+				$('.neos-modal-backdrop', modalContainer).on('click', function() {
+					modalContainer.modal('hide');
+				});
+				$(document).on('keyup', function(e) {
+					if (e.which == 27) {
+						modalContainer.modal('hide');
+					}
+				});
+				$('#url-check-loading', modalContent).show();
+				var toHHMMSS = function(secondsNumber) {
+					secondsNumber = parseInt(secondsNumber, 10);
+					var hours   = Math.floor(secondsNumber / 3600);
+					var minutes = Math.floor((secondsNumber - (hours * 3600)) / 60);
+					var seconds = secondsNumber - (hours * 3600) - (minutes * 60);
+					hours = hours < 10 ? '0' + hours : hours;
+					minutes = minutes < 10 ? '0' + minutes : minutes;
+					seconds = seconds < 10 ? '0' + seconds : seconds;
+					return hours + ':' + minutes + ':' + seconds;
+				};
 				$.ajax(url).done(function(response, status, xhr) {
 					var parsedResponse = JSON.parse($(response).find('#url-check').html()),
 						list = $('<dl class="dl-horizontal" />');
 					list.append($('<div/>').html('<dt>Host</dt><dd>' + parsedResponse.host + '</dd>'));
 					list.append($('<div/>').html('<dt>URL</dt><dd>' + parsedResponse.url + '</dd>'));
-					['X-Cacheable', 'Age', 'X-Varnish', 'X-Cache-Tags'].forEach(function(header) {
+					['X-Cacheable', 'Age', 'X-Cache-TTL', 'X-Varnish', 'X-Site', 'X-Cache-Tags'].forEach(function(header) {
 						var value = parsedResponse.headers[header].toString();
 						if (value) {
-							value = header === 'X-Cache-Tags' ? '<span class="neos-label">' + value.split(',').join('</span> <span class="neos-label">') + '</span>' : value;
+							switch (header) {
+								case 'X-Cache-Tags':
+									value = '<span class="neos-label">' + value.split(',').join('</span> <span class="neos-label">') + '</span>';
+									break;
+								case 'Age':
+									value = '<span title="' + value + ' s">' + toHHMMSS(value) + '</span>';
+									break;
+								case 'X-Cache-TTL':
+									value = parseInt(value);
+									list.append($('<div/>').html('<dt>' + header + '</dt><dd><span title="' + value + ' s">' + toHHMMSS(value) + '</span></dd>'));
+									header = 'Expires';
+									value = value - parseInt(parsedResponse.headers['Age'].toString(), 10);
+									value = '<span title="' + value + ' s">' + toHHMMSS(value) + '</span>';
+									break;
+							}
 							list.append($('<div/>').html('<dt>' + header + '</dt><dd>' + value + '</dd>'));
 						}
 					});
 					$('#url-check-loading', modalContent).hide();
+					$('dl', modalContent).remove();
 					modalContent.append(list);
 				});
 			});

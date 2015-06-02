@@ -52,3 +52,7 @@
 .neos.neos-module.neos-module-administration-purging .dl-horizontal dd {
 	margin-left: 180px;
 }
+
+.neos.neos-module.neos-module-administration-purging .clear-cache .neos-ellipsis {
+	padding: 0 2px 0 1px;
+}

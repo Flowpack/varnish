@@ -23,6 +23,12 @@ class VarnishBanService {
 	protected $systemLogger;
 
 	/**
+	 * @var \MOC\Varnish\Service\TokenStorage
+	 * @Flow\Inject
+	 */
+	protected $tokenStorage;
+
+	/**
 	 * @var array
 	 */
 	protected $settings;
@@ -48,7 +54,9 @@ class VarnishBanService {
 	 * @return void
 	 */
 	public function initializeObject() {
-		$this->cacheInvalidator = new CacheInvalidator(new ProxyClient\Varnish(array(rtrim($this->settings['varnishUrl'], '/') ?: 'http://127.0.0.1')));
+		$varnishProxyClient = new ProxyClient\Varnish(array(rtrim($this->settings['varnishUrl'], '/') ?: 'http://127.0.0.1'));
+		$varnishProxyClient->setDefaultBanHeader('X-Site', $this->tokenStorage->getToken());
+		$this->cacheInvalidator = new CacheInvalidator($varnishProxyClient);
 		$this->tagHandler = new TagHandler($this->cacheInvalidator);
 	}
 

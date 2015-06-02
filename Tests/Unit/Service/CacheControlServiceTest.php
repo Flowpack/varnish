@@ -4,6 +4,7 @@ namespace MOC\Varnish\Tests\Unit\Cache;
 use MOC\Varnish\Aspects\ContentCacheAspect;
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
 use MOC\Varnish\Service\CacheControlService;
+use MOC\Varnish\Service\TokenStorage;
 use TYPO3\Flow\Cache\Backend\TransientMemoryBackend;
 use TYPO3\Flow\Core\ApplicationContext;
 use TYPO3\Flow\Mvc\Controller\Argument;
@@ -72,6 +73,11 @@ class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
 	 */
 	protected $mockContext;
 
+	/**
+	 * @var TokenStorage
+	 */
+	protected $mockTokenStorage;
+
 	protected function setUp() {
 		$this->service = new CacheControlService();
 		$this->mockContentCacheAspect = $this->getMock('MOC\Varnish\Aspects\ContentCacheAspect');
@@ -80,6 +86,8 @@ class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
 			new TransientMemoryBackend(new ApplicationContext('Testing'))
 		);
 		$this->inject($this->service, 'contentCacheFrontend', $this->contentCacheFrontend);
+		$this->mockTokenStorage = $this->getMock('MOC\Varnish\Service\TokenStorage');
+		$this->inject($this->service, 'tokenStorage', $this->mockTokenStorage);
 
 		$this->mockRequest = $this->getMock('TYPO3\Flow\Mvc\RequestInterface');
 		$this->mockResponse = $this->getMock('TYPO3\Flow\Http\Response');
@@ -106,7 +114,7 @@ class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
 		$this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'));
 		$this->contentCacheFrontend->set('entry2', 'Bar', array('Tag2'));
 
-		$this->mockResponse->expects($this->atLeastOnce())->method('setHeader')->with('X-Cache-Tags', 'Tag1,Tag2');
+		$this->mockResponse->expects($this->at(0))->method('setHeader')->with('X-Cache-Tags', 'Tag1,Tag2');
 
 		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
 	}
@@ -159,6 +167,18 @@ class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
 		$this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'), 124800);
 
 		$this->mockResponse->expects($this->atLeastOnce())->method('setSharedMaximumAge')->with(86400);
+
+		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
+	}
+
+	/**
+	 * @test
+	 */
+	public function addHeadersInLiveWorkspaceAndCachedResponseAddsSiteToken() {
+		$this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
+		$this->mockTokenStorage->expects($this->any())->method('getToken')->willReturn('RandomSiteToken');
+
+		$this->mockResponse->expects($this->at(1))->method('setHeader')->with('X-Site', 'RandomSiteToken');
 
 		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
 	}

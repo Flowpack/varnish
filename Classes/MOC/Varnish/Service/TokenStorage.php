@@ -39,6 +39,7 @@ class TokenStorage {
 
 	/**
 	 * @param string $token
+	 * @return void
 	 */
 	protected function storeToken($token) {
 		$this->cache->set($this->tokenName, $token);

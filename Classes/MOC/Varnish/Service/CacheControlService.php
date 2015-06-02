@@ -80,21 +80,23 @@ class CacheControlService {
 			$response->getHeaders()->setCacheControlDirective('no-cache');
 		} else {
 			list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
-			$response->setHeader('X-Cache-Tags', implode(',', $tags));
+			if (count($tags) > 0) {
+				$response->setHeader('X-Cache-Tags', implode(',', $tags));
+			}
 
 			$nodeLifetime = $node->getProperty('cacheTimeToLive');
 			if ($nodeLifetime === '' || $nodeLifetime === NULL) {
 				$defaultLifetime = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
+				$timeToLive = $cacheLifetime;
 				if ($defaultLifetime === NULL) {
 					$timeToLive = $cacheLifetime;
 				} elseif ($cacheLifetime !== NULL) {
 					$timeToLive = min($defaultLifetime, $cacheLifetime);
-				} else {
-					$timeToLive = $cacheLifetime;
 				}
 			} else {
 				$timeToLive = $nodeLifetime;
 			}
+
 			if ($timeToLive !== NULL) {
 				$response->setSharedMaximumAge(intval($timeToLive));
 			}

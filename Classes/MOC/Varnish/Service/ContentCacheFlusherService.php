@@ -3,6 +3,7 @@ namespace MOC\Varnish\Service;
 
 use FOS\HttpCache\ProxyClient;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\TYPO3CR\Domain\Model\NodeData;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 use TYPO3\TYPO3CR\Domain\Model\NodeType;
 use TYPO3\TypoScript\Core\Cache\ContentCache;
@@ -24,14 +25,30 @@ class ContentCacheFlusherService {
 	protected $tagsToFlush = array();
 
 	/**
-	 * Generates cache tags to be flushed for a node which is flushed on shutdown.
-	 *
-	 * Code duplicated from Neos' ContentCacheFlusher class
-	 *
 	 * @param NodeInterface $node The node which has changed in some way
 	 * @return void
 	 */
 	public function flushForNode(NodeInterface $node) {
+		$this->generateCacheTags($node);
+	}
+
+	/**
+	 * @param NodeData $nodeData The node which has changed in some way
+	 * @return void
+	 */
+	public function flushForNodeData(NodeData $nodeData) {
+		$this->generateCacheTags($nodeData);
+	}
+
+	/**
+	 * Generates cache tags to be flushed for a node which is flushed on shutdown.
+	 *
+	 * Code duplicated from Neos' ContentCacheFlusher class
+	 *
+	 * @param NodeInterface|NodeData $node The node which has changed in some way
+	 * @return void
+	 */
+	protected function generateCacheTags($node) {
 		$this->tagsToFlush[ContentCache::TAG_EVERYTHING] = 'which were tagged with "Everything".';
 
 		$nodeTypesToFlush = $this->getAllImplementedNodeTypes($node->getNodeType());

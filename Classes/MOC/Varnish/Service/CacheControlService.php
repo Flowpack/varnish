@@ -30,6 +30,12 @@ class CacheControlService {
 	protected $contentCacheFrontend;
 
 	/**
+	 * @var \MOC\Varnish\Service\TokenStorage
+	 * @Flow\Inject
+	 */
+	protected $tokenStorage;
+
+	/**
 	 * @var array
 	 */
 	protected $settings;
@@ -92,6 +98,8 @@ class CacheControlService {
 			if ($timeToLive !== NULL) {
 				$response->setSharedMaximumAge(intval($timeToLive));
 			}
+
+			$response->setHeader('X-Site', $this->tokenStorage->getToken());
 		}
 	}
 

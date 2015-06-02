@@ -44,11 +44,13 @@ This can be done by using the following example vcl:
 					+ " && obj.http.X-Url ~ " + req.http.X-Url
 					+ " && obj.http.content-type ~ " + req.http.X-Content-Type
 					+ " && obj.http.X-Cache-Tags ~ " + req.http.X-Cache-Tags
+					+ " && obj.http.X-Site ~ " + req.http.X-Site
 				);
 			} else {
 				ban("obj.http.X-Host ~ " + req.http.X-Host
 					+ " && obj.http.X-Url ~ " + req.http.X-Url
 					+ " && obj.http.content-type ~ " + req.http.X-Content-Type
+					+ " && obj.http.X-Site ~ " + req.http.X-Site
 				);
 			}
 
@@ -93,11 +95,13 @@ Or use this for the old Varnish 3:
 					+ " && obj.http.X-Url ~ " + req.http.X-Url
 					+ " && obj.http.content-type ~ " + req.http.X-Content-Type
 					+ " && obj.http.X-Cache-Tags ~ " + req.http.X-Cache-Tags
+					+ " && obj.http.X-Site ~ " + req.http.X-Site
 				);
 			} else {
 				ban("obj.http.X-Host ~ " + req.http.X-Host
 					+ " && obj.http.X-Url ~ " + req.http.X-Url
 					+ " && obj.http.content-type ~ " + req.http.X-Content-Type
+					+ " && obj.http.X-Site ~ " + req.http.X-Site
 				);
 			}
 
@@ -115,4 +119,5 @@ Or use this for the old Varnish 3:
 		unset resp.http.X-Url;
 		unset resp.http.X-Host;
 		unset resp.http.X-Cache-Tags;
+		unset resp.http.X-Site;
 	}

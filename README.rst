@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/mocdk/MOC.Varnish.svg)](https://travis-ci.org/mocdk/MOC.Varnish)
-
-
 MOC Varnish Neos integration
 -----------------------------
+
+.. image:: https://travis-ci.org/mocdk/MOC.Varnish.svg
+    :target: https://travis-ci.org/mocdk/MOC.Varnish
 
 This extensions provides a bridge between TYPO3 Neos and Varnish. It basically makes Neos send cache-control headers
 and BAN requests to Varnish for all Document nodes.

@@ -39,6 +39,7 @@ before_script:
       }
     }
     EOF
+  - cat composer.json
   - composer update --dev
 
 script: bin/phpunit -c Build/BuildEssentials/PhpUnit/UnitTests.xml Packages/Application/MOC.Varnish/Tests/Unit

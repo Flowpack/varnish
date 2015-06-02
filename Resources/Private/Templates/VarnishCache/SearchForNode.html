@@ -1,28 +1,90 @@
+{namespace neos=TYPO3\Neos\ViewHelpers}
 <f:layout name="BackendSubModule" />
 
 <f:section name="content">
-	<f:render partial="Module/SearchForm" arguments="{searchWord: searchWord}"/>
+	<f:render partial="Module/SearchForm" arguments="{searchWord: searchWord}" />
 	<div>
-		&nbsp;<br />
-		<h2>Result</h2>
 		<table class="neos-table">
 			<thead>
 				<tr>
 					<th>Name</th>
 					<th>Path</th>
-					<th>&nbsp;</th>
+					<th>Custom config</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
-				<f:for each="{nodes}" as="node">
-					<tr>
-						<td>{node.name}</td>
-						<td>{node.path}</td>
-						<td><f:link.action action="purgeCache" arguments="{node: node, searchWord: searchWord}">Clear varnish cache</f:link.action></td>
-					</tr>
+				<f:for each="{sites}" as="site">
+					<f:if condition="{sites -> f:count()} > 0">
+						<tr class="neos-folder">
+							<td class="neos-priority1" colspan="3" title="{site.site.nodeName}">
+								Site: {site.site.name}
+							</td>
+							<td class="neos-priority1 neos-aRight">
+								<i class="fold-toggle icon-chevron-up icon-white" data-toggle="fold-{site.site.nodeName}"></i>
+							</td>
+						</tr>
+					</f:if>
+					<f:for each="{site.nodes}" as="node">
+						<f:alias map="{url: '{protocol}://{site.domain}{neos:uri.node(node: node)}'}">
+							<tr class="fold-{site.site.nodeName}">
+								<td title="{node.identifier}">
+									<f:if condition="{node.nodeType.fullConfiguration.ui.icon}">
+										<i title="{node.nodeType.label}" class="{node.nodeType.fullConfiguration.ui.icon}" style="vertical-align: baseline"></i>
+									</f:if>
+									<a href="{url}" target="_blank">{node.label}</a>
+								</td>
+								<td title="{node.path}"><a href="{url}" target="_blank">{neos:uri.node(node: node)}</a></td>
+								<td><f:if condition="{node.properties.disableVarnishCache}">
+									<f:then><i class="icon-warning-sign" style="vertical-align: baseline"></i> Caching disabled</f:then>
+									<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time" style="vertical-align: baseline"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
+								</f:if></td>
+								<td class="neos-action">
+									<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
+									<f:link.action action="purgeCache" arguments="{node: node, searchWord: searchWord}" class="neos-button" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
+									<div class="neos-hide" id="{node.identifier}">
+										<div class="neos-modal">
+											<div class="neos-modal-header">
+												<button type="button" class="neos-close neos-button" data-dismiss="modal"></button>
+												<div class="neos-header">Additional info</div>
+											</div>
+											<div class="neos-modal-footer"><div id="url-check-loading">Fetching information <span class="neos-ellipsis"></span></div></div>
+										</div>
+										<div class="neos-modal-backdrop neos-in"></div>
+									</div>
+								</td>
+							</tr>
+						</f:alias>
+					</f:for>
 				</f:for>
 			</tbody>
 		</table>
 	</div>
-
+	<script>
+		(function($) {
+			$('.fold-toggle').click(function() {
+				$(this).toggleClass('icon-chevron-down icon-chevron-up');
+				$('tr.' + $(this).data('toggle')).toggle();
+			});
+			$('.neos-button[data-toggle="modal"]').on('click.load', function() {
+				var modalContent = $('.neos-modal-footer', $(this).attr('href')),
+					url = $(this).off('click.load').data('check-url');
+				$.ajax(url).done(function(response, status, xhr) {
+					var parsedResponse = JSON.parse($(response).find('#url-check').html()),
+						list = $('<dl class="dl-horizontal" />');
+					list.append($('<div/>').html('<dt>Host</dt><dd>' + parsedResponse.host + '</dd>'));
+					list.append($('<div/>').html('<dt>URL</dt><dd>' + parsedResponse.url + '</dd>'));
+					['X-Cacheable', 'Age', 'X-Varnish', 'X-Cache-Tags'].forEach(function(header) {
+						var value = parsedResponse.headers[header].toString();
+						if (value) {
+							value = header === 'X-Cache-Tags' ? '<span class="neos-label">' + value.split(',').join('</span> <span class="neos-label">') + '</span>' : value;
+							list.append($('<div/>').html('<dt>' + header + '</dt><dd>' + value + '</dd>'));
+						}
+					});
+					$('#url-check-loading', modalContent).hide();
+					modalContent.append(list);
+				});
+			});
+		})(jQuery);
+	</script>
 </f:section>

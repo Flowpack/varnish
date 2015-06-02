@@ -3,6 +3,6 @@ resources:
     MOC_Varnish_Backend_Module_Varnish_ClearCache: 'method(MOC\Varnish\Controller\VarnishCacheController->.*Action())'
 
 acls:
-  Everybody:
+  'TYPO3.Neos:Administrator':
     methods:
       MOC_Varnish_Backend_Module_Varnish_ClearCache: GRANT

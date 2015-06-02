@@ -17,6 +17,9 @@ TYPO3:
             description: 'Clear Varnish cache.'
             icon: 'icon-gear'
             resource: 'MOC_Varnish_Backend_Module_Varnish_ClearCache'
+            additionalResources:
+              styleSheets:
+                - 'resource://MOC.Varnish/Public/Styles/Module.css'
     typoScript:
       autoInclude:
         'MOC.Varnish': TRUE

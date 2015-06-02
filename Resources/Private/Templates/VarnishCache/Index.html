@@ -1,15 +1,39 @@
 <f:layout name="BackendSubModule" />
 
 <f:section name="content">
-	<f:render partial="Module/SearchForm"/>
-
-	&nbsp;<br />
+	<f:render partial="Module/SearchForm" />
 	<f:form action="purgeAllVarnishCache">
 		<fieldset>
 			<legend>Clear all cache</legend>
-			<f:form.textfield name="domain" value="{currentDomain}"/>
-			<f:form.submit  class="neos-button neos-button-primary" value="Clear all cache!!" />
+			<div class="neos-row-fluid">
+				<f:if condition="{activeSites -> f:count()} > 0">
+					<div class="neos-span2">
+						<div>
+							<label for="site">Site</label>
+						</div>
+						<div>
+							<f:form.select name="site" options="{activeSites}" optionLabelField="name" prependOptionLabel="All" class="neos-span12" />
+						</div>
+					</div>
+				</f:if>
+				<div class="neos-span10">
+					<div>
+						<label class="neos-control-label" for="contentType">Content-type</label>
+					</div>
+					<div>
+						<f:form.textfield name="contentType" placeholder="e.g. image/png" class="neos-input-large" />
+						<f:form.submit class="neos-button neos-button-primary" value="Clear all cache!" />
+					</div>
+				</div>
+			</div>
 		</fieldset>
 	</f:form>
-
+	<f:form action="purgeCacheByTagsAction">
+		<fieldset>
+			<legend>Clear cache by tags</legend>
+			<label class="neos-control-label" for="tags">Tags</label>
+			<f:form.textfield name="tags" placeholder="e.g. NodeType_TYPO3_Neos-Document" class="neos-input-xxlarge" required="required" />
+			<f:form.submit  class="neos-button neos-button-primary" value="Clear by tags" />
+		</fieldset>
+	</f:form>
 </f:section>

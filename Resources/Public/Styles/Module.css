@@ -1,0 +1,54 @@
+.neos.neos-module.neos-module-administration-purging .neos-action {
+	padding-right: 0 !important;
+	text-align: right;
+}
+
+.neos.neos-module.neos-module-administration-purging .neos-action .neos-button + .neos-button {
+	margin-left: -3px;
+}
+
+.neos.neos-module.neos-module-administration-purging .neos-action div {
+	text-align: left;
+}
+
+.neos.neos-module.neos-module-administration-purging dl {
+	margin-bottom: 20px;
+}
+
+.neos.neos-module.neos-module-administration-purging dt,
+.neos.neos-module.neos-module-administration-purging dd {
+	line-height: 20px;
+}
+
+.neos.neos-module.neos-module-administration-purging dt {
+	font-weight: bold;
+}
+
+.neos.neos-module.neos-module-administration-purging dd {
+	margin-left: 10px;
+}
+
+.neos.neos-module.neos-module-administration-purging .dl-horizontal:before,
+.neos.neos-module.neos-module-administration-purging .dl-horizontal:after {
+	display: table;
+	line-height: 0;
+	content: "";
+}
+
+.neos.neos-module.neos-module-administration-purging .dl-horizontal:after {
+	clear: both;
+}
+
+.neos.neos-module.neos-module-administration-purging .dl-horizontal dt {
+	float: left;
+	width: 160px;
+	overflow: hidden;
+	clear: left;
+	text-align: right;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.neos.neos-module.neos-module-administration-purging .dl-horizontal dd {
+	margin-left: 180px;
+}

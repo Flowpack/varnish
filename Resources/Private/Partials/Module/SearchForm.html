@@ -1,12 +1,10 @@
 <div>
-
-
-
 	<f:form action="searchForNode">
 		<fieldset>
 			<legend>Search for nodes to clear cache for</legend>
-			<p>Type part of the node/page that you wish to clear cache for. Notice that the search is case-sensitive.</p>
-		<f:form.textfield name="searchWord" placeholder="Search for node" value="{searchWord}"></f:form.textfield>
-		<f:form.submit class="neos-button neos-button-primary" value="Search"/>
+			<p>Type part of the node/page that you wish to clear cache for. Notice that the search is case-sensitive.</p><br />
+			<f:form.textfield name="searchWord" placeholder="Search for node" value="{searchWord}" required="required" />
+			<f:form.submit class="neos-button neos-button-primary" value="Search" />
+		</fieldset>
 	</f:form>
 </div>

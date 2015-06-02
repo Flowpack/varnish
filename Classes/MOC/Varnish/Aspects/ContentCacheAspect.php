@@ -60,6 +60,19 @@ class ContentCacheAspect {
 	}
 
 	/**
+	 * Advice for a disabled content cache (e.g. because an exception was handled)
+	 *
+	 * @Flow\AfterReturning("method(TYPO3\TypoScript\Core\Cache\RuntimeContentCache->setEnableContentCache())")
+	 * @param JoinPointInterface $joinPoint
+	 */
+	public function registerDisableContentCache(JoinPointInterface $joinPoint) {
+		$enableContentCache = $joinPoint->getMethodArgument('enableContentCache');
+		if ($enableContentCache !== TRUE) {
+			$this->evaluatedUncached = TRUE;
+		}
+	}
+
+	/**
 	 * @return boolean TRUE if an uncached segment was evaluated
 	 */
 	public function isEvaluatedUncached() {

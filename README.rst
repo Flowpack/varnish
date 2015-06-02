@@ -127,7 +127,7 @@ Or use this for the old Varnish 3::
 	sub vcl_deliver {
 		# Send debug headers if a X-Cache-Debug header is present from the client or the backend
 		if (req.http.X-Cache-Debug || resp.http.X-Cache-Debug) {
-			if (resp.http.X-Varnish ~ " ") {
+			if (obj.hits > 0) {
 				set resp.http.X-Cache = "HIT";
 			} else {
 				set resp.http.X-Cache = "MISS";

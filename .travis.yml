@@ -38,7 +38,6 @@ before_script:
           "post-package-install": "TYPO3\\\\Flow\\\\Composer\\\\InstallerScripts::postPackageUpdateAndInstall"
       }
     }
-  EOF
   - cat composer.json
   - composer update --dev
 

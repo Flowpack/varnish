@@ -4,61 +4,66 @@
 <f:section name="content">
 	<f:render partial="SearchForm" arguments="{searchWord: searchWord, activeSites: activeSites, selectedSite: selectedSite}" />
 	<div>
-		<table class="neos-table">
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Path</th>
-					<th>Custom config</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<f:for each="{sites}" as="site">
-					<f:if condition="{sites -> f:count()} > 1">
-						<tr class="neos-folder">
-							<td class="neos-priority1" colspan="3" title="{site.site.nodeName}">
-								Site: {site.site.name}
-							</td>
-							<td class="neos-priority1 neos-aRight">
-								<i class="fold-toggle icon-chevron-up icon-white" data-toggle="fold-{site.site.nodeName}"></i>
-							</td>
-						</tr>
-					</f:if>
-					<f:for each="{site.nodes}" as="node">
-						<f:alias map="{url: '{protocol}://{site.domain}{neos:uri.node(node: node)}'}">
-							<tr class="fold-{site.site.nodeName}">
-								<td title="{node.identifier}">
-									<f:if condition="{node.nodeType.fullConfiguration.ui.icon}">
-										<i title="{node.nodeType.label}" class="{node.nodeType.fullConfiguration.ui.icon}" style="vertical-align: baseline"></i>
-									</f:if>
-									<a href="{url}" target="_blank">{node.label}</a>
-								</td>
-								<td title="{node.path}"><a href="{url}" target="_blank">{neos:uri.node(node: node)}</a></td>
-								<td><f:if condition="{node.properties.disableVarnishCache}">
-									<f:then><i class="icon-warning-sign" style="vertical-align: baseline"></i> Caching disabled</f:then>
-									<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time" style="vertical-align: baseline"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
-								</f:if></td>
-								<td class="neos-action">
-									<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
-									<f:link.action action="purgeCache" arguments="{node: node, searchWord: searchWord}" class="neos-button clear-cache" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
-									<div class="neos-hide" id="{node.identifier}">
-										<div class="neos-modal">
-											<div class="neos-modal-header">
-												<button type="button" class="neos-close neos-button" data-dismiss="modal"></button>
-												<div class="neos-header">Additional info</div>
+		<f:if condition="{sites -> f:count()} > 0">
+			<f:then>
+				<table class="neos-table">
+					<thead>
+					<tr>
+						<th>Name</th>
+						<th>Path</th>
+						<th>Custom config</th>
+						<th></th>
+					</tr>
+					</thead>
+					<tbody>
+						<f:for each="{sites}" as="site">
+							<f:if condition="{sites -> f:count()} > 1">
+								<tr class="neos-folder">
+									<td class="neos-priority1" colspan="3" title="{site.site.nodeName}">
+										Site: {site.site.name}
+									</td>
+									<td class="neos-priority1 neos-aRight">
+										<i class="fold-toggle icon-chevron-up icon-white" data-toggle="fold-{site.site.nodeName}"></i>
+									</td>
+								</tr>
+							</f:if>
+							<f:for each="{site.nodes}" as="node">
+								<f:alias map="{url: '{protocol}://{site.domain}{neos:uri.node(node: node)}'}">
+									<tr class="fold-{site.site.nodeName}">
+										<td title="{node.identifier}">
+											<f:if condition="{node.nodeType.fullConfiguration.ui.icon}">
+												<i title="{node.nodeType.label}" class="{node.nodeType.fullConfiguration.ui.icon}" style="vertical-align: baseline"></i>
+											</f:if>
+											<a href="{url}" target="_blank">{node.label}</a>
+										</td>
+										<td title="{node.path}"><a href="{url}" target="_blank">{neos:uri.node(node: node)}</a></td>
+										<td><f:if condition="{node.properties.disableVarnishCache}">
+											<f:then><i class="icon-warning-sign" style="vertical-align: baseline"></i> Caching disabled</f:then>
+											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time" style="vertical-align: baseline"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
+										</f:if></td>
+										<td class="neos-action">
+											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
+											<f:link.action action="purgeCache" arguments="{node: node, searchWord: searchWord}" class="neos-button clear-cache" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
+											<div class="neos-hide" id="{node.identifier}">
+												<div class="neos-modal">
+													<div class="neos-modal-header">
+														<button type="button" class="neos-close neos-button" data-dismiss="modal"></button>
+														<div class="neos-header">Additional info</div>
+													</div>
+													<div class="neos-modal-footer"><div id="url-check-loading">Fetching information <span class="neos-ellipsis"></span></div></div>
+												</div>
+												<div class="neos-modal-backdrop neos-in"></div>
 											</div>
-											<div class="neos-modal-footer"><div id="url-check-loading">Fetching information <span class="neos-ellipsis"></span></div></div>
-										</div>
-										<div class="neos-modal-backdrop neos-in"></div>
-									</div>
-								</td>
-							</tr>
-						</f:alias>
-					</f:for>
-				</f:for>
-			</tbody>
-		</table>
+										</td>
+									</tr>
+								</f:alias>
+							</f:for>
+						</f:for>
+					</tbody>
+				</table>
+			</f:then>
+			<f:else><p>No nodes were found matching "{searchWord}".</p></f:else>
+		</f:if>
 	</div>
 	<script>
 		(function($) {

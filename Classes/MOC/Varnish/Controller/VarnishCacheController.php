@@ -59,11 +59,15 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 				'workspaceName' => 'live',
 				'currentSite' => $site
 			));
-			$sites[$site->getNodeName()] = array(
-				'site' => $site,
-				'domain' => $site->getFirstActiveDomain() ?: $this->request->getHttpRequest()->getUri()->getHost(),
-				'nodes' => $this->nodeSearchService->findByProperties($searchWord, $documentNodeTypes, $liveContext, $liveContext->getCurrentSiteNode())
-			);
+			$firstActiveDomain = $site->getFirstActiveDomain();
+			$nodes = $this->nodeSearchService->findByProperties($searchWord, $documentNodeTypes, $liveContext, $liveContext->getCurrentSiteNode());
+			if (count($nodes) > 0) {
+				$sites[$site->getNodeName()] = array(
+					'site' => $site,
+					'domain' => $firstActiveDomain ? $firstActiveDomain->getHostPattern() : $this->request->getHttpRequest()->getUri()->getHost(),
+					'nodes' => $nodes
+				);
+			}
 		}
 		$this->view->assignMultiple(array(
 			'searchWord' => $searchWord,

@@ -23,8 +23,3 @@ TYPO3:
     typoScript:
       autoInclude:
         'MOC.Varnish': TRUE
-
-  Flow:
-    object:
-      excludeClasses:
-        'friendsofsymfony.httpcache': ['FOS\\HttpCache\\.*']

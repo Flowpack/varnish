@@ -11,7 +11,7 @@ TYPO3:
     modules:
       administration:
         submodules:
-          purging:
+          varnish:
             label: 'Varnish cache purging'
             controller: '\MOC\Varnish\Controller\VarnishCacheController'
             description: 'Clear Varnish cache.'

@@ -1,45 +1,45 @@
-.neos.neos-module.neos-module-administration-purging .neos-action {
+.neos.neos-module.neos-module-administration-varnish .neos-action {
 	padding-right: 0 !important;
 	text-align: right;
 }
 
-.neos.neos-module.neos-module-administration-purging .neos-action .neos-button + .neos-button {
+.neos.neos-module.neos-module-administration-varnish .neos-action .neos-button + .neos-button {
 	margin-left: -3px;
 }
 
-.neos.neos-module.neos-module-administration-purging .neos-action div {
+.neos.neos-module.neos-module-administration-varnish .neos-action div {
 	text-align: left;
 }
 
-.neos.neos-module.neos-module-administration-purging dl {
+.neos.neos-module.neos-module-administration-varnish dl {
 	margin-bottom: 20px;
 }
 
-.neos.neos-module.neos-module-administration-purging dt,
-.neos.neos-module.neos-module-administration-purging dd {
+.neos.neos-module.neos-module-administration-varnish dt,
+.neos.neos-module.neos-module-administration-varnish dd {
 	line-height: 20px;
 }
 
-.neos.neos-module.neos-module-administration-purging dt {
+.neos.neos-module.neos-module-administration-varnish dt {
 	font-weight: bold;
 }
 
-.neos.neos-module.neos-module-administration-purging dd {
+.neos.neos-module.neos-module-administration-varnish dd {
 	margin-left: 10px;
 }
 
-.neos.neos-module.neos-module-administration-purging .dl-horizontal:before,
-.neos.neos-module.neos-module-administration-purging .dl-horizontal:after {
+.neos.neos-module.neos-module-administration-varnish .dl-horizontal:before,
+.neos.neos-module.neos-module-administration-varnish .dl-horizontal:after {
 	display: table;
 	line-height: 0;
 	content: "";
 }
 
-.neos.neos-module.neos-module-administration-purging .dl-horizontal:after {
+.neos.neos-module.neos-module-administration-varnish .dl-horizontal:after {
 	clear: both;
 }
 
-.neos.neos-module.neos-module-administration-purging .dl-horizontal dt {
+.neos.neos-module.neos-module-administration-varnish .dl-horizontal dt {
 	float: left;
 	width: 160px;
 	overflow: hidden;
@@ -49,10 +49,10 @@
 	white-space: nowrap;
 }
 
-.neos.neos-module.neos-module-administration-purging .dl-horizontal dd {
+.neos.neos-module.neos-module-administration-varnish .dl-horizontal dd {
 	margin-left: 180px;
 }
 
-.neos.neos-module.neos-module-administration-purging .clear-cache .neos-ellipsis {
+.neos.neos-module.neos-module-administration-varnish .clear-cache .neos-ellipsis {
 	padding: 0 2px 0 1px;
 }

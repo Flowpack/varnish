@@ -21,9 +21,9 @@ Required Varnish VCL
 =========================
 
 The extension expects Varnish to handle BAN requests with the HTTP-Headers X-Host, X-Content-Type and X-Cache-Tags.
-This can be done by using the following example vcl::
+This can be done by using the following example vcl:
 
-	vcl 4.0;
+*Varnish 4*::
 
 	backend default {
 		.host = "127.0.0.1";
@@ -63,6 +63,7 @@ This can be done by using the following example vcl::
 		# Set ban-lurker friendly custom headers
 		set beresp.http.X-Url = bereq.url;
 		set beresp.http.X-Host = bereq.http.host;
+		set beresp.http.X-Cache-TTL = beresp.ttl;
 	}
 
 	sub vcl_deliver {
@@ -79,10 +80,11 @@ This can be done by using the following example vcl::
 			unset resp.http.X-Host;
 			unset resp.http.X-Cache-Tags;
 			unset resp.http.X-Site;
+			unset resp.http.X-Cache-TTL;
 		}
 	}
 
-Or use this for the old Varnish 3::
+*Varnish 3*::
 
 	backend default {
 		.host = "127.0.0.1";
@@ -122,6 +124,7 @@ Or use this for the old Varnish 3::
 		# Set ban-lurker friendly custom headers
 		set beresp.http.X-Url = req.url;
 		set beresp.http.X-Host = req.http.host;
+		set beresp.http.X-Cache-TTL = beresp.ttl;
 	}
 
 	sub vcl_deliver {
@@ -138,5 +141,6 @@ Or use this for the old Varnish 3::
 			unset resp.http.X-Host;
 			unset resp.http.X-Cache-Tags;
 			unset resp.http.X-Site;
+			unset resp.http.X-Cache-TTL;
 		}
 	}

@@ -15,7 +15,7 @@
 			</thead>
 			<tbody>
 				<f:for each="{sites}" as="site">
-					<f:if condition="{sites -> f:count()} > 0">
+					<f:if condition="{sites -> f:count()} > 1">
 						<tr class="neos-folder">
 							<td class="neos-priority1" colspan="3" title="{site.site.nodeName}">
 								Site: {site.site.name}

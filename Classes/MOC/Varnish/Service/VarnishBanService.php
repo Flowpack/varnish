@@ -97,7 +97,7 @@ class VarnishBanService {
 		if ($domain !== NULL) {
 			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, ProxyClient\Varnish::REGEX_MATCH_ALL);
 		}
-		$this->systemLogger->log(sprintf('Cleared varnish cache for tags "%s"', implode(',', $tags)));
+		$this->systemLogger->log(sprintf('Cleared varnish cache for tags "%s"%s', implode(',', $tags), $domain ? ' for domain "' . $domain . '"' : ''));
 		$this->execute();
 	}
 

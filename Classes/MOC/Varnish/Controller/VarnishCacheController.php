@@ -92,13 +92,15 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 
 	/**
 	 * @param string $tags
+	 * @param Site $site
 	 * @return void
 	 */
-	public function purgeCacheByTagsAction($tags) {
+	public function purgeCacheByTagsAction($tags, Site $site = NULL) {
+		$domain = $site !== NULL ? $site->getFirstActiveDomain()->getHostPattern() : NULL;
 		$tags = explode(',', $tags);
 		$service = new VarnishBanService();
-		$service->banByTags($tags);
-		$this->flashMessageContainer->addMessage(new Message('Varnish cache cleared for tags "' . implode('", "', $tags). '"'));
+		$service->banByTags($tags, $domain);
+		$this->flashMessageContainer->addMessage(new Message(sprintf('Varnish cache cleared for tags "%s" for %s', implode('", "', $tags), $site ? 'site ' . $site->getName() : 'installation')));
 		$this->redirect('index');
 	}
 

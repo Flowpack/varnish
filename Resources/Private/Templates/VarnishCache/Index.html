@@ -31,9 +31,27 @@
 	<f:form action="purgeCacheByTags">
 		<fieldset>
 			<legend>Clear cache by tags</legend>
-			<label class="neos-control-label" for="tags">Tags (comma-separated)</label>
-			<f:form.textfield name="tags" id="tags" placeholder="e.g. NodeType_TYPO3_Neos-Document" class="neos-input-xxlarge" required="required" />
-			<f:form.submit  class="neos-button neos-button-primary" value="Clear by tags" />
+			<div class="neos-row">
+				<f:if condition="{activeSites -> f:count()} > 1">
+					<div class="neos-span3">
+						<div>
+							<label for="tagsSite">Site</label>
+						</div>
+						<div>
+							<f:form.select name="site" id="tagsSite" options="{activeSites}" optionLabelField="name" prependOptionLabel="All" class="neos-span3" />
+						</div>
+					</div>
+				</f:if>
+				<div class="neos-span10">
+					<div>
+						<label class="neos-control-label" for="tags">Tags (comma-separated)</label>
+					</div>
+					<div>
+						<f:form.textfield name="tags" id="tags" placeholder="e.g. NodeType_TYPO3_Neos-Document" class="neos-span5" required="required" />
+						<f:form.submit  class="neos-button neos-button-primary" value="Clear by tags" />
+					</div>
+				</div>
+			</div>
 		</fieldset>
 	</f:form>
 	<legend>Configuration</legend>

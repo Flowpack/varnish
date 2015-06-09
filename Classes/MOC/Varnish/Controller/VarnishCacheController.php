@@ -88,8 +88,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	public function purgeCacheAction(\TYPO3\TYPO3CR\Domain\Model\Node $node, $searchWord) {
 		$service = new ContentCacheFlusherService();
 		$service->flushForNode($node);
-		$this->flashMessageContainer->addMessage(new Message('Varnish cache cleared for node "' . $node->getLabel() . '"'));
-		$this->redirect('searchForNode', NULL, NULL, array('searchWord' => $searchWord));
+		return TRUE;
 	}
 
 	/**

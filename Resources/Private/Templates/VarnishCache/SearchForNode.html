@@ -97,13 +97,13 @@
 					seconds = seconds < 10 ? '0' + seconds : seconds;
 					return hours + ':' + minutes + ':' + seconds;
 				};
-				$.ajax(url).done(function(response, status, xhr) {
-					var parsedResponse = JSON.parse($(response).find('#url-check').html()),
+				$.ajax(url).done(function(data, textStatus, jqXHR) {
+					var response = JSON.parse($(data).find('#url-check').html()),
 						list = $('<dl class="dl-horizontal" />');
-					list.append($('<div/>').html('<dt>Host</dt><dd>' + parsedResponse.host + '</dd>'));
-					list.append($('<div/>').html('<dt>URL</dt><dd>' + parsedResponse.url + '</dd>'));
-					['X-Cacheable', 'Age', 'X-Cache-TTL', 'X-Varnish', 'X-Site', 'X-Cache-Tags'].forEach(function(header) {
-						var value = parsedResponse.headers[header];
+					list.append($('<div/>').html('<dt>Host</dt><dd>' + response.host + '</dd>'));
+					list.append($('<div/>').html('<dt>URL</dt><dd>' + response.url + '</dd>'));
+					['X-Cacheable', 'X-Cache', 'Age', 'X-Cache-TTL', 'X-Varnish', 'X-Site', 'X-Cache-Tags'].forEach(function(header) {
+						var value = response.headers[header];
 						if (value) {
 							switch (header) {
 								case 'X-Cache-Tags':
@@ -116,7 +116,7 @@
 									value = parseInt(value);
 									list.append($('<div/>').html('<dt>' + header + '</dt><dd><span title="' + value + ' s">' + toHHMMSS(value) + '</span></dd>'));
 									header = 'Expires';
-									value = value - parseInt(parsedResponse.headers['Age'], 10);
+									value = value - parseInt(response.headers['Age'], 10);
 									value = '<span title="' + value + ' s">' + toHHMMSS(value) + '</span>';
 									break;
 							}
@@ -126,17 +126,22 @@
 					$('#url-check-loading', modalContent).hide();
 					$('dl', modalContent).remove();
 					modalContent.append(list);
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					$('#url-check-loading', modalContent).hide();
+					console.error(jqXHR);
+					alert('An error occurred while fetching additional information: ' + errorThrown);
 				});
 			});
 			$('.clear-cache').on('click', function(e) {
 				e.preventDefault();
 				var button = $(this);
 				button.html('<span class="neos-ellipsis"></span>');
-				$.ajax($(this).attr('href')).done(function(response, status, xhr) {
-					if (status !== 'success') {
-						alert('An error occurred while clearing the cache.')
-					}
+				$.ajax($(this).attr('href')).done(function(data, textStatus, jqXHR) {
 					button.html('<i class="icon-bolt"></i>');
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					button.html('<i class="icon-bolt"></i>');
+					console.error(jqXHR);
+					alert('An error occurred while clearing the cache: ' + errorThrown);
 				});
 			});
 		})(jQuery);

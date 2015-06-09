@@ -178,7 +178,7 @@ class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
 		$this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
 		$this->mockTokenStorage->expects($this->any())->method('getToken')->willReturn('RandomSiteToken');
 
-		$this->mockResponse->expects($this->at(1))->method('setHeader')->with('X-Site', 'RandomSiteToken');
+		$this->mockResponse->expects($this->at(0))->method('setHeader')->with('X-Site', 'RandomSiteToken');
 
 		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
 	}

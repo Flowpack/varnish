@@ -51,6 +51,8 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 */
 	public function searchForNodeAction($searchWord, Site $selectedSite = NULL) {
 		$documentNodeTypes = $this->nodeTypeManager->getSubNodeTypes('TYPO3.Neos:Document');
+		$shortcutNodeType = $this->nodeTypeManager->getNodeType('TYPO3.Neos:Shortcut');
+		$nodeTypes = array_diff($documentNodeTypes, array($shortcutNodeType));
 		$sites = array();
 		$activeSites = $this->siteRepository->findOnline();
 		foreach ($selectedSite ? array($selectedSite) : $activeSites as $site) {
@@ -60,7 +62,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 				'currentSite' => $site
 			));
 			$firstActiveDomain = $site->getFirstActiveDomain();
-			$nodes = $this->nodeSearchService->findByProperties($searchWord, $documentNodeTypes, $liveContext, $liveContext->getCurrentSiteNode());
+			$nodes = $this->nodeSearchService->findByProperties($searchWord, $nodeTypes, $liveContext, $liveContext->getCurrentSiteNode());
 			if (count($nodes) > 0) {
 				$sites[$site->getNodeName()] = array(
 					'site' => $site,

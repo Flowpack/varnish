@@ -3,6 +3,7 @@ namespace MOC\Varnish\Service;
 
 use FOS\HttpCache\ProxyClient;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Neos\Domain\Service\ContentContext;
 use TYPO3\TYPO3CR\Domain\Model\NodeData;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 use TYPO3\TYPO3CR\Domain\Model\NodeType;
@@ -23,6 +24,11 @@ class ContentCacheFlusherService {
 	 * @var array
 	 */
 	protected $tagsToFlush = array();
+
+	/**
+	 * @var array
+	 */
+	protected $domainsToFlush = array();
 
 	/**
 	 * @param NodeInterface $node The node which has changed in some way
@@ -67,6 +73,13 @@ class ContentCacheFlusherService {
 			}
 			$this->tagsToFlush['DescendantOf_' . $node->getIdentifier()] = sprintf('which were tagged with "DescendantOf_%s" because node "%s" has changed.', $node->getIdentifier(), $node->getPath());
 		}
+
+		if ($node instanceof NodeInterface && $node->getContext() instanceof ContentContext) {
+			$firstActiveDomain = $node->getContext()->getCurrentSite()->getFirstActiveDomain();
+			if ($firstActiveDomain) {
+				$this->domainsToFlush[] = $firstActiveDomain->getHostPattern();
+			}
+		}
 	}
 
 	/**
@@ -76,7 +89,13 @@ class ContentCacheFlusherService {
 	 */
 	public function shutdownObject() {
 		if ($this->tagsToFlush !== array()) {
-			$this->varnishBanService->banByTags(array_keys($this->tagsToFlush));
+			if (count($this->domainsToFlush) > 0) {
+				foreach ($this->domainsToFlush as $domain) {
+					$this->varnishBanService->banByTags(array_keys($this->tagsToFlush), $domain);
+				}
+			} else {
+				$this->varnishBanService->banByTags(array_keys($this->tagsToFlush));
+			}
 		}
 	}
 

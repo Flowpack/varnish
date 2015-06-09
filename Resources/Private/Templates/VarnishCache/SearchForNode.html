@@ -80,6 +80,9 @@
 				});
 				$('#url-check-loading', modalContent).show();
 				var toHHMMSS = function(secondsNumber) {
+					if (secondsNumber < 0) {
+						return '00:00:00';
+					}
 					secondsNumber = parseInt(secondsNumber, 10);
 					var hours   = Math.floor(secondsNumber / 3600);
 					var minutes = Math.floor((secondsNumber - (hours * 3600)) / 60);
@@ -95,7 +98,7 @@
 					list.append($('<div/>').html('<dt>Host</dt><dd>' + parsedResponse.host + '</dd>'));
 					list.append($('<div/>').html('<dt>URL</dt><dd>' + parsedResponse.url + '</dd>'));
 					['X-Cacheable', 'Age', 'X-Cache-TTL', 'X-Varnish', 'X-Site', 'X-Cache-Tags'].forEach(function(header) {
-						var value = parsedResponse.headers[header].toString();
+						var value = parsedResponse.headers[header];
 						if (value) {
 							switch (header) {
 								case 'X-Cache-Tags':
@@ -108,7 +111,7 @@
 									value = parseInt(value);
 									list.append($('<div/>').html('<dt>' + header + '</dt><dd><span title="' + value + ' s">' + toHHMMSS(value) + '</span></dd>'));
 									header = 'Expires';
-									value = value - parseInt(parsedResponse.headers['Age'].toString(), 10);
+									value = value - parseInt(parsedResponse.headers['Age'], 10);
 									value = '<span title="' + value + ' s">' + toHHMMSS(value) + '</span>';
 									break;
 							}

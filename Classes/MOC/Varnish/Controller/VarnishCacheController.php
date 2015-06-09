@@ -120,7 +120,9 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 			'statusCode' => $response->getStatusCode(),
 			'host' => parse_url($url, PHP_URL_HOST),
 			'url' => $url,
-			'headers' => $response->getHeaders()->getAll()
+			'headers' => array_map(function($value) {
+				return array_pop($value);
+			}, $response->getHeaders()->getAll())
 		)));
 	}
 

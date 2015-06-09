@@ -10,6 +10,7 @@ use TYPO3\Flow\Http\Uri;
 use TYPO3\Flow\Http\Request;
 use TYPO3\Neos\Domain\Model\Site;
 use TYPO3\Neos\Domain\Service\ContentContext;
+use TYPO3\Neos\Domain\Service\ContentDimensionPresetSourceInterface;
 
 class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModuleController {
 
@@ -38,6 +39,12 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	protected $siteRepository;
 
 	/**
+	 * @Flow\Inject
+	 * @var ContentDimensionPresetSourceInterface
+	 */
+	protected $contentDimensionPresetSource;
+
+	/**
 	 * @return void
 	 */
 	public function indexAction() {
@@ -57,10 +64,24 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 		$activeSites = $this->siteRepository->findOnline();
 		foreach ($selectedSite ? array($selectedSite) : $activeSites as $site) {
 			/** @var ContentContext $liveContext */
-			$liveContext = $this->contextFactory->create(array(
+			$contextProperties = array(
 				'workspaceName' => 'live',
 				'currentSite' => $site
-			));
+			);
+			$contentDimensionCombinations = $this->contentDimensionPresetSource->getAllDimensionCombinations();
+			if (count($contentDimensionCombinations) > 0) {
+				$mergedContentDimensions = array();
+				foreach ($contentDimensionCombinations as $contentDimensionCombination) {
+					foreach ($contentDimensionCombination as $contentDimensionIdentifier => $contentDimension) {
+						if (!isset($mergedContentDimensions[$contentDimensionIdentifier])) {
+							$mergedContentDimensions[$contentDimensionIdentifier] = array();
+						}
+						$mergedContentDimensions[$contentDimensionIdentifier] = array_unique(array_merge($mergedContentDimensions[$contentDimensionIdentifier], $contentDimension));
+					}
+				}
+				$contextProperties['dimensions'] = $mergedContentDimensions;
+			}
+			$liveContext = $this->contextFactory->create($contextProperties);
 			$firstActiveDomain = $site->getFirstActiveDomain();
 			$nodes = $this->nodeSearchService->findByProperties($searchWord, $nodeTypes, $liveContext, $liveContext->getCurrentSiteNode());
 			if (count($nodes) > 0) {

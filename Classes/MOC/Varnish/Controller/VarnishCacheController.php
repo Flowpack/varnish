@@ -4,10 +4,12 @@ namespace MOC\Varnish\Controller;
 use MOC\Varnish\Service\ContentCacheFlusherService;
 use MOC\Varnish\Service\VarnishBanService;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Error\Message;
 use TYPO3\Flow\Http\Client\CurlEngine;
 use TYPO3\Flow\Http\Uri;
 use TYPO3\Flow\Http\Request;
 use TYPO3\Neos\Domain\Model\Site;
+use TYPO3\Neos\Domain\Service\ContentContext;
 
 class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModuleController {
 
@@ -44,13 +46,15 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 
 	/**
 	 * @param string $searchWord
+	 * @param Site $selectedSite
 	 * @return void
 	 */
-	public function searchForNodeAction($searchWord) {
+	public function searchForNodeAction($searchWord, Site $selectedSite = NULL) {
 		$documentNodeTypes = $this->nodeTypeManager->getSubNodeTypes('TYPO3.Neos:Document');
 		$sites = array();
 		$activeSites = $this->siteRepository->findOnline();
-		foreach ($activeSites as $site) {
+		foreach ($selectedSite ? array($selectedSite) : $activeSites as $site) {
+			/** @var ContentContext $liveContext */
 			$liveContext = $this->contextFactory->create(array(
 				'workspaceName' => 'live',
 				'currentSite' => $site
@@ -64,6 +68,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 		$this->view->assignMultiple(array(
 			'searchWord' => $searchWord,
 			'protocol' => $this->request->getHttpRequest()->getUri()->getScheme(),
+			'selectedSite' => $selectedSite,
 			'sites' => $sites,
 			'activeSites' => $activeSites
 		));
@@ -77,7 +82,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	public function purgeCacheAction(\TYPO3\TYPO3CR\Domain\Model\Node $node, $searchWord) {
 		$service = new ContentCacheFlusherService();
 		$service->flushForNode($node);
-		$this->flashMessageContainer->addMessage(new \TYPO3\Flow\Error\Message('Varnish cache cleared for node "' . $node->getLabel() . '"'));
+		$this->flashMessageContainer->addMessage(new Message('Varnish cache cleared for node "' . $node->getLabel() . '"'));
 		$this->redirect('searchForNode', NULL, NULL, array('searchWord' => $searchWord));
 	}
 
@@ -86,9 +91,10 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 * @return void
 	 */
 	public function purgeCacheByTagsAction($tags) {
+		$tags = explode(',', $tags);
 		$service = new VarnishBanService();
-		$service->banByTags(explode(',', $tags));
-		$this->flashMessageContainer->addMessage(new \TYPO3\Flow\Error\Message('Varnish cache cleared for tags "' . implode('"," ', $tags). '""'));
+		$service->banByTags($tags);
+		$this->flashMessageContainer->addMessage(new Message('Varnish cache cleared for tags "' . implode('", "', $tags). '"'));
 		$this->redirect('index');
 	}
 
@@ -101,7 +107,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 		$domain = $site !== NULL ? $site->getFirstActiveDomain() : NULL;
 		$service = new VarnishBanService();
 		$service->banAll($domain, $contentType);
-		$this->flashMessageContainer->addMessage(new \TYPO3\Flow\Error\Message(sprintf('All varnish cache cleared for %s', $site ? 'site ' . $site->getName() : 'installation')));
+		$this->flashMessageContainer->addMessage(new Message(sprintf('All varnish cache cleared for %s%s', $site ? 'site ' . $site->getName() : 'installation', $contentType ? ' with content type "' . $contentType . '"' : '')));
 		$this->redirect('index');
 	}
 

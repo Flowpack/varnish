@@ -1,0 +1,28 @@
+<div>
+	<f:form action="searchForNode">
+		<fieldset>
+			<legend>Search for nodes to clear cache for</legend>
+			<div class="neos-row">
+				<f:if condition="{activeSites -> f:count()} > 0">
+					<div class="neos-span3">
+						<div>
+							<label for="searchSite">Site</label>
+						</div>
+						<div>
+							<f:form.select name="selectedSite" id="searchSite" value="{selectedSite -> f:format.identifier()}" options="{activeSites}" optionLabelField="name" prependOptionLabel="All" class="neos-span3" />
+						</div>
+					</div>
+				</f:if>
+				<div class="neos-span5">
+					<div>
+						<label class="neos-control-label" for="searchWord">Term (case-sensitive)</label>
+					</div>
+					<div>
+						<f:form.textfield name="searchWord" id="searchWord" placeholder="Search for node" value="{searchWord}" required="required" class="neos-span3" />
+						<f:form.submit class="neos-button neos-button-primary" value="Search" />
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</f:form>
+</div>

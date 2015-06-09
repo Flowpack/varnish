@@ -2,7 +2,7 @@
 <f:layout name="BackendSubModule" />
 
 <f:section name="content">
-	<f:render partial="Module/SearchForm" arguments="{searchWord: searchWord}" />
+	<f:render partial="SearchForm" arguments="{searchWord: searchWord, activeSites: activeSites, selectedSite: selectedSite}" />
 	<div>
 		<table class="neos-table">
 			<thead>

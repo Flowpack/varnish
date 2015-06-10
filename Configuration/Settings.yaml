@@ -28,3 +28,4 @@ TYPO3:
     object:
       excludeClasses:
         'friendsofsymfony.httpcache': ['FOS\\HttpCache\\.*']
+        'guzzle.guzzle': ['Guzzle\\.*']

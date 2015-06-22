@@ -19,7 +19,7 @@ before_script:
           "typo3/neos": "1.2.*",
           "doctrine/migrations": "1.0.0-alpha3",
           "typo3/flow": "2.3.*",
-          "moc/varnish": "dev-${TRAVIS_BRANCH}#${TRAVIS_COMMIT}"
+          "moc/varnish": "${TRAVIS_BRANCH}.x-dev#${TRAVIS_COMMIT}"
       },
       "require-dev": {
           "typo3/buildessentials": "2.3.*",

@@ -28,8 +28,7 @@ before_script:
           "typo3/buildessentials": "2.3.*",
           "mikey179/vfsstream": "1.5.*",
           "phpunit/phpunit": "4.6.*",
-          "flowpack/behat": "dev-master",
-          "typo3-ci/typo3flow": "dev-master"
+          "flowpack/behat": "dev-master"
       },
       "scripts": {
           "post-update-cmd": "TYPO3\\\\Flow\\\\Composer\\\\InstallerScripts::postUpdateAndInstall",

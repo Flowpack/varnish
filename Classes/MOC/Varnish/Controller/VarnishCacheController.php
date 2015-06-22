@@ -110,10 +110,9 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 
 	/**
 	 * @param \TYPO3\TYPO3CR\Domain\Model\Node $node
-	 * @param string $searchWord
 	 * @return void
 	 */
-	public function purgeCacheAction(\TYPO3\TYPO3CR\Domain\Model\Node $node, $searchWord) {
+	public function purgeCacheAction(\TYPO3\TYPO3CR\Domain\Model\Node $node) {
 		$service = new ContentCacheFlusherService();
 		$service->flushForNode($node);
 		$this->view->assign('value', TRUE);

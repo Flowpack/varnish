@@ -43,7 +43,7 @@
 										</f:if></td>
 										<td class="neos-action">
 											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
-											<f:link.action action="purgeCache" format="json" arguments="{node: node, searchWord: searchWord}" class="neos-button clear-cache" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
+											<f:link.action action="purgeCache" format="json" arguments="{node: node}" class="neos-button clear-cache" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
 											<div class="neos-hide" id="{node.identifier}">
 												<div class="neos-modal">
 													<div class="neos-modal-header">

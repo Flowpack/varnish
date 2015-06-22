@@ -3,6 +3,7 @@ namespace MOC\Varnish\Cache;
 
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Cache\Exception\InvalidDataException;
+use TYPO3\Flow\Utility\Environment;
 
 /**
  * A string frontend that stores cache metadata (tags, lifetime) for entries

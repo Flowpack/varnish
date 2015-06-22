@@ -19,6 +19,18 @@ class MetadataAwareStringFrontend extends \TYPO3\Flow\Cache\Frontend\StringFront
 	protected $metadata = array();
 
 	/**
+	 * @Flow\Inject
+	 * @var Environment
+	 */
+	protected $environment;
+
+	/**
+	 * @Flow\Inject
+	 * @var \TYPO3\Flow\Log\SystemLoggerInterface
+	 */
+	protected $systemLogger;
+
+	/**
 	 * Set a cache entry and store additional metadata (tags and lifetime)
 	 *
 	 * {@inheritdoc}
@@ -85,13 +97,23 @@ class MetadataAwareStringFrontend extends \TYPO3\Flow\Cache\Frontend\StringFront
 	protected function extractMetadata($entryIdentifier, $content) {
 		$separatorIndex = strpos($content, self::SEPARATOR);
 		if ($separatorIndex === FALSE) {
-			throw new InvalidDataException('Could not find cache metadata in entry with identifier ' . $entryIdentifier, 1433155925);
+			$exception = new InvalidDataException('Could not find cache metadata in entry with identifier ' . $entryIdentifier, 1433155925);
+			if ($this->environment->getContext()->isProduction()) {
+				$this->systemLogger->logException($exception);
+			} else {
+				throw $exception;
+			}
 		}
 
 		$metadataJson = substr($content, 0, $separatorIndex);
 		$metadata = json_decode($metadataJson, TRUE);
 		if ($metadata === NULL) {
-			throw new InvalidDataException('Invalid cache metadata in entry with identifier ' . $entryIdentifier, 1433155926);
+			$exception = new InvalidDataException('Invalid cache metadata in entry with identifier ' . $entryIdentifier, 1433155926);
+			if ($this->environment->getContext()->isProduction()) {
+				$this->systemLogger->logException($exception);
+			} else {
+				throw $exception;
+			}
 		}
 
 		$this->metadata[$entryIdentifier] = $metadata;

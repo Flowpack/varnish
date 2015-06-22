@@ -43,7 +43,7 @@
 										</f:if></td>
 										<td class="neos-action">
 											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
-											<f:link.action action="purgeCache" format="json" arguments="{node: node}" class="neos-button clear-cache" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
+											<f:link.action action="purgeCache" format="json" arguments="{node: node}" class="neos-button clear-cache" title="Clear cache" data="{node-label: node.label}"><i class="icon-bolt"></i></f:link.action>
 											<div class="neos-hide" id="{node.identifier}">
 												<div class="neos-modal">
 													<div class="neos-modal-header">
@@ -129,7 +129,12 @@
 				}).fail(function(jqXHR, textStatus, errorThrown) {
 					$('#url-check-loading', modalContent).hide();
 					console.error(jqXHR);
-					alert('An error occurred while fetching additional information: ' + errorThrown);
+					var message = 'An error occurred while fetching additional information: ' + errorThrown;
+					if (window.Typo3Neos) {
+						window.Typo3Neos.Notification.error(message);
+					} else {
+						alert(message);
+					}
 				});
 			});
 			$('.clear-cache').on('click', function(e) {
@@ -138,10 +143,20 @@
 				button.html('<span class="neos-ellipsis"></span>');
 				$.ajax($(this).attr('href')).done(function(data, textStatus, jqXHR) {
 					button.html('<i class="icon-bolt"></i>');
+					if (window.Typo3Neos) {
+						window.Typo3Neos.Notification.ok('Cleared cache for node "' + button.data('node-label') + '"');
+					} else {
+						alert(message);
+					}
 				}).fail(function(jqXHR, textStatus, errorThrown) {
 					button.html('<i class="icon-bolt"></i>');
 					console.error(jqXHR);
-					alert('An error occurred while clearing the cache: ' + errorThrown);
+					var message = 'An error occurred while clearing the cache: ' + errorThrown;
+					if (window.Typo3Neos) {
+						window.Typo3Neos.Notification.error(message);
+					} else {
+						alert(message);
+					}
 				});
 			});
 		})(jQuery);

@@ -17,9 +17,6 @@ before_script:
       },
       "require": {
           "typo3/neos": "1.2.*",
-          "typo3/neos-nodetypes": "1.2.*",
-          "typo3/neosdemotypo3org": "1.2.*",
-          "typo3/neos-kickstarter": "1.2.*",
           "doctrine/migrations": "1.0.0-alpha3",
           "typo3/flow": "2.3.*",
           "moc/varnish": "dev-${TRAVIS_BRANCH}#${TRAVIS_COMMIT}"
@@ -37,7 +34,6 @@ before_script:
           "post-package-install": "TYPO3\\\\Flow\\\\Composer\\\\InstallerScripts::postPackageUpdateAndInstall"
       }
     }
-  - cat composer.json
-  - composer update --dev
+  - composer update
 
 script: bin/phpunit -c Build/BuildEssentials/PhpUnit/UnitTests.xml Packages/Application/MOC.Varnish/Tests/Unit

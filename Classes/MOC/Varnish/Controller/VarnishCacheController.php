@@ -68,16 +68,15 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 				'workspaceName' => 'live',
 				'currentSite' => $site
 			);
-			$contentDimensionCombinations = $this->contentDimensionPresetSource->getAllDimensionCombinations();
-			if (count($contentDimensionCombinations) > 0) {
+			$contentDimensionPresets = $this->contentDimensionPresetSource->getAllPresets();
+			if (count($contentDimensionPresets) > 0) {
 				$mergedContentDimensions = array();
-				foreach ($contentDimensionCombinations as $contentDimensionCombination) {
-					foreach ($contentDimensionCombination as $contentDimensionIdentifier => $contentDimension) {
-						if (!isset($mergedContentDimensions[$contentDimensionIdentifier])) {
-							$mergedContentDimensions[$contentDimensionIdentifier] = array();
-						}
-						$mergedContentDimensions[$contentDimensionIdentifier] = array_unique(array_merge($mergedContentDimensions[$contentDimensionIdentifier], $contentDimension));
+				foreach ($contentDimensionPresets as $contentDimensionIdentifier => $contentDimension) {
+					$mergedContentDimensions[$contentDimensionIdentifier] = array($contentDimension['default']);
+					foreach ($contentDimension['presets'] as $contentDimensionPreset) {
+						$mergedContentDimensions[$contentDimensionIdentifier] = array_merge($mergedContentDimensions[$contentDimensionIdentifier], $contentDimensionPreset['values']);
 					}
+					$mergedContentDimensions[$contentDimensionIdentifier] = array_values(array_unique($mergedContentDimensions[$contentDimensionIdentifier]));
 				}
 				$contextProperties['dimensions'] = $mergedContentDimensions;
 			}

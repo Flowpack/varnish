@@ -45,6 +45,14 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	protected $contentDimensionPresetSource;
 
 	/**
+	 * @var array
+	 */
+	protected $viewFormatToObjectNameMap = array(
+		'html' => 'TYPO3\Fluid\View\TemplateView',
+		'json' => 'TYPO3\Flow\Mvc\View\JsonView'
+	);
+
+	/**
 	 * @return void
 	 */
 	public function indexAction() {
@@ -108,7 +116,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	public function purgeCacheAction(\TYPO3\TYPO3CR\Domain\Model\Node $node, $searchWord) {
 		$service = new ContentCacheFlusherService();
 		$service->flushForNode($node);
-		return TRUE;
+		$this->view->assign('value', TRUE);
 	}
 
 	/**
@@ -149,14 +157,14 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 		$engine->setOption(CURLOPT_SSL_VERIFYPEER, FALSE);
 		$engine->setOption(CURLOPT_SSL_VERIFYHOST, FALSE);
 		$response = $engine->sendRequest($request);
-		return sprintf('<div id="url-check">%s</div>', json_encode(array(
+		$this->view->assign('value', array(
 			'statusCode' => $response->getStatusCode(),
 			'host' => parse_url($url, PHP_URL_HOST),
 			'url' => $url,
 			'headers' => array_map(function($value) {
 				return array_pop($value);
 			}, $response->getHeaders()->getAll())
-		)));
+		));
 	}
 
 }

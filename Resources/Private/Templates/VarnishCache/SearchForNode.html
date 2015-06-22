@@ -42,8 +42,8 @@
 											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time" style="vertical-align: baseline"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
 										</f:if></td>
 										<td class="neos-action">
-											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
-											<f:link.action action="purgeCache" arguments="{node: node, searchWord: searchWord}" class="neos-button clear-cache" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
+											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
+											<f:link.action action="purgeCache" format="json" arguments="{node: node, searchWord: searchWord}" class="neos-button clear-cache" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
 											<div class="neos-hide" id="{node.identifier}">
 												<div class="neos-modal">
 													<div class="neos-modal-header">
@@ -98,7 +98,7 @@
 					return hours + ':' + minutes + ':' + seconds;
 				};
 				$.ajax(url).done(function(data, textStatus, jqXHR) {
-					var response = JSON.parse($(data).find('#url-check').html()),
+					var response = data,
 						list = $('<dl class="dl-horizontal" />');
 					list.append($('<div/>').html('<dt>Host</dt><dd>' + response.host + '</dd>'));
 					list.append($('<div/>').html('<dt>URL</dt><dd>' + response.url + '</dd>'));

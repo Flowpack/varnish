@@ -85,6 +85,7 @@ class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
 		$this->contentCacheFrontend = new MetadataAwareStringFrontend('test',
 			new TransientMemoryBackend(new ApplicationContext('Testing'))
 		);
+		$this->contentCacheFrontend->initializeObject();
 		$this->inject($this->service, 'contentCacheFrontend', $this->contentCacheFrontend);
 		$this->mockTokenStorage = $this->getMock('MOC\Varnish\Service\TokenStorage');
 		$this->inject($this->service, 'tokenStorage', $this->mockTokenStorage);

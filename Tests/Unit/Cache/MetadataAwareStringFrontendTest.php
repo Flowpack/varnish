@@ -16,6 +16,7 @@ class MetadataAwareStringFrontendTest extends \TYPO3\Flow\Tests\UnitTestCase {
 		$this->frontend = new MetadataAwareStringFrontend('test',
 			new TransientMemoryBackend(new ApplicationContext('Testing'))
 		);
+		$this->frontend->initializeObject();
 	}
 
 	/**

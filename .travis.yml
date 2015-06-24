@@ -7,7 +7,7 @@ php:
 before_script:
   - env
   - mkdir Build; cd Build
-  - VERSION=$( if [ $TRAVIS_TAG ] ; then echo $TRAVIS_TAG ; else echo "${TRAVIS_BRANCH}.x-dev#${TRAVIS_COMMIT}" ; fi )
+  - VERSION=$( if [ $TRAVIS_TAG ] ; then echo $TRAVIS_TAG ; else echo "dev-${TRAVIS_BRANCH}#${TRAVIS_COMMIT}" ; fi )
   - |
     cat <<EOF > composer.json
     {

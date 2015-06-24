@@ -32,14 +32,14 @@
 									<tr class="fold-{site.site.nodeName}">
 										<td title="{node.identifier}">
 											<f:if condition="{node.nodeType.fullConfiguration.ui.icon}">
-												<i title="{node.nodeType.label}" class="{node.nodeType.fullConfiguration.ui.icon}" style="vertical-align: baseline"></i>
+												<i title="{node.nodeType.label}" class="{node.nodeType.fullConfiguration.ui.icon}"></i>
 											</f:if>
 											<a href="{url}" target="_blank">{node.label}</a>
 										</td>
 										<td title="{node.path}"><a href="{url}" target="_blank">{neos:uri.node(node: node)}</a></td>
 										<td><f:if condition="{node.properties.disableVarnishCache}">
-											<f:then><i class="icon-warning-sign" style="vertical-align: baseline"></i> Caching disabled</f:then>
-											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time" style="vertical-align: baseline"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
+											<f:then><i class="icon-warning-sign"></i> Caching disabled</f:then>
+											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
 										</f:if></td>
 										<td class="neos-action">
 											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', arguments: {url: '{protocol}://{site.domain}{f:if(condition: settings.reverseLookupPort, then: \':{settings.reverseLookupPort}\')}{neos:uri.node(node: node)}'})}"><i class="icon-info-sign"></i></button>

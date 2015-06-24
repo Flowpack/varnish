@@ -56,3 +56,8 @@
 .neos.neos-module.neos-module-administration-varnish .clear-cache .neos-ellipsis {
 	padding: 0 2px 0 1px;
 }
+
+.neos.neos-module.neos-module-administration-varnish .neos-table [class^="icon-"],
+.neos.neos-module.neos-module-administration-varnish .neos-table [class*=" icon-"] {
+	vertical-align: baseline;
+}

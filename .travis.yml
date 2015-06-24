@@ -7,6 +7,7 @@ php:
 before_script:
   - env
   - mkdir Build; cd Build
+  - VERSION=$( if [ $TRAVIS_TAG ] ; then echo $TRAVIS_TAG ; else echo "dev-${TRAVIS_BRANCH}#${TRAVIS_COMMIT}" ; fi )
   - |
     cat <<EOF > composer.json
     {
@@ -19,7 +20,7 @@ before_script:
           "typo3/neos": "1.2.*",
           "doctrine/migrations": "1.0.0-alpha3",
           "typo3/flow": "2.3.*",
-          "moc/varnish": "${TRAVIS_BRANCH}.x-dev#${TRAVIS_COMMIT}"
+          "moc/varnish": "${VERSION}"
       },
       "require-dev": {
           "typo3/buildessentials": "2.3.*",
@@ -34,6 +35,8 @@ before_script:
           "post-package-install": "TYPO3\\\\Flow\\\\Composer\\\\InstallerScripts::postPackageUpdateAndInstall"
       }
     }
+    EOF
+  - cat composer.json
   - composer update
 
 script: bin/phpunit -c Build/BuildEssentials/PhpUnit/UnitTests.xml Packages/Application/MOC.Varnish/Tests/Unit

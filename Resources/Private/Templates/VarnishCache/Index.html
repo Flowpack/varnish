@@ -57,6 +57,7 @@
 	<legend>Configuration</legend>
 	<dl class="dl-horizontal">
 		<dt>Varnish URL</dt><dd>{settings.varnishUrl}</dd>
+		<f:if condition="{settings.reverseLookupPort}"><dt>Reverse lookup port</dt><dd>{settings.reverseLookupPort}</dd></f:if>
 		<dt>Default maximum age</dt><dd>{f:if(condition: settings.cacheHeaders.defaultSharedMaximumAge, then: '{settings.cacheHeaders.defaultSharedMaximumAge} s', else: 'N/A')}</dd>
 		<dt>Ignored cache tags</dt><dd>
 			{f:if(condition: settings.ignoredCacheTags, else: 'N/A')}<f:for each="{settings.ignoredCacheTags}" as="ignoredCacheTag"><span class="neos-label">{ignoredCacheTag}</span></f:for>

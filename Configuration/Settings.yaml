@@ -2,7 +2,10 @@ MOC:
   Varnish:
     cacheHeaders:
       defaultSharedMaximumAge: ~
+    # URL varnish is running on for purge requests
     varnishUrl: 'http://127.0.0.1'
+    # Port to use for reverse lookup in backend module
+    reverseLookupPort: ~
     # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
     ignoredCacheTags: []
 

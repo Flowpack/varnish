@@ -42,7 +42,7 @@
 											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time" style="vertical-align: baseline"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
 										</f:if></td>
 										<td class="neos-action">
-											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
+											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', arguments: {url: '{protocol}://{site.domain}{f:if(condition: settings.reverseLookupPort, then: \':{settings.reverseLookupPort}\')}{neos:uri.node(node: node)}'})}"><i class="icon-info-sign"></i></button>
 											<f:link.action action="purgeCache" arguments="{node: node}" class="neos-button clear-cache" title="Clear cache"><i class="icon-bolt"></i></f:link.action>
 											<div class="neos-hide" id="{node.identifier}">
 												<div class="neos-modal">

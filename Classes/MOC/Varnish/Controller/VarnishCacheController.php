@@ -124,7 +124,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 * @return void
 	 */
 	public function purgeCacheByTagsAction($tags, Site $site = NULL) {
-		$domain = $site !== NULL ? $site->getFirstActiveDomain()->getHostPattern() : NULL;
+		$domain = $site !== NULL && $site->getFirstActiveDomain() !== NULL ? $site->getFirstActiveDomain()->getHostPattern() : NULL;
 		$tags = explode(',', $tags);
 		$service = new VarnishBanService();
 		$service->banByTags($tags, $domain);

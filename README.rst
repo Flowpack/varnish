@@ -25,6 +25,7 @@ This can be done by using the following example vcl:
 
 *Varnish 4*::
 
+	vcl 4.0;
 	backend default {
 		.host = "127.0.0.1";
 		.port = "8080";

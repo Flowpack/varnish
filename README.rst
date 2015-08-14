@@ -126,6 +126,10 @@ This can be done by using the following example vcl:
 		set beresp.http.X-Url = req.url;
 		set beresp.http.X-Host = req.http.host;
 		set beresp.http.X-Cache-TTL = beresp.ttl;
+		
+		if (beresp.http.cache-control ~ "no-cache") {
+			return(hit_for_pass);
+		}
 	}
 
 	sub vcl_deliver {

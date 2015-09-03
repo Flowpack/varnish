@@ -64,7 +64,7 @@ class CacheControlService {
 	 * @return void
 	 */
 	public function addHeaders(RequestInterface $request, ResponseInterface $response, ControllerInterface $controller) {
-		if ($this->settings['cacheHeaders']['disabled'] === TRUE) {
+		if (isset($this->settings['cacheHeaders']['disabled']) && $this->settings['cacheHeaders']['disabled'] === TRUE) {
 			$this->logger->log(sprintf('Varnish cache headers disabled (see configuration setting MOC.Varnish.cacheHeaders.disabled)'), LOG_DEBUG);
 			return;
 		}
@@ -100,7 +100,7 @@ class CacheControlService {
 
 			$nodeLifetime = $node->getProperty('cacheTimeToLive');
 			if ($nodeLifetime === '' || $nodeLifetime === NULL) {
-				$defaultLifetime = $this->settings['cacheHeaders']['defaultSharedMaximumAge'];
+				$defaultLifetime = isset($this->settings['cacheHeaders']['defaultSharedMaximumAge']) ? $this->settings['cacheHeaders']['defaultSharedMaximumAge'] : NULL;
 				$timeToLive = $defaultLifetime;
 				if ($defaultLifetime === NULL) {
 					$timeToLive = $cacheLifetime;

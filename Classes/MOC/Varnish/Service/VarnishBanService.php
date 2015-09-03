@@ -112,7 +112,7 @@ class VarnishBanService {
 	protected function execute() {
 		try {
 			$this->cacheInvalidator->flush();
-		} catch(ExceptionCollection $exceptions) {
+		} catch (ExceptionCollection $exceptions) {
 			foreach ($exceptions as $exception) {
 				if ($exception instanceof ProxyResponseException) {
 					$this->logger->log(sprintf('Error calling Varnish with BAN request (cannot connect to the caching proxy). Error %s', $exception->getMessage()), LOG_ERR);

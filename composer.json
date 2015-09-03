@@ -3,26 +3,23 @@
 	"type": "typo3-flow-package",
 	"license": "MIT",
 	"description": "Varnish integration for Neos",
+	"keywords": [ "http", "proxy", "caching", "purge", "invalidation", "varnish", "neos", "flow" ],
 	"authors": [
 		{
 			"name": "Jan-Erik Revsbech",
-			"email": "janerik@moc.net",
-			"role": "Developer"
+			"email": "janerik@moc.net"
 		},
 		{
 			"name": "Aske Ertmann",
-			"email": "aske@moc.net",
-			"role": "Developer"
+			"email": "aske@moc.net"
 		},
 		{
 			"name": "Christopher Hlubek",
-			"email": "hlubek@networkteam.com",
-			"role": "Developer"
+			"email": "hlubek@networkteam.com"
 		},
 		{
 			"name": "Christoph Lehmann",
-			"email": "lehmann@networkteam.com",
-			"role": "Developer"
+			"email": "lehmann@networkteam.com"
 		}
 	],
 	"require": {

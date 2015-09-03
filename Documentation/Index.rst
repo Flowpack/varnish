@@ -1,8 +1,8 @@
 Varnish integration for Neos
 ----------------------------
 
-This extensions provides a bridge between Neos and Varnish. It basically makes Neos send ``Cache-Control`` headers
-and BAN requests to Varnish for all Document nodes.
+This package provides a out-of-the-box seamless integration between Varnish and Neos. It basically makes Neos send
+``Cache-Control`` headers and ``BAN`` requests to Varnish for all document nodes.
 
 When installed, Neos send headers for cache lifetime and cache invalidation requests.
 

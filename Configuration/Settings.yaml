@@ -1,7 +1,11 @@
 MOC:
   Varnish:
+    # Cache header sending configuration
     cacheHeaders:
+      # Default and maximum TTL in seconds
       defaultSharedMaximumAge: ~
+      # Disable sending headers (useful for staging environments)
+      disabled: FALSE
     # URL varnish is running on for purge requests
     varnishUrl: 'http://127.0.0.1'
     # Port to use for reverse lookup in backend module

@@ -1,8 +1,5 @@
-MOC Varnish Neos integration
+Varnish integration for Neos
 ----------------------------
-
-.. image:: https://travis-ci.org/mocdk/MOC.Varnish.svg
-:target: https://travis-ci.org/mocdk/MOC.Varnish
 
 This extensions provides a bridge between Neos and Varnish. It basically makes Neos send ``Cache-Control`` headers
 and BAN requests to Varnish for all Document nodes.

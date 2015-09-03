@@ -35,6 +35,12 @@ class CacheControlService {
 	protected $tokenStorage;
 
 	/**
+	 * @Flow\Inject
+	 * @var \MOC\Varnish\Log\LoggerInterface
+	 */
+	protected $logger;
+
+	/**
 	 * @var array
 	 */
 	protected $settings;
@@ -73,10 +79,12 @@ class CacheControlService {
 			return;
 		}
 		if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === TRUE) {
+			$this->logger->log(sprintf('Varnish cache headers skipped due to property "disableVarnishCache" for node "%s" (%s)', $node->getLabel(), $node->getPath()), LOG_DEBUG);
 			return;
 		}
 
 		if ($this->contentCacheAspect->isEvaluatedUncached()) {
+			$this->logger->log(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $node->getLabel(), $node->getPath()), LOG_DEBUG);
 			$response->getHeaders()->setCacheControlDirective('no-cache');
 		} else {
 			list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
@@ -101,6 +109,9 @@ class CacheControlService {
 
 			if ($timeToLive !== NULL) {
 				$response->setSharedMaximumAge(intval($timeToLive));
+				$this->logger->log(sprintf('Varnish cache enabled for node "%s" (%s) with max-age "%u"', $node->getLabel(), $node->getPath(), $timeToLive), LOG_DEBUG);
+			} else {
+				$this->logger->log(sprintf('Varnish cache headers not sent for node "%s" (%s) due to no max-age', $node->getLabel(), $node->getPath()), LOG_DEBUG);
 			}
 		}
 	}

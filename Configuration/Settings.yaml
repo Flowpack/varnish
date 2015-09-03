@@ -32,7 +32,7 @@ TYPO3:
             controller: '\MOC\Varnish\Controller\VarnishCacheController'
             description: 'Clear Varnish cache.'
             icon: 'icon-gear'
-            resource: 'MOC_Varnish_Backend_Module_Varnish_ClearCache'
+            resource: 'MOC.Varnish:BackendModuleClearCache'
             additionalResources:
               styleSheets:
                 - 'resource://MOC.Varnish/Public/Styles/Module.css'

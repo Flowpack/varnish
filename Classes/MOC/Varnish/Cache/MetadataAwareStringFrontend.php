@@ -10,7 +10,7 @@ use TYPO3\Flow\Utility\Environment;
  */
 class MetadataAwareStringFrontend extends \TYPO3\Flow\Cache\Frontend\StringFrontend {
 
-	const SEPARATOR = "|";
+	const SEPARATOR = '|';
 
 	/**
 	 * Store metadata of all loaded cache entries indexed by identifier

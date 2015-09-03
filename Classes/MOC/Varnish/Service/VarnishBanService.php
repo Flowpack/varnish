@@ -8,8 +8,6 @@ use FOS\HttpCache\Exception\ProxyUnreachableException;
 use FOS\HttpCache\Handler\TagHandler;
 use FOS\HttpCache\ProxyClient;
 use TYPO3\Flow\Annotations as Flow;
-use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
-use TYPO3\TypoScript\Core\Cache\ContentCache;
 
 /**
  * @Flow\Scope("singleton")

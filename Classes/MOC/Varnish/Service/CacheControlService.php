@@ -5,10 +5,9 @@ use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Mvc\Controller\ControllerInterface;
 use TYPO3\Flow\Mvc\RequestInterface;
 use TYPO3\Flow\Mvc\ResponseInterface;
-use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 use TYPO3\Flow\Http\Response;
 use TYPO3\Neos\Controller\Frontend\NodeController;
-use TYPO3\Flow\Log\SystemLoggerInterface;
+use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 
 /**
  * Service for adding cache headers to a to-be-sent response
@@ -42,6 +41,7 @@ class CacheControlService {
 
 	/**
 	 * @param array $settings
+	 * @return void
 	 */
 	public function injectSettings(array $settings) {
 		$this->settings = $settings;

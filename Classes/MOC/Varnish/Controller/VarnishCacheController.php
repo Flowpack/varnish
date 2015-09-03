@@ -71,7 +71,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 		$sites = array();
 		$activeSites = $this->siteRepository->findOnline();
 		foreach ($selectedSite ? array($selectedSite) : $activeSites as $site) {
-			/** @var ContentContext $liveContext */
+			/** @var Site $site */
 			$contextProperties = array(
 				'workspaceName' => 'live',
 				'currentSite' => $site
@@ -88,6 +88,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 				}
 				$contextProperties['dimensions'] = $mergedContentDimensions;
 			}
+			/** @var ContentContext $liveContext */
 			$liveContext = $this->contextFactory->create($contextProperties);
 			$firstActiveDomain = $site->getFirstActiveDomain();
 			$nodes = $this->nodeSearchService->findByProperties($searchWord, $nodeTypes, $liveContext, $liveContext->getCurrentSiteNode());

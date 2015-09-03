@@ -110,10 +110,10 @@ information for each of the found nodes. The module is accessible to
 Additionally the configuration options are visible.
 
   .. figure:: Images/VarnishBackendModuleCacheClearing.jpg
-:alt: Screenshot of cache clearing in Neos Backend Module
+   :alt: Screenshot of cache clearing in Neos Backend Module
 
   .. figure:: Images/VarnishBackendModuleSearch.jpg
-:alt: Screenshot of node search in Neos Backend Module
+   :alt: Screenshot of node search in Neos Backend Module
 
 =========================
 Shared Varnish support

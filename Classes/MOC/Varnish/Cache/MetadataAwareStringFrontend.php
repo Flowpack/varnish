@@ -27,9 +27,9 @@ class MetadataAwareStringFrontend extends \TYPO3\Flow\Cache\Frontend\StringFront
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\Flow\Log\SystemLoggerInterface
+	 * @var \MOC\Varnish\Log\LoggerInterface
 	 */
-	protected $systemLogger;
+	protected $logger;
 
 	/**
 	 * Set a cache entry and store additional metadata (tags and lifetime)
@@ -100,7 +100,7 @@ class MetadataAwareStringFrontend extends \TYPO3\Flow\Cache\Frontend\StringFront
 		if ($separatorIndex === FALSE) {
 			$exception = new InvalidDataException('Could not find cache metadata in entry with identifier ' . $entryIdentifier, 1433155925);
 			if ($this->environment->getContext()->isProduction()) {
-				$this->systemLogger->logException($exception);
+				$this->logger->logException($exception);
 			} else {
 				throw $exception;
 			}
@@ -111,7 +111,7 @@ class MetadataAwareStringFrontend extends \TYPO3\Flow\Cache\Frontend\StringFront
 		if ($metadata === NULL) {
 			$exception = new InvalidDataException('Invalid cache metadata in entry with identifier ' . $entryIdentifier, 1433155926);
 			if ($this->environment->getContext()->isProduction()) {
-				$this->systemLogger->logException($exception);
+				$this->logger->logException($exception);
 			} else {
 				throw $exception;
 			}

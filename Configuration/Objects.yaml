@@ -17,3 +17,17 @@ MOC\Varnish\Service\TokenStorage:
         arguments:
           1:
             value: Moc_Varnish_Site_Token
+
+MOC\Varnish\Log\LoggerInterface:
+  scope: singleton
+  factoryObjectName: TYPO3\Flow\Log\LoggerFactory
+  factoryMethodName: create
+  arguments:
+    1:
+      value: 'MOC.Varnish'
+    2:
+      value: 'TYPO3\Flow\Log\Logger'
+    3:
+      setting: MOC.Varnish.log.backend
+    4:
+      setting: MOC.Varnish.log.backendOptions

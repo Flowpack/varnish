@@ -8,6 +8,15 @@ MOC:
     reverseLookupPort: ~
     # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
     ignoredCacheTags: []
+    # Log configuration
+    log:
+      backend: TYPO3\Flow\Log\Backend\FileBackend
+      backendOptions:
+        logFileURL: '%FLOW_PATH_DATA%Logs/Varnish.log'
+        createParentDirectories: TRUE
+        severityThreshold: '%LOG_INFO%'
+        maximumLogFileSize: 1048576
+        logFilesToKeep: 1
 
 TYPO3:
   Neos:

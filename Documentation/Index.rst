@@ -38,7 +38,7 @@ node is in the ``live`` workspace. Additionally checks for node being caching be
 headers haven't been disabled. A ``Time-to-live`` property is also available, making it possible to set a custom TTL for
 a specific document node.
 
-.. note:: The Varnish cache is only enabled for the ``live`` workspace.
+***Note*** The Varnish cache is only enabled for the ``live`` workspace.
 
 If the document node is can be cached (no uncached segments) it will add a ``Cache-Control`` header as well as two custom
 headers ``X-Site`` and ``X-Cache-Tags``. The ``X-Site`` header is auto-generated and used to separate installations and
@@ -60,7 +60,7 @@ Example::
   	mocVarnishIgnoreUncached = true
   }
 
-.. note:: For a page to be cached, it must not contains any uncached parts (e.g. plugins which are uncachable by default).
+***Note*** For a page to be cached, it must not contains any uncached parts (e.g. plugins which are uncachable by default).
 
 When a node is published to the ``live`` workspace a ban request is send to the
 Varnish proxy with the node's cache tags. This is done by listening to the ``nodePublished`` event from the
@@ -130,7 +130,7 @@ Multi-site support
 When having multiple sites the cache entries in Varnish are separated by only clearing for the first active domain for a
 site. This prevents clearing cache for all sites in a installation.
 
-.. note:: Make sure the first active domain is the primary one.
+***Note*** Make sure the first active domain is the primary one.
 
 =========================
 Required Varnish VCL
@@ -262,6 +262,6 @@ This can be done by using the following example vcl:
 		}
 	}
 
-.. note:: Example_ of full VCL configuration file (Varnish 3) – Use with care!
+***Note*** Example_ of full VCL configuration file (Varnish 3) – Use with care!
 
 .. _Example: https://github.com/mocdk/MOC.Varnish/blob/master/Documentation/example.vcl

@@ -15,6 +15,12 @@ use TYPO3\TypoScript\Core\Runtime;
 class ContentCacheAspect {
 
 	/**
+	 * @Flow\Inject
+	 * @var \MOC\Varnish\Log\LoggerInterface
+	 */
+	protected $logger;
+
+	/**
 	 * @var boolean
 	 */
 	protected $evaluatedUncached;
@@ -35,6 +41,7 @@ class ContentCacheAspect {
 		if ($evaluateContext['cacheForPathDisabled']) {
 			$mocVarnishIgnoreUncached = $runtime->evaluate($evaluateContext['typoScriptPath'] . '/__meta/cache/mocVarnishIgnoreUncached');
 			if ($mocVarnishIgnoreUncached !== TRUE) {
+				$this->logger->log(sprintf('Varnish cache disabled due to uncached path "%s" (can be prevented using "mocVarnishIgnoreUncached")', $evaluateContext['typoScriptPath']), LOG_DEBUG);
 				$this->evaluatedUncached = TRUE;
 			}
 		}
@@ -55,6 +62,7 @@ class ContentCacheAspect {
 
 		$mocVarnishIgnoreUncached = $runtime->evaluate($path . '/__meta/cache/mocVarnishIgnoreUncached');
 		if ($mocVarnishIgnoreUncached !== TRUE) {
+			$this->logger->log(sprintf('Varnish cache disabled due to uncached path "%s" (can be prevented using "mocVarnishIgnoreUncached")', $path . '/__meta/cache/mocVarnishIgnoreUncached'), LOG_DEBUG);
 			$this->evaluatedUncached = TRUE;
 		}
 	}
@@ -68,6 +76,7 @@ class ContentCacheAspect {
 	public function registerDisableContentCache(JoinPointInterface $joinPoint) {
 		$enableContentCache = $joinPoint->getMethodArgument('enableContentCache');
 		if ($enableContentCache !== TRUE) {
+			$this->logger->log('Varnish cache disabled due content cache being disabled (e.g. because an exception was handled)', LOG_DEBUG);
 			$this->evaluatedUncached = TRUE;
 		}
 	}

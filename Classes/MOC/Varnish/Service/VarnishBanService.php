@@ -16,9 +16,9 @@ class VarnishBanService {
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\Flow\Log\SystemLoggerInterface
+	 * @var \MOC\Varnish\Log\LoggerInterface
 	 */
-	protected $systemLogger;
+	protected $logger;
 
 	/**
 	 * @Flow\Inject
@@ -73,7 +73,7 @@ class VarnishBanService {
 	 */
 	public function banAll($domain = NULL, $contentType = NULL) {
 		$this->cacheInvalidator->invalidateRegex('.*', $contentType, $domain);
-		$this->systemLogger->log(sprintf('Cleared all cache%s%s', $domain ? ' for domain "' . $domain . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
+		$this->logger->log(sprintf('Cleared all Varnish cache%s%s', $domain ? ' for domain "' . $domain . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
 		$this->execute();
 	}
 
@@ -88,14 +88,16 @@ class VarnishBanService {
 		if (count($this->settings['ignoredCacheTags']) > 0) {
 			$tags = array_diff($tags, $this->settings['ignoredCacheTags']);
 		}
+		// Set specific domain before invalidating tags
 		if ($domain !== NULL) {
 			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, $domain);
 		}
 		$this->tagHandler->invalidateTags($tags);
+		// Unset specific domain after invalidating tags
 		if ($domain !== NULL) {
 			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, ProxyClient\Varnish::REGEX_MATCH_ALL);
 		}
-		$this->systemLogger->log(sprintf('Cleared varnish cache for tags "%s"%s', implode(',', $tags), $domain ? ' for domain "' . $domain . '"' : ''));
+		$this->logger->log(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domain ? ' for domain "' . $domain . '"' : ''));
 		$this->execute();
 	}
 
@@ -108,11 +110,11 @@ class VarnishBanService {
 		} catch(ExceptionCollection $exceptions) {
 			foreach ($exceptions as $exception) {
 				if ($exception instanceof ProxyResponseException) {
-					$this->systemLogger->log(sprintf('Error calling Varnish with BAN request (cannot connect to the caching proxy). Error %s', $exception->getMessage()), LOG_ERR);
+					$this->logger->log(sprintf('Error calling Varnish with BAN request (cannot connect to the caching proxy). Error %s', $exception->getMessage()), LOG_ERR);
 				} elseif ($exception instanceof ProxyUnreachableException) {
-					$this->systemLogger->log(sprintf('Error calling Varnish with BAN request (caching proxy returned an error response). Error %s', $exception->getMessage()), LOG_ERR);
+					$this->logger->log(sprintf('Error calling Varnish with BAN request (caching proxy returned an error response). Error %s', $exception->getMessage()), LOG_ERR);
 				} else {
-					$this->systemLogger->log(sprintf('Error calling Varnish with BAN request. Error %s', $exception->getMessage()), LOG_ERR);
+					$this->logger->log(sprintf('Error calling Varnish with BAN request. Error %s', $exception->getMessage()), LOG_ERR);
 				}
 			}
 		}

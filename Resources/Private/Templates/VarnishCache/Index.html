@@ -56,11 +56,12 @@
 	</f:form>
 	<legend>Configuration</legend>
 	<dl class="dl-horizontal">
-		<dt>Varnish URL</dt><dd>{settings.varnishUrl}</dd>
+		<dt>Varnish URL</dt><dd><f:if condition="{settings.varnishUrl -> f:count()} > 1"><f:then><f:for each="{settings.varnishUrl}" as="varnishUrl" iteration="iterator"><span class="neos-badge">{varnishUrl}</span><f:if condition="{iterator.isLast}"><f:else> </f:else></f:if></f:for></f:then><f:else><span class="neos-badge">{settings.varnishUrl}</span></f:else></f:if></dd>
+		<f:if condition="{settings.cacheHeaders.disabled}"><dt>Cache headers</dt><dd><span class="neos-badge neos-badge-important">Disabled</span></dd></f:if>
 		<f:if condition="{settings.reverseLookupPort}"><dt>Reverse lookup port</dt><dd>{settings.reverseLookupPort}</dd></f:if>
-		<dt>Default maximum age</dt><dd>{f:if(condition: settings.cacheHeaders.defaultSharedMaximumAge, then: '{settings.cacheHeaders.defaultSharedMaximumAge} s', else: 'N/A')}</dd>
+		<dt>Default maximum age</dt><dd><span class="neos-badge">{f:if(condition: settings.cacheHeaders.defaultSharedMaximumAge, then: '{settings.cacheHeaders.defaultSharedMaximumAge} s', else: 'N/A')}</span></dd>
 		<dt>Ignored cache tags</dt><dd>
-			{f:if(condition: settings.ignoredCacheTags, else: 'N/A')}<f:for each="{settings.ignoredCacheTags}" as="ignoredCacheTag"><span class="neos-label">{ignoredCacheTag}</span></f:for>
+			{f:if(condition: settings.ignoredCacheTags, else: '<span class="neos-badge">N/A</span>')}<f:for each="{settings.ignoredCacheTags}" as="ignoredCacheTag"><span class="neos-label">{ignoredCacheTag}</span></f:for>
 		</dd>
 	</dl>
 </f:section>

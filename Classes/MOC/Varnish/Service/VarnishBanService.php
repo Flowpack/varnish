@@ -58,7 +58,12 @@ class VarnishBanService {
 	 * @return void
 	 */
 	public function initializeObject() {
-		$this->varnishProxyClient = new ProxyClient\Varnish(array(rtrim($this->settings['varnishUrl'], '/') ?: 'http://127.0.0.1'));
+		$varnishUrls = is_array($this->settings['varnishUrl']) ? $this->settings['varnishUrl'] : array($this->settings['varnishUrl'] ?: 'http://127.0.0.1');
+		// Remove trailing slash as it will break the Varnish ProxyClient
+		array_walk($varnishUrls, function(&$varnishUrl) {
+			$varnishUrl = rtrim($varnishUrl, '/');
+		});
+		$this->varnishProxyClient = new ProxyClient\Varnish($varnishUrls);
 		$this->varnishProxyClient->setDefaultBanHeader('X-Site', $this->tokenStorage->getToken());
 		$this->cacheInvalidator = new CacheInvalidator($this->varnishProxyClient);
 		$this->tagHandler = new TagHandler($this->cacheInvalidator);

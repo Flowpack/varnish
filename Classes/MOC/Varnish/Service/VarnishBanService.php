@@ -93,6 +93,9 @@ class VarnishBanService {
 		if (count($this->settings['ignoredCacheTags']) > 0) {
 			$tags = array_diff($tags, $this->settings['ignoredCacheTags']);
 		}
+		$tags = str_replace(':', '-', $tags);
+		$tags = str_replace('.', '_', $tags);
+
 		// Set specific domain before invalidating tags
 		if ($domain !== NULL) {
 			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, $domain);

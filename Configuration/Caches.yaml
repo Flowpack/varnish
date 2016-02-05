@@ -7,3 +7,4 @@ Moc_Varnish_Site_Token:
   backend: TYPO3\Flow\Cache\Backend\SimpleFileBackend
   backendOptions:
     cacheDirectory: '%FLOW_PATH_DATA%Persistent/MocVarnishSiteToken'
+  persistent: true

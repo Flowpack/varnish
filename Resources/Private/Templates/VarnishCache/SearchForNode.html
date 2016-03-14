@@ -101,7 +101,7 @@
 					var response = JSON.parse($(data).find('#url-check').html()),
 						list = $('<dl class="dl-horizontal" />');
 					list.append($('<div/>').html('<dt>Host</dt><dd>' + response.host + '</dd>'));
-					list.append($('<div/>').html('<dt>URL</dt><dd>' + response.url + '</dd>'));
+					list.append($('<div/>').html('<dt>URL</dt><dd><a href="' + response.url + '" target="_blank">' + response.url + '</a></dd>'));
 					['X-Cacheable', 'X-Cache', 'Age', 'X-Cache-TTL', 'X-Varnish', 'X-Site', 'X-Cache-Tags'].forEach(function(header) {
 						var value = response.headers[header];
 						if (value) {

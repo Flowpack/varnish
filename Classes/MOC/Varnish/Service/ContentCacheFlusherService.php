@@ -74,9 +74,13 @@ class ContentCacheFlusherService {
 		}
 
 		if ($node instanceof NodeInterface && $node->getContext() instanceof ContentContext) {
-			$firstActiveDomain = $node->getContext()->getCurrentSite()->getFirstActiveDomain();
-			if ($firstActiveDomain) {
-				$this->domainsToFlush[] = $firstActiveDomain->getHostPattern();
+			$site = $node->getContext()->getCurrentSite();
+			if ($site->hasActiveDomains()) {
+				foreach ($site->getDomains() as $domain) {
+					if ($domain->getActive()) {
+						$this->domainsToFlush[] = $domain->getHostPattern();
+					}
+				}
 			}
 		}
 	}
@@ -88,13 +92,7 @@ class ContentCacheFlusherService {
 	 */
 	public function shutdownObject() {
 		if ($this->tagsToFlush !== array()) {
-			if (count($this->domainsToFlush) > 0) {
-				foreach ($this->domainsToFlush as $domain) {
-					$this->varnishBanService->banByTags(array_keys($this->tagsToFlush), $domain);
-				}
-			} else {
-				$this->varnishBanService->banByTags(array_keys($this->tagsToFlush));
-			}
+			$this->varnishBanService->banByTags(array_keys($this->tagsToFlush), $this->domainsToFlush);
 		}
 	}
 

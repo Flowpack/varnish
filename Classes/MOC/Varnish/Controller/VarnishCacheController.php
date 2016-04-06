@@ -125,10 +125,17 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 * @return void
 	 */
 	public function purgeCacheByTagsAction($tags, Site $site = NULL) {
-		$domain = $site !== NULL && $site->getFirstActiveDomain() !== NULL ? $site->getFirstActiveDomain()->getHostPattern() : NULL;
+		$domains = NULL;
+		if ($site !== NULL && $site->hasActiveDomains()) {
+			$domains = $site->getDomains()->filter(function ($domain) {
+				return $domain->getActive();
+			})->map(function ($domain) {
+				return $domain->getHostpattern();
+			})->toArray();
+		}
 		$tags = explode(',', $tags);
 		$service = new VarnishBanService();
-		$service->banByTags($tags, $domain);
+		$service->banByTags($tags, $domains);
 		$this->flashMessageContainer->addMessage(new Message(sprintf('Varnish cache cleared for tags "%s" for %s', implode('", "', $tags), $site ? 'site ' . $site->getName() : 'installation')));
 		$this->redirect('index');
 	}
@@ -139,9 +146,16 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 * @return void
 	 */
 	public function purgeAllVarnishCacheAction(Site $site = NULL, $contentType = NULL) {
-		$domain = $site !== NULL && $site->getFirstActiveDomain() !== NULL ? $site->getFirstActiveDomain()->getHostPattern() : NULL;
+		$domains = NULL;
+		if ($site !== NULL && $site->hasActiveDomains()) {
+			$domains = $site->getDomains()->filter(function ($domain) {
+				return $domain->getActive();
+			})->map(function ($domain) {
+				return $domain->getHostpattern();
+			})->toArray();
+		}
 		$service = new VarnishBanService();
-		$service->banAll($domain, $contentType);
+		$service->banAll($domains, $contentType);
 		$this->flashMessageContainer->addMessage(new Message(sprintf('All varnish cache cleared for %s%s', $site ? 'site ' . $site->getName() : 'installation', $contentType ? ' with content type "' . $contentType . '"' : '')));
 		$this->redirect('index');
 	}

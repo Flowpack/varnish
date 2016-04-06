@@ -70,26 +70,36 @@ class VarnishBanService {
 	}
 
 	/**
-	 * Clear all cache in Varnish for a optionally given domain & content type
+	 * Clear all cache in Varnish for a optionally given domain & content type.
 	 *
-	 * @param string $domain The domain to flush, e.g. "example.com"
+	 * The hosts parameter can either be a regular expression, e.g.
+	 * '^(www\.)?(this|that)\.com$' or an array of exact host names, e.g.
+	 * ['example.com', 'other.net']. If the parameter is empty, all hosts
+	 * are matched.
+	 *
+	 * @param array|string $domains The domains to flush, e.g. "example.com"
 	 * @param string $contentType The mime type to flush, e.g. "image/png"
 	 * @return void
 	 */
-	public function banAll($domain = NULL, $contentType = NULL) {
-		$this->cacheInvalidator->invalidateRegex('.*', $contentType, $domain);
-		$this->logger->log(sprintf('Cleared all Varnish cache%s%s', $domain ? ' for domain "' . $domain . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
+	public function banAll($domains = NULL, $contentType = NULL) {
+		$this->cacheInvalidator->invalidateRegex('.*', $contentType, $domains);
+		$this->logger->log(sprintf('Cleared all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
 		$this->execute();
 	}
 
 	/**
-	 * Clear all cache in Varnish for given tags
+	 * Clear all cache in Varnish for given tags.
+	 *
+	 * The hosts parameter can either be a regular expression, e.g.
+	 * '^(www\.)?(this|that)\.com$' or an array of exact host names, e.g.
+	 * ['example.com', 'other.net']. If the parameter is empty, all hosts
+	 * are matched.
 	 *
 	 * @param array $tags
-	 * @param string $domain The domain to flush, e.g. "example.com"
+	 * @param array|string $domains The domain to flush, e.g. "example.com"
 	 * @return void
 	 */
-	public function banByTags(array $tags, $domain = NULL) {
+	public function banByTags(array $tags, $domains = NULL) {
 		if (count($this->settings['ignoredCacheTags']) > 0) {
 			$tags = array_diff($tags, $this->settings['ignoredCacheTags']);
 		}
@@ -103,15 +113,15 @@ class VarnishBanService {
 		}
 
 		// Set specific domain before invalidating tags
-		if ($domain !== NULL) {
-			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, $domain);
+		if ($domains) {
+			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, is_array($domains) ? '^(' . implode('|', $domains) . ')$' : $domains);
 		}
 		$this->tagHandler->invalidateTags($tags);
 		// Unset specific domain after invalidating tags
-		if ($domain !== NULL) {
+		if ($domains) {
 			$this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, ProxyClient\Varnish::REGEX_MATCH_ALL);
 		}
-		$this->logger->log(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domain ? ' for domain "' . $domain . '"' : ''));
+		$this->logger->log(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''));
 		$this->execute();
 	}
 

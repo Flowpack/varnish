@@ -139,7 +139,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 * @return void
 	 */
 	public function purgeAllVarnishCacheAction(Site $site = NULL, $contentType = NULL) {
-		$domain = $site !== NULL ? $site->getFirstActiveDomain()->getHostPattern() : NULL;
+		$domain = $site !== NULL && $site->getFirstActiveDomain() !== NULL ? $site->getFirstActiveDomain()->getHostPattern() : NULL;
 		$service = new VarnishBanService();
 		$service->banAll($domain, $contentType);
 		$this->flashMessageContainer->addMessage(new Message(sprintf('All varnish cache cleared for %s%s', $site ? 'site ' . $site->getName() : 'installation', $contentType ? ' with content type "' . $contentType . '"' : '')));

@@ -127,9 +127,9 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	public function purgeCacheByTagsAction($tags, Site $site = NULL) {
 		$domains = NULL;
 		if ($site !== NULL && $site->hasActiveDomains()) {
-			$domains = $site->getDomains()->filter(function ($domain) {
+			$domains = $site->getDomains()->filter(function($domain) {
 				return $domain->getActive();
-			})->map(function ($domain) {
+			})->map(function($domain) {
 				return $domain->getHostpattern();
 			})->toArray();
 		}
@@ -148,9 +148,9 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	public function purgeAllVarnishCacheAction(Site $site = NULL, $contentType = NULL) {
 		$domains = NULL;
 		if ($site !== NULL && $site->hasActiveDomains()) {
-			$domains = $site->getDomains()->filter(function ($domain) {
+			$domains = $site->getDomains()->filter(function($domain) {
 				return $domain->getActive();
-			})->map(function ($domain) {
+			})->map(function($domain) {
 				return $domain->getHostpattern();
 			})->toArray();
 		}

@@ -4,7 +4,6 @@ php:
   - 5.5
   - 5.6
   - 7.0
-  - hhvm
 
 before_script:
   - env
@@ -19,13 +18,13 @@ before_script:
           "bin-dir": "bin"
       },
       "require": {
-          "typo3/neos": "~2.0",
+          "typo3/neos": "~2.2",
           "moc/varnish": "${VERSION}"
       },
       "require-dev": {
           "typo3/buildessentials": "~3.0",
-          "mikey179/vfsstream": "1.5.*",
-          "phpunit/phpunit": "4.6.*"
+          "mikey179/vfsstream": "~1.6",
+          "phpunit/phpunit": "~4.8 || ~5.2.0"
       },
       "scripts": {
           "post-update-cmd": "TYPO3\\\\Flow\\\\Composer\\\\InstallerScripts::postUpdateAndInstall",

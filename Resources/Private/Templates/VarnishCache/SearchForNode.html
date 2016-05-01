@@ -28,7 +28,7 @@
 								</tr>
 							</f:if>
 							<f:for each="{site.nodes}" as="node">
-								<f:alias map="{url: '{protocol}://{site.domain}{neos:uri.node(node: node)}'}">
+								<f:alias map="{url: '{neos:uri.node(node: node, absolute: 1)}'}">
 									<tr class="fold-{site.site.nodeName}">
 										<td title="{node.identifier}">
 											<f:if condition="{node.nodeType.fullConfiguration.ui.icon}">
@@ -42,7 +42,7 @@
 											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
 										</f:if></td>
 										<td class="neos-action">
-											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: '{protocol}://{site.domain}{f:if(condition: settings.reverseLookupPort, then: \':{settings.reverseLookupPort}\')}{neos:uri.node(node: node)}'})}"><i class="icon-info-sign"></i></button>
+											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
 											<f:link.action action="purgeCache" format="json" arguments="{node: node}" class="neos-button clear-cache" title="Clear cache" data="{node-label: node.label}"><i class="icon-bolt"></i></f:link.action>
 											<div class="neos-hide" id="{node.identifier}">
 												<div class="neos-modal">

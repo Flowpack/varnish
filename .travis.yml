@@ -18,7 +18,7 @@ before_script:
           "bin-dir": "bin"
       },
       "require": {
-          "typo3/neos": "~2.2",
+          "typo3/neos": ">=2.2",
           "moc/varnish": "${VERSION}"
       },
       "require-dev": {

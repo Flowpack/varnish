@@ -95,14 +95,12 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 			if (count($nodes) > 0) {
 				$sites[$site->getNodeName()] = array(
 					'site' => $site,
-					'domain' => $firstActiveDomain ? $firstActiveDomain->getHostPattern() : $this->request->getHttpRequest()->getUri()->getHost(),
 					'nodes' => $nodes
 				);
 			}
 		}
 		$this->view->assignMultiple(array(
 			'searchWord' => $searchWord,
-			'protocol' => $this->request->getHttpRequest()->getUri()->getScheme(),
 			'selectedSite' => $selectedSite,
 			'sites' => $sites,
 			'activeSites' => $activeSites
@@ -127,9 +125,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	public function purgeCacheByTagsAction($tags, Site $site = NULL) {
 		$domains = NULL;
 		if ($site !== NULL && $site->hasActiveDomains()) {
-			$domains = $site->getDomains()->filter(function($domain) {
-				return $domain->getActive();
-			})->map(function($domain) {
+			$domains = $site->getActiveDomains()->map(function($domain) {
 				return $domain->getHostpattern();
 			})->toArray();
 		}
@@ -148,9 +144,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	public function purgeAllVarnishCacheAction(Site $site = NULL, $contentType = NULL) {
 		$domains = NULL;
 		if ($site !== NULL && $site->hasActiveDomains()) {
-			$domains = $site->getDomains()->filter(function($domain) {
-				return $domain->getActive();
-			})->map(function($domain) {
+			$domains = $site->getActiveDomains()->map(function($domain) {
 				return $domain->getHostpattern();
 			})->toArray();
 		}
@@ -165,7 +159,11 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 * @return string
 	 */
 	public function checkUrlAction($url) {
-		$request = Request::create(new Uri($url));
+		$uri = new Uri($url);
+		if (isset($this->settings['reverseLookupPort'])) {
+			$uri->setPort($this->settings['reverseLookupPort']);
+		}
+		$request = Request::create($uri);
 		$request->setHeader('X-Cache-Debug', '1');
 		$engine = new CurlEngine();
 		$engine->setOption(CURLOPT_SSL_VERIFYPEER, FALSE);

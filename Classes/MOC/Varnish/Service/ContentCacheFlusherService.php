@@ -76,9 +76,7 @@ class ContentCacheFlusherService {
 		if ($node instanceof NodeInterface && $node->getContext() instanceof ContentContext) {
 			$site = $node->getContext()->getCurrentSite();
 			if ($site->hasActiveDomains()) {
-				$domains = $site->getDomains()->filter(function($domain) {
-					return $domain->getActive();
-				})->map(function($domain) {
+				$domains = $site->getActiveDomains()->map(function($domain) {
 					return $domain->getHostpattern();
 				})->toArray();
 				$this->domainsToFlush = array_unique(array_merge($this->domainsToFlush, $domains));

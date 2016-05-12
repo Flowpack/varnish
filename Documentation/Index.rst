@@ -130,7 +130,15 @@ Multi-site support
 When having multiple sites the cache entries in Varnish are separated by only clearing for the first active domain for a
 site. This prevents clearing cache for all sites in a installation.
 
-***Note*** Make sure the first active domain is the primary one.
+=========================
+Surf deployment
+=========================
+
+When using Surf for deploying, it's recommended to clear the Varnish cache after a deployment.
+That can be done in your Surf deployment script::
+
+	$workflow->defineTask('x:varnishban', 'typo3.surf:typo3:flow:runcommand', array('command' => 'varnish:clear'));
+	$workflow->afterStage('switch', array('x:varnishban'), $application);
 
 =========================
 Required Varnish VCL

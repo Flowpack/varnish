@@ -90,7 +90,6 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 			}
 			/** @var ContentContext $liveContext */
 			$liveContext = $this->contextFactory->create($contextProperties);
-			$firstActiveDomain = $site->getFirstActiveDomain();
 			$nodes = $this->nodeSearchService->findByProperties($searchWord, $nodeTypes, $liveContext, $liveContext->getCurrentSiteNode());
 			if (count($nodes) > 0) {
 				$sites[$site->getNodeName()] = array(

@@ -46,6 +46,12 @@ class VarnishCommandController extends \TYPO3\Flow\Cli\CommandController {
         $this->saveConfig($filename, $config);
     }
 
+    /**
+     * Add http (if missing) to ip array
+     *
+     * @param array iplist
+     * @return array iplist
+     */
     public function validateUrl($ips) {
         $result = array();
         foreach ($ips as $ip) {
@@ -57,14 +63,27 @@ class VarnishCommandController extends \TYPO3\Flow\Cli\CommandController {
         return $result;
     }
 
+    /**
+     * Load existing configuration to array
+     *
+     * @param string configuration
+     * @return array
+     */
     public function openConfig($filename) {
         $yaml = new YamlSource();
         return  $yaml->load($filename);
     }
 
+    /**
+     * Save configuration from array
+     *
+     * @param string configuration
+     * @param array
+     * @return void
+     */
     public function saveConfig($filename, $config) {
         $yaml = new YamlSource();
-        return $yaml->save($filename, $config);
+        $yaml->save($filename, $config);
     }
 
 }

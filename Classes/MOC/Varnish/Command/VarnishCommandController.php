@@ -3,6 +3,7 @@ namespace MOC\Varnish\Command;
 
 use MOC\Varnish\Service\VarnishBanService;
 use TYPO3\Flow\Annotations as Flow;
+use TYPO3\Flow\Configuration\Source\YamlSource;
 
 /**
  * @Flow\Scope("singleton")

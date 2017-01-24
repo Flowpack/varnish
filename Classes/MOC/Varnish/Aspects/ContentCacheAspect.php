@@ -15,10 +15,13 @@ use TYPO3\TypoScript\Core\Runtime;
 class ContentCacheAspect {
 
 	/**
-	* @Flow\InjectConfiguration(path="disabled")
-	* @var boolean
-	*/
-	protected $disabled;
+	 * @var array
+	 */
+	protected $settings = array();
+
+	public function injectSettings(array $settings) {
+			$this->settings = $settings;
+	}
 
 	/**
 	 * @Flow\Inject
@@ -38,7 +41,7 @@ class ContentCacheAspect {
 	 * @param JoinPointInterface $joinPoint
 	 */
 	public function registerCreateUncached(JoinPointInterface $joinPoint) {
-		if ($this->disabled == FALSE) {
+		if ($this->settings['disabled'] == FALSE) {
 			$evaluateContext = $joinPoint->getMethodArgument('evaluateContext');
 
 			$proxy = $joinPoint->getProxy();
@@ -62,7 +65,7 @@ class ContentCacheAspect {
 	 * @param JoinPointInterface $joinPoint
 	 */
 	public function registerEvaluateUncached(JoinPointInterface $joinPoint) {
-		if ($this->disabled == FALSE) {
+		if ($this->settings['disabled'] == FALSE) {
 			$path = $joinPoint->getMethodArgument('path');
 
 			$proxy = $joinPoint->getProxy();
@@ -84,7 +87,7 @@ class ContentCacheAspect {
 	 * @param JoinPointInterface $joinPoint
 	 */
 	public function registerDisableContentCache(JoinPointInterface $joinPoint) {
-		if ($this->disabled == FALSE) {
+		if ($this->settings['disabled'] == FALSE) {
 			$enableContentCache = $joinPoint->getMethodArgument('enableContentCache');
 			if ($enableContentCache !== TRUE) {
 				$this->logger->log('Varnish cache disabled due content cache being disabled (e.g. because an exception was handled)', LOG_DEBUG);

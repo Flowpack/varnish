@@ -29,7 +29,9 @@ class ContentCacheFlusherService {
 	 */
 	protected $domainsToFlush = array();
 
-
+	/**
+	 * @var array
+	 */
 	protected $settings = array();
 
 	public function injectSettings(array $settings) {

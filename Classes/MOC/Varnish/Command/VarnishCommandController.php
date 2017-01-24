@@ -28,4 +28,42 @@ class VarnishCommandController extends \TYPO3\Flow\Cli\CommandController {
 		$this->varnishBanService->banAll($domain, $contentType);
 	}
 
+
+     /**
+     * Imports an ip list to configuration
+     *
+     * @param string $ip Varnish Server Ip (comma seperated)
+     * @return void
+     */
+    public function iplistCommand($ip)
+    {
+        $filename = FLOW_PATH_ROOT . 'Configuration/Settings';
+        $config = $this->openConfig($filename);
+        $ipValid = $this->validateUrl(explode(',',$ip));
+
+        $config['MOC']['Varnish']['varnishUrl'] = $ipValid;
+        $this->saveConfig($filename, $config);
+    }
+
+    public function validateUrl($ips) {
+        $result = array();
+        foreach ($ips as $ip) {
+            if (strpos($ip, 'http://') === false && strpos($ip, 'https://') === false) {
+                $ip = 'http://' . $ip;
+            }
+            $result[] = $ip;
+        }
+        return $result;
+    }
+
+    public function openConfig($filename) {
+        $yaml = new YamlSource();
+        return  $yaml->load($filename);
+    }
+
+    public function saveConfig($filename, $config) {
+        $yaml = new YamlSource();
+        return $yaml->save($filename, $config);
+    }
+
 }

@@ -24,6 +24,8 @@ There are several configuration options can/needs to be set:
 - Ignored cache tags can be used to ignore certain cache tags from being cleared at all (useful for optimizing)
    ``MOC.Varnish.ignoredCacheTags`` accepts array of strings (defaults to ``NULL``)
    E.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
+- To disable the Varnish caching for deployment reasons you can set this option to ``TRUE``
+   ``MOC.Varnish.disabled`` accepts boolean value (defaults to ``FALSE``)
 
 =========================
 How it works
@@ -97,6 +99,9 @@ Command
 
 A command for clearing the Varnish cache is available with ``./flow varnish:clear``, which accepts two optional
 parameters ``domain`` and ``contentType`` (MIME type).
+
+Another command for setting the Varnish ip(s) by command line is ``./flow varnish:iplist``, which needs one required
+parameter ``ip``. For multiple ips you can give a comma separated list.
 
 =========================
 Backend module

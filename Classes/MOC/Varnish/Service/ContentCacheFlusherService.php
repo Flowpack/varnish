@@ -29,21 +29,18 @@ class ContentCacheFlusherService {
 	 */
 	protected $domainsToFlush = array();
 
-	/**
-	 * @var array
-	 */
-	protected $settings = array();
-
-	public function injectSettings(array $settings) {
-			$this->settings = $settings;
-	}
+ 	/**
+     * @Flow\InjectConfiguration("enabled")
+     * @var boolean
+     */
+    protected $enabled;
 
 	/**
 	 * @param NodeInterface $node The node which has changed in some way
 	 * @return void
 	 */
 	public function flushForNode(NodeInterface $node) {
-		if ($this->settings['disabled'] === FALSE) {
+		if ($this->enabled) {
 			$this->generateCacheTags($node);
 		}
 	}

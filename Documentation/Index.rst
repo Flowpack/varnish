@@ -24,8 +24,8 @@ There are several configuration options can/needs to be set:
 - Ignored cache tags can be used to ignore certain cache tags from being cleared at all (useful for optimizing)
    ``MOC.Varnish.ignoredCacheTags`` accepts array of strings (defaults to ``NULL``)
    E.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
-- To disable the Varnish caching for deployment reasons you can set this option to ``TRUE``
-   ``MOC.Varnish.disabled`` accepts boolean value (defaults to ``FALSE``)
+- To disable the Varnish caching for deployment reasons you can set this option to ``FALSE``
+   ``MOC.Varnish.enabled`` accepts boolean value (defaults to ``TRUE``)
 
 =========================
 How it works

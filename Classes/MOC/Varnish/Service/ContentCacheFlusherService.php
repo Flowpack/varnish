@@ -29,11 +29,11 @@ class ContentCacheFlusherService {
 	 */
 	protected $domainsToFlush = array();
 
- 	/**
-     * @Flow\InjectConfiguration("enabled")
-     * @var boolean
-     */
-    protected $enabled;
+	/**
+	 * @Flow\InjectConfiguration("enabled")
+	 * @var boolean
+	 */
+	protected $enabled;
 
 	/**
 	 * @param NodeInterface $node The node which has changed in some way

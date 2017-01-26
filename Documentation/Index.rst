@@ -98,6 +98,9 @@ Command
 A command for clearing the Varnish cache is available with ``./flow varnish:clear``, which accepts two optional
 parameters ``domain`` and ``contentType`` (MIME type).
 
+Another command for setting the Varnish ip(s) by command line is ``./flow ip:list``, which needs one required
+parameter ``ip``. For multiple ip's you can give a comma separated list.
+
 =========================
 Backend module
 =========================

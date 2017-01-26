@@ -1,7 +1,5 @@
 MOC:
   Varnish:
-    # Disable varnish caching at all if TRUE
-    disabled: FALSE
     # URL or URLs (if array) Varnish is running on for purge requests (skip trailing slash)
     varnishUrl: 'http://127.0.0.1'
     # Cache header sending configuration

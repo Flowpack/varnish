@@ -64,9 +64,6 @@ class CacheControlService {
 	 * @return void
 	 */
 	public function addHeaders(RequestInterface $request, ResponseInterface $response, ControllerInterface $controller) {
-		if (isset($this->settings['enabled']) &&  !$this->settings['enabled']) {
-			return;
-		}
 		if (isset($this->settings['cacheHeaders']['disabled']) && $this->settings['cacheHeaders']['disabled'] === TRUE) {
 			$this->logger->log(sprintf('Varnish cache headers disabled (see configuration setting MOC.Varnish.cacheHeaders.disabled)'), LOG_DEBUG);
 			return;

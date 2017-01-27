@@ -28,7 +28,7 @@ class ContentCacheAspect {
 	/**
 	 * Advice for uncached segments when rendering the initial output (without replacing an uncached marker in cached output)
 	 *
-	 * @Flow\AfterReturning("method(TYPO3\TypoScript\Core\Cache\RuntimeContentCache->postProcess())")
+	 * @Flow\AfterReturning("setting(MOC.Varnish.enabled) && method(TYPO3\TypoScript\Core\Cache\RuntimeContentCache->postProcess())")
 	 * @param JoinPointInterface $joinPoint
 	 */
 	public function registerCreateUncached(JoinPointInterface $joinPoint) {
@@ -50,7 +50,7 @@ class ContentCacheAspect {
 	/**
 	 * Advice for uncached segments when rendering from a cached version
 	 *
-	 * @Flow\AfterReturning("method(TYPO3\TypoScript\Core\Cache\RuntimeContentCache->evaluateUncached())")
+	 * @Flow\AfterReturning("setting(MOC.Varnish.enabled) && method(TYPO3\TypoScript\Core\Cache\RuntimeContentCache->evaluateUncached())")
 	 * @param JoinPointInterface $joinPoint
 	 */
 	public function registerEvaluateUncached(JoinPointInterface $joinPoint) {
@@ -70,7 +70,7 @@ class ContentCacheAspect {
 	/**
 	 * Advice for a disabled content cache (e.g. because an exception was handled)
 	 *
-	 * @Flow\AfterReturning("method(TYPO3\TypoScript\Core\Cache\RuntimeContentCache->setEnableContentCache())")
+	 * @Flow\AfterReturning("setting(MOC.Varnish.enabled) && method(TYPO3\TypoScript\Core\Cache\RuntimeContentCache->setEnableContentCache())")
 	 * @param JoinPointInterface $joinPoint
 	 */
 	public function registerDisableContentCache(JoinPointInterface $joinPoint) {

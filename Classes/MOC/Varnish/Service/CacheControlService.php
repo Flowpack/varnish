@@ -64,7 +64,7 @@ class CacheControlService {
 	 * @return void
 	 */
 	public function addHeaders(RequestInterface $request, ResponseInterface $response, ControllerInterface $controller) {
-		if (!$this->settings['enabled']) {
+		if (isset($this->settings['enabled']) &&  !$this->settings['enabled']) {
 			return;
 		}
 		if (isset($this->settings['cacheHeaders']['disabled']) && $this->settings['cacheHeaders']['disabled'] === TRUE) {

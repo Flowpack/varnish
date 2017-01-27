@@ -41,7 +41,7 @@ class ContentCacheFlusherService {
 	 * @return void
 	 */
 	public function flushForNode(NodeInterface $node) {
-		if (!$this->enabled) {
+		if (isset($this->enabled) && !$this->enabled) {
 			return;
 		}
 		$this->generateCacheTags($node);

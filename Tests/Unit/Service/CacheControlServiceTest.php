@@ -5,18 +5,18 @@ use MOC\Varnish\Aspects\ContentCacheAspect;
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
 use MOC\Varnish\Service\CacheControlService;
 use MOC\Varnish\Service\TokenStorage;
-use TYPO3\Flow\Cache\Backend\TransientMemoryBackend;
-use TYPO3\Flow\Core\ApplicationContext;
-use TYPO3\Flow\Mvc\Controller\Argument;
-use TYPO3\Flow\Mvc\Controller\Arguments;
-use TYPO3\Flow\Mvc\Controller\ControllerContext;
-use TYPO3\Flow\Mvc\RequestInterface;
-use TYPO3\Flow\Mvc\ResponseInterface;
+use Neos\Flow\Cache\Backend\TransientMemoryBackend;
+use Neos\Flow\Core\ApplicationContext;
+use Neos\Flow\Mvc\Controller\Argument;
+use Neos\Flow\Mvc\Controller\Arguments;
+use Neos\Flow\Mvc\Controller\ControllerContext;
+use Neos\Flow\Mvc\RequestInterface;
+use Neos\Flow\Mvc\ResponseInterface;
 use TYPO3\Neos\Controller\Frontend\NodeController;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 use TYPO3\TYPO3CR\Domain\Service\Context;
 
-class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
+class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase {
 
 	/**
 	 * @var CacheControlService
@@ -92,15 +92,15 @@ class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
 		$this->mockTokenStorage = $this->getMock('MOC\Varnish\Service\TokenStorage');
 		$this->inject($this->service, 'tokenStorage', $this->mockTokenStorage);
 
-		$this->mockRequest = $this->getMock('TYPO3\Flow\Mvc\RequestInterface');
-		$this->mockResponse = $this->getMock('TYPO3\Flow\Http\Response');
+		$this->mockRequest = $this->getMock('Neos\Flow\Mvc\RequestInterface');
+		$this->mockResponse = $this->getMock('Neos\Flow\Http\Response');
 		$this->mockController = $this->getMock('TYPO3\Neos\Controller\Frontend\NodeController');
-		$this->mockControllerContext = $this->getMockBuilder('TYPO3\Flow\Mvc\Controller\ControllerContext')->disableOriginalConstructor()->getMock();
+		$this->mockControllerContext = $this->getMockBuilder('Neos\Flow\Mvc\Controller\ControllerContext')->disableOriginalConstructor()->getMock();
 		$this->mockController->expects($this->any())->method('getControllerContext')->willReturn($this->mockControllerContext);
-		$this->mockArguments = $this->getMockBuilder('TYPO3\Flow\Mvc\Controller\Arguments')->getMock();
+		$this->mockArguments = $this->getMockBuilder('Neos\Flow\Mvc\Controller\Arguments')->getMock();
 		$this->mockControllerContext->expects($this->any())->method('getArguments')->willReturn($this->mockArguments);
 		$this->mockArguments->expects($this->any())->method('hasArgument')->with('node')->willReturn(TRUE);
-		$this->mockArgument = $this->getMockBuilder('TYPO3\Flow\Mvc\Controller\Argument')->disableOriginalConstructor()->getMock();
+		$this->mockArgument = $this->getMockBuilder('Neos\Flow\Mvc\Controller\Argument')->disableOriginalConstructor()->getMock();
 		$this->mockArguments->expects($this->any())->method('getArgument')->with('node')->willReturn($this->mockArgument);
 		$this->mockNode = $this->getMock('TYPO3\TYPO3CR\Domain\Model\NodeInterface');
 		$this->mockArgument->expects($this->any())->method('getValue')->willReturn($this->mockNode);

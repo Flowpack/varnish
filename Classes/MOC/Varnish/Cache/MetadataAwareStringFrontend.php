@@ -1,14 +1,14 @@
 <?php
 namespace MOC\Varnish\Cache;
 
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Cache\Exception\InvalidDataException;
-use TYPO3\Flow\Utility\Environment;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Cache\Exception\InvalidDataException;
+use Neos\Flow\Utility\Environment;
 
 /**
  * A string frontend that stores cache metadata (tags, lifetime) for entries
  */
-class MetadataAwareStringFrontend extends \TYPO3\Flow\Cache\Frontend\StringFrontend {
+class MetadataAwareStringFrontend extends \Neos\Flow\Cache\Frontend\StringFrontend {
 
 	const SEPARATOR = '|';
 

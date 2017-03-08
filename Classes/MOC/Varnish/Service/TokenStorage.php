@@ -1,8 +1,8 @@
 <?php
 namespace MOC\Varnish\Service;
 
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Utility\Algorithms;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Utility\Algorithms;
 
 /**
  * @Flow\Scope("singleton")
@@ -11,7 +11,7 @@ class TokenStorage {
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\Flow\Cache\Frontend\StringFrontend
+	 * @var \Neos\Flow\Cache\Frontend\StringFrontend
 	 */
 	protected $cache;
 

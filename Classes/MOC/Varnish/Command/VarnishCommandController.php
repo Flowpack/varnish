@@ -2,12 +2,12 @@
 namespace MOC\Varnish\Command;
 
 use MOC\Varnish\Service\VarnishBanService;
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * @Flow\Scope("singleton")
  */
-class VarnishCommandController extends \TYPO3\Flow\Cli\CommandController {
+class VarnishCommandController extends \Neos\Flow\Cli\CommandController {
 
 	/**
 	 * @var VarnishBanService

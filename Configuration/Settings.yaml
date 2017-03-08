@@ -9,7 +9,7 @@ MOC:
     reverseLookupPort: null
     ignoredCacheTags: {  }
     log:
-      backend: TYPO3\Flow\Log\Backend\FileBackend
+      backend: Neos\Flow\Log\Backend\FileBackend
       backendOptions:
         logFileURL: '%FLOW_PATH_DATA%Logs/Varnish.log'
         createParentDirectories: true

@@ -3,11 +3,11 @@ namespace MOC\Varnish\Controller;
 
 use MOC\Varnish\Service\ContentCacheFlusherService;
 use MOC\Varnish\Service\VarnishBanService;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Error\Message;
-use TYPO3\Flow\Http\Client\CurlEngine;
-use TYPO3\Flow\Http\Uri;
-use TYPO3\Flow\Http\Request;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Error\Message;
+use Neos\Flow\Http\Client\CurlEngine;
+use Neos\Flow\Http\Uri;
+use Neos\Flow\Http\Request;
 use TYPO3\Neos\Domain\Model\Site;
 use TYPO3\Neos\Domain\Service\ContentContext;
 use TYPO3\Neos\Domain\Service\ContentDimensionPresetSourceInterface;
@@ -49,7 +49,7 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 */
 	protected $viewFormatToObjectNameMap = array(
 		'html' => 'TYPO3\Fluid\View\TemplateView',
-		'json' => 'TYPO3\Flow\Mvc\View\JsonView'
+		'json' => 'Neos\Flow\Mvc\View\JsonView'
 	);
 
 	/**

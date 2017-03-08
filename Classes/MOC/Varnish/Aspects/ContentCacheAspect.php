@@ -1,9 +1,9 @@
 <?php
 namespace MOC\Varnish\Aspects;
 
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Aop\JoinPointInterface;
-use TYPO3\Flow\Reflection\ObjectAccess;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Aop\JoinPointInterface;
+use Neos\Flow\Reflection\ObjectAccess;
 use TYPO3\TypoScript\Core\Runtime;
 
 /**

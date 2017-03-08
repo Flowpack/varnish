@@ -2,10 +2,10 @@
 namespace MOC\Varnish\Tests\Unit\Cache;
 
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
-use TYPO3\Flow\Cache\Backend\TransientMemoryBackend;
-use TYPO3\Flow\Core\ApplicationContext;
+use Neos\Flow\Cache\Backend\TransientMemoryBackend;
+use Neos\Flow\Core\ApplicationContext;
 
-class MetadataAwareStringFrontendTest extends \TYPO3\Flow\Tests\UnitTestCase {
+class MetadataAwareStringFrontendTest extends \Neos\Flow\Tests\UnitTestCase {
 
 	/**
 	 * @var MetadataAwareStringFrontend

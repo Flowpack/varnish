@@ -106,7 +106,7 @@ class VarnishBanService {
 
 		/**
 		 * Sanitize tags
-		 * @see \TYPO3\TypoScript\Core\Cache\ContentCache
+		 * @see \Neos\Fusion\Core\Cache\ContentCache
 		 */
 		foreach ($tags as $key => $tag) {
 			$tags[$key] = strtr($tag, '.:', '_-');

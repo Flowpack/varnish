@@ -6,7 +6,7 @@ use Neos\Neos\Domain\Service\ContentContext;
 use Neos\ContentRepository\Domain\Model\NodeData;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\ContentRepository\Domain\Model\NodeType;
-use TYPO3\TypoScript\Core\Cache\ContentCache;
+use Neos\Fusion\Core\Cache\ContentCache;
 
 /**
  * @Flow\Scope("singleton")

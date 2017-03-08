@@ -1,4 +1,4 @@
-TYPO3_TypoScript_Content:
+Neos_Fusion_Content:
   # Set up a special cache frontend to store metadata (tags, lifetime) in entries
   frontend: MOC\Varnish\Cache\MetadataAwareStringFrontend
 

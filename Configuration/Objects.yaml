@@ -6,7 +6,7 @@ MOC\Varnish\Service\CacheControlService:
         factoryMethodName: getCache
         arguments:
           1:
-            value: TYPO3_TypoScript_Content
+            value: Neos_Fusion_Content
 
 MOC\Varnish\Service\TokenStorage:
   properties:

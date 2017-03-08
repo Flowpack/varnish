@@ -30,6 +30,6 @@ Neos:
               styleSheets:
                 - 'resource://MOC.Varnish/Public/Styles/Module.css'
             privilegeTarget: 'MOC.Varnish:BackendModuleClearCache'
-    typoScript:
+    fusion:
       autoInclude:
         MOC.Varnish: true

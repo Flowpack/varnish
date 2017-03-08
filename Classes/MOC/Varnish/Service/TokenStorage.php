@@ -11,7 +11,7 @@ class TokenStorage {
 
 	/**
 	 * @Flow\Inject
-	 * @var \Neos\Flow\Cache\Frontend\StringFrontend
+	 * @var \Neos\Cache\Frontend\StringFrontend
 	 */
 	protected $cache;
 

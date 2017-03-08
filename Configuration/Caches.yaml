@@ -3,8 +3,8 @@ TYPO3_TypoScript_Content:
   frontend: MOC\Varnish\Cache\MetadataAwareStringFrontend
 
 Moc_Varnish_Site_Token:
-  frontend: Neos\Flow\Cache\Frontend\StringFrontend
-  backend: Neos\Flow\Cache\Backend\SimpleFileBackend
+  frontend: Neos\Cache\Frontend\StringFrontend
+  backend: Neos\Cache\Backend\SimpleFileBackend
   backendOptions:
     cacheDirectory: '%FLOW_PATH_DATA%Persistent/MocVarnishSiteToken'
     defaultLifetime: 0

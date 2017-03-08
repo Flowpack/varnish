@@ -8,7 +8,7 @@ use Neos\Flow\Utility\Environment;
 /**
  * A string frontend that stores cache metadata (tags, lifetime) for entries
  */
-class MetadataAwareStringFrontend extends \Neos\Flow\Cache\Frontend\StringFrontend {
+class MetadataAwareStringFrontend extends \Neos\Cache\Frontend\StringFrontend {
 
 	const SEPARATOR = '|';
 

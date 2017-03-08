@@ -2,7 +2,7 @@
 namespace MOC\Varnish\Service;
 
 use Neos\Flow\Annotations as Flow;
-use TYPO3\Neos\Domain\Service\ContentContext;
+use Neos\Neos\Domain\Service\ContentContext;
 use TYPO3\TYPO3CR\Domain\Model\NodeData;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 use TYPO3\TYPO3CR\Domain\Model\NodeType;

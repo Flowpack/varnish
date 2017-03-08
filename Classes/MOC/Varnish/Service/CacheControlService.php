@@ -6,7 +6,7 @@ use Neos\Flow\Mvc\Controller\ControllerInterface;
 use Neos\Flow\Mvc\RequestInterface;
 use Neos\Flow\Mvc\ResponseInterface;
 use Neos\Flow\Http\Response;
-use TYPO3\Neos\Controller\Frontend\NodeController;
+use Neos\Neos\Controller\Frontend\NodeController;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 
 /**

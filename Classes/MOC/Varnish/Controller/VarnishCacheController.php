@@ -8,11 +8,11 @@ use Neos\Error\Messages\Message;
 use Neos\Flow\Http\Client\CurlEngine;
 use Neos\Flow\Http\Uri;
 use Neos\Flow\Http\Request;
-use TYPO3\Neos\Domain\Model\Site;
-use TYPO3\Neos\Domain\Service\ContentContext;
-use TYPO3\Neos\Domain\Service\ContentDimensionPresetSourceInterface;
+use Neos\Neos\Domain\Model\Site;
+use Neos\Neos\Domain\Service\ContentContext;
+use Neos\Neos\Domain\Service\ContentDimensionPresetSourceInterface;
 
-class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModuleController {
+class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModuleController {
 
 	/**
 	 * @Flow\Inject
@@ -22,19 +22,19 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\Neos\Domain\Service\ContentContextFactory
+	 * @var \Neos\Neos\Domain\Service\ContentContextFactory
 	 */
 	protected $contextFactory;
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\Neos\Domain\Service\NodeSearchService
+	 * @var \Neos\Neos\Domain\Service\NodeSearchService
 	 */
 	protected $nodeSearchService;
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\Neos\Domain\Repository\SiteRepository
+	 * @var \Neos\Neos\Domain\Repository\SiteRepository
 	 */
 	protected $siteRepository;
 
@@ -65,8 +65,8 @@ class VarnishCacheController extends \TYPO3\Neos\Controller\Module\AbstractModul
 	 * @return void
 	 */
 	public function searchForNodeAction($searchWord, Site $selectedSite = NULL) {
-		$documentNodeTypes = $this->nodeTypeManager->getSubNodeTypes('TYPO3.Neos:Document');
-		$shortcutNodeType = $this->nodeTypeManager->getNodeType('TYPO3.Neos:Shortcut');
+		$documentNodeTypes = $this->nodeTypeManager->getSubNodeTypes('Neos.Neos:Document');
+		$shortcutNodeType = $this->nodeTypeManager->getNodeType('Neos.Neos:Shortcut');
 		$nodeTypes = array_diff($documentNodeTypes, array($shortcutNodeType));
 		$sites = array();
 		$activeSites = $this->siteRepository->findOnline();

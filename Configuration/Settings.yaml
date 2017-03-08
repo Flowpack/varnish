@@ -16,7 +16,7 @@ MOC:
         severityThreshold: '%LOG_INFO%'
         maximumLogFileSize: 1048576
         logFilesToKeep: 1
-TYPO3:
+Neos:
   Neos:
     modules:
       administration:

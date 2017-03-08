@@ -39,9 +39,9 @@ class ContentCacheAspect {
 		$runtime = ObjectAccess::getProperty($proxy, 'runtime', TRUE);
 
 		if ($evaluateContext['cacheForPathDisabled']) {
-			$mocVarnishIgnoreUncached = $runtime->evaluate($evaluateContext['typoScriptPath'] . '/__meta/cache/mocVarnishIgnoreUncached');
+			$mocVarnishIgnoreUncached = $runtime->evaluate($evaluateContext['fusionPath'] . '/__meta/cache/mocVarnishIgnoreUncached');
 			if ($mocVarnishIgnoreUncached !== TRUE) {
-				$this->logger->log(sprintf('Varnish cache disabled due to uncached path "%s" (can be prevented using "mocVarnishIgnoreUncached")', $evaluateContext['typoScriptPath']), LOG_DEBUG);
+				$this->logger->log(sprintf('Varnish cache disabled due to uncached path "%s" (can be prevented using "mocVarnishIgnoreUncached")', $evaluateContext['fusionPath']), LOG_DEBUG);
 				$this->evaluatedUncached = TRUE;
 			}
 		}

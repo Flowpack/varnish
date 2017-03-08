@@ -3,7 +3,7 @@ namespace MOC\Varnish\Aspects;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Aop\JoinPointInterface;
-use Neos\Flow\Reflection\ObjectAccess;
+use Neos\Utility\ObjectAccess;
 use TYPO3\TypoScript\Core\Runtime;
 
 /**

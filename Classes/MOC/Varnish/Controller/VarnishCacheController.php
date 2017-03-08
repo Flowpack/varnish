@@ -4,7 +4,7 @@ namespace MOC\Varnish\Controller;
 use MOC\Varnish\Service\ContentCacheFlusherService;
 use MOC\Varnish\Service\VarnishBanService;
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Error\Message;
+use Neos\Error\Messages\Message;
 use Neos\Flow\Http\Client\CurlEngine;
 use Neos\Flow\Http\Uri;
 use Neos\Flow\Http\Request;

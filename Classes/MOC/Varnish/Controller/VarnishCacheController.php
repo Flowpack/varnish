@@ -16,7 +16,7 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\TYPO3CR\Domain\Service\NodeTypeManager
+	 * @var \Neos\ContentRepository\Domain\Service\NodeTypeManager
 	 */
 	protected $nodeTypeManager;
 
@@ -107,10 +107,10 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
 	}
 
 	/**
-	 * @param \TYPO3\TYPO3CR\Domain\Model\Node $node
+	 * @param \Neos\ContentRepository\Domain\Model\Node $node
 	 * @return void
 	 */
-	public function purgeCacheAction(\TYPO3\TYPO3CR\Domain\Model\Node $node) {
+	public function purgeCacheAction(\Neos\ContentRepository\Domain\Model\Node $node) {
 		$service = new ContentCacheFlusherService();
 		$service->flushForNode($node);
 		$this->view->assign('value', TRUE);

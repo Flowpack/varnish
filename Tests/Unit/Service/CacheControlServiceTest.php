@@ -13,8 +13,8 @@ use Neos\Flow\Mvc\Controller\ControllerContext;
 use Neos\Flow\Mvc\RequestInterface;
 use Neos\Flow\Mvc\ResponseInterface;
 use Neos\Neos\Controller\Frontend\NodeController;
-use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
-use TYPO3\TYPO3CR\Domain\Service\Context;
+use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Service\Context;
 
 class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase {
 
@@ -102,9 +102,9 @@ class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase {
 		$this->mockArguments->expects($this->any())->method('hasArgument')->with('node')->willReturn(TRUE);
 		$this->mockArgument = $this->getMockBuilder('Neos\Flow\Mvc\Controller\Argument')->disableOriginalConstructor()->getMock();
 		$this->mockArguments->expects($this->any())->method('getArgument')->with('node')->willReturn($this->mockArgument);
-		$this->mockNode = $this->getMock('TYPO3\TYPO3CR\Domain\Model\NodeInterface');
+		$this->mockNode = $this->getMock('Neos\ContentRepository\Domain\Model\NodeInterface');
 		$this->mockArgument->expects($this->any())->method('getValue')->willReturn($this->mockNode);
-		$this->mockContext = $this->getMockBuilder('TYPO3\TYPO3CR\Domain\Service\Context')->disableOriginalConstructor()->getMock();
+		$this->mockContext = $this->getMockBuilder('Neos\ContentRepository\Domain\Service\Context')->disableOriginalConstructor()->getMock();
 		$this->mockNode->expects($this->any())->method('getContext')->willReturn($this->mockContext);
 	}
 

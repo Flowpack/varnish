@@ -7,7 +7,7 @@ use Neos\Flow\Mvc\RequestInterface;
 use Neos\Flow\Mvc\ResponseInterface;
 use Neos\Flow\Http\Response;
 use Neos\Neos\Controller\Frontend\NodeController;
-use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Model\NodeInterface;
 
 /**
  * Service for adding cache headers to a to-be-sent response

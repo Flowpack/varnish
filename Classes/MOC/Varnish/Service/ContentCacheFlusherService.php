@@ -3,9 +3,9 @@ namespace MOC\Varnish\Service;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Neos\Domain\Service\ContentContext;
-use TYPO3\TYPO3CR\Domain\Model\NodeData;
-use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
-use TYPO3\TYPO3CR\Domain\Model\NodeType;
+use Neos\ContentRepository\Domain\Model\NodeData;
+use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Model\NodeType;
 use TYPO3\TypoScript\Core\Cache\ContentCache;
 
 /**
@@ -96,8 +96,8 @@ class ContentCacheFlusherService {
 	}
 
 	/**
-	 * @param \TYPO3\TYPO3CR\Domain\Model\NodeType $nodeType
-	 * @return array<\TYPO3\TYPO3CR\Domain\Model\NodeType>
+	 * @param \Neos\ContentRepository\Domain\Model\NodeType $nodeType
+	 * @return array<\Neos\ContentRepository\Domain\Model\NodeType>
 	 */
 	protected function getAllImplementedNodeTypes($nodeType) {
 		$types = array($nodeType);

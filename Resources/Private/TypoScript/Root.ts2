@@ -1,4 +1,4 @@
-prototype(TYPO3.Neos:Page) {
+prototype(Neos.Neos:Page) {
 	# These uncached segments should not result in a "no-cache" Cache-Control header
 	head.neosBackendHeader.@cache.mocVarnishIgnoreUncached = true
 	head.neosBackendEndpoints.@cache.mocVarnishIgnoreUncached = true

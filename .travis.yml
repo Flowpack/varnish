@@ -20,9 +20,9 @@ before_script:
           "moc/varnish": "${VERSION}"
       },
       "require-dev": {
-          "typo3/buildessentials": "~3.0",
+          "typo3/buildessentials": "~4.0",
           "mikey179/vfsstream": "~1.6",
-          "phpunit/phpunit": "~4.8 || ~5.2.0"
+          "phpunit/phpunit": "~4.8 || ~5.4.0"
       },
       "scripts": {
           "post-update-cmd": "Neos\\\\Flow\\\\Composer\\\\InstallerScripts::postUpdateAndInstall",

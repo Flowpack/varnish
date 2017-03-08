@@ -48,7 +48,7 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
 	 * @var array
 	 */
 	protected $viewFormatToObjectNameMap = array(
-		'html' => 'TYPO3\Fluid\View\TemplateView',
+		'html' => 'Neos\FluidAdaptor\View\TemplateView',
 		'json' => 'Neos\Flow\Mvc\View\JsonView'
 	);
 

@@ -1,14 +1,15 @@
 <?php
 namespace MOC\Varnish\Cache;
 
+use Neos\Cache\Frontend\StringFrontend;
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Cache\Exception\InvalidDataException;
+use Neos\Flow\Property\Exception\InvalidDataTypeException;
 use Neos\Flow\Utility\Environment;
 
 /**
  * A string frontend that stores cache metadata (tags, lifetime) for entries
  */
-class MetadataAwareStringFrontend extends \Neos\Cache\Frontend\StringFrontend {
+class MetadataAwareStringFrontend extends StringFrontend {
 
 	const SEPARATOR = '|';
 
@@ -71,11 +72,11 @@ class MetadataAwareStringFrontend extends \Neos\Cache\Frontend\StringFrontend {
 	 * @param array $tags The tags metadata
 	 * @param integer $lifetime The lifetime metadata
 	 * @return string The content including the serialized metadata
-	 * @throws InvalidDataException
+	 * @throws InvalidDataTypeException
 	 */
 	protected function insertMetadata($content, $entryIdentifier, array $tags, $lifetime) {
 		if (!is_string($content)) {
-			throw new InvalidDataException('Given data is of type "' . gettype($content) . '", but a string is expected for string cache.', 1433155737);
+			throw new InvalidDataTypeException('Given data is of type "' . gettype($content) . '", but a string is expected for string cache.', 1433155737);
 		}
 		$metadata = array(
 			'identifier' => $entryIdentifier,
@@ -93,12 +94,12 @@ class MetadataAwareStringFrontend extends \Neos\Cache\Frontend\StringFrontend {
 	 * @param string $entryIdentifier The entry identifier
 	 * @param string $content The raw content including serialized metadata
 	 * @return string The content without metadata
-	 * @throws InvalidDataException
+	 * @throws InvalidDataTypeException
 	 */
 	protected function extractMetadata($entryIdentifier, $content) {
 		$separatorIndex = strpos($content, self::SEPARATOR);
 		if ($separatorIndex === FALSE) {
-			$exception = new InvalidDataException('Could not find cache metadata in entry with identifier ' . $entryIdentifier, 1433155925);
+			$exception = new InvalidDataTypeException('Could not find cache metadata in entry with identifier ' . $entryIdentifier, 1433155925);
 			if ($this->environment->getContext()->isProduction()) {
 				$this->logger->logException($exception);
 			} else {
@@ -109,7 +110,7 @@ class MetadataAwareStringFrontend extends \Neos\Cache\Frontend\StringFrontend {
 		$metadataJson = substr($content, 0, $separatorIndex);
 		$metadata = json_decode($metadataJson, TRUE);
 		if ($metadata === NULL) {
-			$exception = new InvalidDataException('Invalid cache metadata in entry with identifier ' . $entryIdentifier, 1433155926);
+			$exception = new InvalidDataTypeException('Invalid cache metadata in entry with identifier ' . $entryIdentifier, 1433155926);
 			if ($this->environment->getContext()->isProduction()) {
 				$this->logger->logException($exception);
 			} else {

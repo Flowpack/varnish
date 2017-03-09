@@ -1,6 +1,6 @@
 {
     "name": "moc/varnish",
-    "type": "typo3-flow-package",
+    "type": "neos-package",
     "license": "MIT",
     "description": "Varnish integration for Neos",
     "keywords": [

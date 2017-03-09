@@ -1,13 +1,21 @@
 
 MOC:
   Varnish:
+    # Disables Varnish caching if set to false
     enabled: true
+    # URL or URLs (if array) Varnish is running on for purge requests (skip trailing slash)
     varnishUrl: 'http://127.0.0.1'
+    # Cache header sending configuration
     cacheHeaders:
+      # Default and maximum TTL in seconds
       defaultSharedMaximumAge: null
+      # Disable sending headers (useful for staging environments)
       disabled: false
+    # Port to use for reverse lookup in backend module
     reverseLookupPort: null
+    # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
     ignoredCacheTags: {  }
+    # Log configuration
     log:
       backend: Neos\Flow\Log\Backend\FileBackend
       backendOptions:

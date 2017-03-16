@@ -8,6 +8,7 @@ use Neos\Error\Messages\Message;
 use Neos\Flow\Http\Client\CurlEngine;
 use Neos\Flow\Http\Uri;
 use Neos\Flow\Http\Request;
+use Neos\Neos\Domain\Model\Domain;
 use Neos\Neos\Domain\Model\Site;
 use Neos\Neos\Domain\Service\ContentContext;
 use Neos\Neos\Domain\Service\ContentDimensionPresetSourceInterface;
@@ -124,8 +125,8 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
 	public function purgeCacheByTagsAction($tags, Site $site = NULL) {
 		$domains = NULL;
 		if ($site !== NULL && $site->hasActiveDomains()) {
-			$domains = $site->getActiveDomains()->map(function($domain) {
-				return $domain->getHostpattern();
+			$domains = $site->getActiveDomains()->map(function(Domain $domain) {
+				return $domain->getHostname();
 			})->toArray();
 		}
 		$tags = explode(',', $tags);
@@ -143,8 +144,8 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
 	public function purgeAllVarnishCacheAction(Site $site = NULL, $contentType = NULL) {
 		$domains = NULL;
 		if ($site !== NULL && $site->hasActiveDomains()) {
-			$domains = $site->getActiveDomains()->map(function($domain) {
-				return $domain->getHostpattern();
+			$domains = $site->getActiveDomains()->map(function(Domain $domain) {
+				return $domain->getHostname();
 			})->toArray();
 		}
 		$service = new VarnishBanService();

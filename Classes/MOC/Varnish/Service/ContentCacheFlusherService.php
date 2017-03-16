@@ -2,6 +2,8 @@
 namespace MOC\Varnish\Service;
 
 use Neos\Flow\Annotations as Flow;
+use Neos\Neos\Domain\Model\Domain;
+use Neos\Neos\Domain\Model\Site;
 use Neos\Neos\Domain\Service\ContentContext;
 use Neos\ContentRepository\Domain\Model\NodeData;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
@@ -73,15 +75,16 @@ class ContentCacheFlusherService {
 			$this->tagsToFlush['DescendantOf_' . $node->getIdentifier()] = sprintf('which were tagged with "DescendantOf_%s" because node "%s" has changed.', $node->getIdentifier(), $node->getPath());
 		}
 
-		if ($node instanceof NodeInterface && $node->getContext() instanceof ContentContext) {
-			$site = $node->getContext()->getCurrentSite();
-			if ($site->hasActiveDomains()) {
-				$domains = $site->getActiveDomains()->map(function($domain) {
-					return $domain->getHostpattern();
-				})->toArray();
-				$this->domainsToFlush = array_unique(array_merge($this->domainsToFlush, $domains));
-			}
-		}
+    		if ($node instanceof NodeInterface && $node->getContext() instanceof ContentContext) {
+    			/** @var Site $site */
+		        $site = $node->getContext()->getCurrentSite();
+    			if ($site->hasActiveDomains()) {
+    				$domains = $site->getActiveDomains()->map(function(Domain $domain) {
+    					return $domain->getHostname();
+    				})->toArray();
+    				$this->domainsToFlush = array_unique(array_merge($this->domainsToFlush, $domains));
+    			}
+    		}
 	}
 
 	/**

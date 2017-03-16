@@ -14,7 +14,7 @@ MOC:
     # Port to use for reverse lookup in backend module
     reverseLookupPort: null
     # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
-    ignoredCacheTags: {  }
+    ignoredCacheTags: []
     # Log configuration
     log:
       backend: Neos\Flow\Log\Backend\FileBackend

@@ -7,6 +7,7 @@ use MOC\Varnish\Service\CacheControlService;
 use MOC\Varnish\Service\TokenStorage;
 use MOC\Varnish\Log\LoggerInterface;
 use Neos\Cache\Backend\TransientMemoryBackend;
+use Neos\Cache\EnvironmentConfiguration;
 use Neos\Flow\Core\ApplicationContext;
 use Neos\Flow\Mvc\Controller\Argument;
 use Neos\Flow\Mvc\Controller\Arguments;
@@ -91,7 +92,10 @@ class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase {
 		$this->mockLogger = $this->getMockBuilder('MOC\Varnish\Log\LoggerInterface')->getMock();
 		$this->inject($this->service, 'logger', $this->mockLogger);
 		$this->contentCacheFrontend = new MetadataAwareStringFrontend('test',
-			new TransientMemoryBackend(new ApplicationContext('Testing'))
+			new TransientMemoryBackend(new EnvironmentConfiguration(
+				'Testing',
+				'vfs://Foo/'
+			))
 		);
 		$this->contentCacheFrontend->initializeObject();
 		$this->inject($this->service, 'contentCacheFrontend', $this->contentCacheFrontend);

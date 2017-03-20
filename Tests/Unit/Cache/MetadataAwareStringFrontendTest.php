@@ -3,7 +3,7 @@ namespace MOC\Varnish\Tests\Unit\Cache;
 
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
 use Neos\Cache\Backend\TransientMemoryBackend;
-use Neos\Flow\Core\ApplicationContext;
+use Neos\Cache\EnvironmentConfiguration;
 
 class MetadataAwareStringFrontendTest extends \Neos\Flow\Tests\UnitTestCase {
 
@@ -14,7 +14,10 @@ class MetadataAwareStringFrontendTest extends \Neos\Flow\Tests\UnitTestCase {
 
 	protected function setUp() {
 		$this->frontend = new MetadataAwareStringFrontend('test',
-			new TransientMemoryBackend(new ApplicationContext('Testing'))
+			new TransientMemoryBackend(new EnvironmentConfiguration(
+				'Testing',
+				'vfs://Foo/'
+			))
 		);
 		$this->frontend->initializeObject();
 	}

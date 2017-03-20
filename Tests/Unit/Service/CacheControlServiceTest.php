@@ -5,6 +5,7 @@ use MOC\Varnish\Aspects\ContentCacheAspect;
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
 use MOC\Varnish\Service\CacheControlService;
 use MOC\Varnish\Service\TokenStorage;
+use MOC\Varnish\Log\LoggerInterface;
 use Neos\Cache\Backend\TransientMemoryBackend;
 use Neos\Flow\Core\ApplicationContext;
 use Neos\Flow\Mvc\Controller\Argument;
@@ -42,6 +43,11 @@ class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase {
 	 * @var ResponseInterface
 	 */
 	protected $mockResponse;
+
+	/**
+	 * @var LoggerInterface
+	 */
+	protected $mockLogger;
 
 	/**
 	 * @var NodeController

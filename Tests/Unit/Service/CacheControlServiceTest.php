@@ -86,7 +86,7 @@ class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase {
 
 	protected function setUp() {
 		$this->service = new CacheControlService();
-		$this->mockContentCacheAspect = $this->getMock('MOC\Varnish\Aspects\ContentCacheAspect');
+		$this->mockContentCacheAspect = $this->createMock('MOC\Varnish\Aspects\ContentCacheAspect');
 		$this->inject($this->service, 'contentCacheAspect', $this->mockContentCacheAspect);
 		$this->mockLogger = $this->getMockBuilder('MOC\Varnish\Log\LoggerInterface')->getMock();
 		$this->inject($this->service, 'logger', $this->mockLogger);
@@ -95,12 +95,12 @@ class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase {
 		);
 		$this->contentCacheFrontend->initializeObject();
 		$this->inject($this->service, 'contentCacheFrontend', $this->contentCacheFrontend);
-		$this->mockTokenStorage = $this->getMock('MOC\Varnish\Service\TokenStorage');
+		$this->mockTokenStorage = $this->createMock('MOC\Varnish\Service\TokenStorage');
 		$this->inject($this->service, 'tokenStorage', $this->mockTokenStorage);
 
-		$this->mockRequest = $this->getMock('Neos\Flow\Mvc\RequestInterface');
-		$this->mockResponse = $this->getMock('Neos\Flow\Http\Response');
-		$this->mockController = $this->getMock('Neos\Neos\Controller\Frontend\NodeController');
+		$this->mockRequest = $this->createMock('Neos\Flow\Mvc\RequestInterface');
+		$this->mockResponse = $this->createMock('Neos\Flow\Http\Response');
+		$this->mockController = $this->createMock('Neos\Neos\Controller\Frontend\NodeController');
 		$this->mockControllerContext = $this->getMockBuilder('Neos\Flow\Mvc\Controller\ControllerContext')->disableOriginalConstructor()->getMock();
 		$this->mockController->expects($this->any())->method('getControllerContext')->willReturn($this->mockControllerContext);
 		$this->mockArguments = $this->getMockBuilder('Neos\Flow\Mvc\Controller\Arguments')->getMock();
@@ -108,7 +108,7 @@ class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase {
 		$this->mockArguments->expects($this->any())->method('hasArgument')->with('node')->willReturn(TRUE);
 		$this->mockArgument = $this->getMockBuilder('Neos\Flow\Mvc\Controller\Argument')->disableOriginalConstructor()->getMock();
 		$this->mockArguments->expects($this->any())->method('getArgument')->with('node')->willReturn($this->mockArgument);
-		$this->mockNode = $this->getMock('Neos\ContentRepository\Domain\Model\NodeInterface');
+		$this->mockNode = $this->createMock('Neos\ContentRepository\Domain\Model\NodeInterface');
 		$this->mockArgument->expects($this->any())->method('getValue')->willReturn($this->mockNode);
 		$this->mockContext = $this->getMockBuilder('Neos\ContentRepository\Domain\Service\Context')->disableOriginalConstructor()->getMock();
 		$this->mockNode->expects($this->any())->method('getContext')->willReturn($this->mockContext);

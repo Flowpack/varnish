@@ -5,7 +5,7 @@ use MOC\Varnish\Aspects\ContentCacheAspect;
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
 use MOC\Varnish\Service\CacheControlService;
 use MOC\Varnish\Service\TokenStorage;
-use Neos\Flow\Cache\Backend\TransientMemoryBackend;
+use Neos\Cache\Backend\TransientMemoryBackend;
 use Neos\Flow\Core\ApplicationContext;
 use Neos\Flow\Mvc\Controller\Argument;
 use Neos\Flow\Mvc\Controller\Arguments;

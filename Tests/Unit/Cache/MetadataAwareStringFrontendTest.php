@@ -2,7 +2,7 @@
 namespace MOC\Varnish\Tests\Unit\Cache;
 
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
-use Neos\Flow\Cache\Backend\TransientMemoryBackend;
+use Neos\Cache\Backend\TransientMemoryBackend;
 use Neos\Flow\Core\ApplicationContext;
 
 class MetadataAwareStringFrontendTest extends \Neos\Flow\Tests\UnitTestCase {

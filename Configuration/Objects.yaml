@@ -2,17 +2,17 @@ MOC\Varnish\Service\CacheControlService:
   properties:
     contentCacheFrontend:
       object:
-        factoryObjectName: TYPO3\Flow\Cache\CacheManager
+        factoryObjectName: Neos\Flow\Cache\CacheManager
         factoryMethodName: getCache
         arguments:
           1:
-            value: TYPO3_TypoScript_Content
+            value: Neos_Fusion_Content
 
 MOC\Varnish\Service\TokenStorage:
   properties:
     cache:
       object:
-        factoryObjectName: TYPO3\Flow\Cache\CacheManager
+        factoryObjectName: Neos\Flow\Cache\CacheManager
         factoryMethodName: getCache
         arguments:
           1:
@@ -20,13 +20,13 @@ MOC\Varnish\Service\TokenStorage:
 
 MOC\Varnish\Log\LoggerInterface:
   scope: singleton
-  factoryObjectName: TYPO3\Flow\Log\LoggerFactory
+  factoryObjectName: Neos\Flow\Log\LoggerFactory
   factoryMethodName: create
   arguments:
     1:
       value: 'MOC.Varnish'
     2:
-      value: 'TYPO3\Flow\Log\Logger'
+      value: 'Neos\Flow\Log\Logger'
     3:
       setting: MOC.Varnish.log.backend
     4:

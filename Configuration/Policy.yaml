@@ -1,10 +1,10 @@
 privilegeTargets:
-  'TYPO3\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
+  'Neos\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
     'MOC.Varnish:BackendModuleClearCache':
       matcher: 'within(MOC\Varnish\Controller\VarnishCacheController) && method(public .*->(?!initialize).*Action())'
 
 roles:
-  'TYPO3.Neos:Administrator':
+  'Neos.Neos:Administrator':
     privileges:
       -
         privilegeTarget: 'MOC.Varnish:BackendModuleClearCache'

@@ -1,10 +1,10 @@
-TYPO3_TypoScript_Content:
+Neos_Fusion_Content:
   # Set up a special cache frontend to store metadata (tags, lifetime) in entries
   frontend: MOC\Varnish\Cache\MetadataAwareStringFrontend
 
 Moc_Varnish_Site_Token:
-  frontend: TYPO3\Flow\Cache\Frontend\StringFrontend
-  backend: TYPO3\Flow\Cache\Backend\SimpleFileBackend
+  frontend: Neos\Cache\Frontend\StringFrontend
+  backend: Neos\Cache\Backend\SimpleFileBackend
   backendOptions:
     cacheDirectory: '%FLOW_PATH_DATA%Persistent/MocVarnishSiteToken'
     defaultLifetime: 0

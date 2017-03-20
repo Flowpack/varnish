@@ -5,185 +5,201 @@ use MOC\Varnish\Aspects\ContentCacheAspect;
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
 use MOC\Varnish\Service\CacheControlService;
 use MOC\Varnish\Service\TokenStorage;
-use TYPO3\Flow\Cache\Backend\TransientMemoryBackend;
-use TYPO3\Flow\Core\ApplicationContext;
-use TYPO3\Flow\Mvc\Controller\Argument;
-use TYPO3\Flow\Mvc\Controller\Arguments;
-use TYPO3\Flow\Mvc\Controller\ControllerContext;
-use TYPO3\Flow\Mvc\RequestInterface;
-use TYPO3\Flow\Mvc\ResponseInterface;
-use TYPO3\Neos\Controller\Frontend\NodeController;
-use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
-use TYPO3\TYPO3CR\Domain\Service\Context;
+use MOC\Varnish\Log\LoggerInterface;
+use Neos\Cache\Backend\TransientMemoryBackend;
+use Neos\Cache\EnvironmentConfiguration;
+use Neos\Flow\Core\ApplicationContext;
+use Neos\Flow\Mvc\Controller\Argument;
+use Neos\Flow\Mvc\Controller\Arguments;
+use Neos\Flow\Mvc\Controller\ControllerContext;
+use Neos\Flow\Mvc\RequestInterface;
+use Neos\Flow\Mvc\ResponseInterface;
+use Neos\Neos\Controller\Frontend\NodeController;
+use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Service\Context;
 
-class CacheControlServiceTest extends \TYPO3\Flow\Tests\UnitTestCase {
+class CacheControlServiceTest extends \Neos\Flow\Tests\UnitTestCase
+{
 
-	/**
-	 * @var CacheControlService
-	 */
-	protected $service;
+    /**
+     * @var CacheControlService
+     */
+    protected $service;
 
-	/**
-	 * @var ContentCacheAspect
-	 */
-	protected $mockContentCacheAspect;
+    /**
+     * @var ContentCacheAspect
+     */
+    protected $mockContentCacheAspect;
 
-	/**
-	 * @var MetadataAwareStringFrontend
-	 */
-	protected $contentCacheFrontend;
+    /**
+     * @var MetadataAwareStringFrontend
+     */
+    protected $contentCacheFrontend;
 
-	/**
-	 * @var RequestInterface
-	 */
-	protected $mockRequest;
+    /**
+     * @var RequestInterface
+     */
+    protected $mockRequest;
 
-	/**
-	 * @var ResponseInterface
-	 */
-	protected $mockResponse;
+    /**
+     * @var ResponseInterface
+     */
+    protected $mockResponse;
 
-	/**
-	 * @var NodeController
-	 */
-	protected $mockController;
+    /**
+     * @var LoggerInterface
+     */
+    protected $mockLogger;
 
-	/**
-	 * @var ControllerContext
-	 */
-	protected $mockControllerContext;
+    /**
+     * @var NodeController
+     */
+    protected $mockController;
 
-	/**
-	 * @var Arguments
-	 */
-	protected $mockArguments;
+    /**
+     * @var ControllerContext
+     */
+    protected $mockControllerContext;
 
-	/**
-	 * @var Argument
-	 */
-	protected $mockArgument;
+    /**
+     * @var Arguments
+     */
+    protected $mockArguments;
 
-	/**
-	 * @var NodeInterface
-	 */
-	protected $mockNode;
+    /**
+     * @var Argument
+     */
+    protected $mockArgument;
 
-	/**
-	 * @var Context
-	 */
-	protected $mockContext;
+    /**
+     * @var NodeInterface
+     */
+    protected $mockNode;
 
-	/**
-	 * @var TokenStorage
-	 */
-	protected $mockTokenStorage;
+    /**
+     * @var Context
+     */
+    protected $mockContext;
 
-	protected function setUp() {
-		$this->service = new CacheControlService();
-		$this->mockContentCacheAspect = $this->getMock('MOC\Varnish\Aspects\ContentCacheAspect');
-		$this->inject($this->service, 'contentCacheAspect', $this->mockContentCacheAspect);
-		$this->mockLogger = $this->getMockBuilder('MOC\Varnish\Log\LoggerInterface')->getMock();
-		$this->inject($this->service, 'logger', $this->mockLogger);
-		$this->contentCacheFrontend = new MetadataAwareStringFrontend('test',
-			new TransientMemoryBackend(new ApplicationContext('Testing'))
-		);
-		$this->contentCacheFrontend->initializeObject();
-		$this->inject($this->service, 'contentCacheFrontend', $this->contentCacheFrontend);
-		$this->mockTokenStorage = $this->getMock('MOC\Varnish\Service\TokenStorage');
-		$this->inject($this->service, 'tokenStorage', $this->mockTokenStorage);
+    /**
+     * @var TokenStorage
+     */
+    protected $mockTokenStorage;
 
-		$this->mockRequest = $this->getMock('TYPO3\Flow\Mvc\RequestInterface');
-		$this->mockResponse = $this->getMock('TYPO3\Flow\Http\Response');
-		$this->mockController = $this->getMock('TYPO3\Neos\Controller\Frontend\NodeController');
-		$this->mockControllerContext = $this->getMockBuilder('TYPO3\Flow\Mvc\Controller\ControllerContext')->disableOriginalConstructor()->getMock();
-		$this->mockController->expects($this->any())->method('getControllerContext')->willReturn($this->mockControllerContext);
-		$this->mockArguments = $this->getMockBuilder('TYPO3\Flow\Mvc\Controller\Arguments')->getMock();
-		$this->mockControllerContext->expects($this->any())->method('getArguments')->willReturn($this->mockArguments);
-		$this->mockArguments->expects($this->any())->method('hasArgument')->with('node')->willReturn(TRUE);
-		$this->mockArgument = $this->getMockBuilder('TYPO3\Flow\Mvc\Controller\Argument')->disableOriginalConstructor()->getMock();
-		$this->mockArguments->expects($this->any())->method('getArgument')->with('node')->willReturn($this->mockArgument);
-		$this->mockNode = $this->getMock('TYPO3\TYPO3CR\Domain\Model\NodeInterface');
-		$this->mockArgument->expects($this->any())->method('getValue')->willReturn($this->mockNode);
-		$this->mockContext = $this->getMockBuilder('TYPO3\TYPO3CR\Domain\Service\Context')->disableOriginalConstructor()->getMock();
-		$this->mockNode->expects($this->any())->method('getContext')->willReturn($this->mockContext);
-	}
+    protected function setUp()
+    {
+        $this->service = new CacheControlService();
+        $this->mockContentCacheAspect = $this->createMock('MOC\Varnish\Aspects\ContentCacheAspect');
+        $this->inject($this->service, 'contentCacheAspect', $this->mockContentCacheAspect);
+        $this->mockLogger = $this->getMockBuilder('MOC\Varnish\Log\LoggerInterface')->getMock();
+        $this->inject($this->service, 'logger', $this->mockLogger);
+        $this->contentCacheFrontend = new MetadataAwareStringFrontend('test',
+            new TransientMemoryBackend(new EnvironmentConfiguration(
+                'Testing',
+                'vfs://Foo/'
+            ))
+        );
+        $this->contentCacheFrontend->initializeObject();
+        $this->inject($this->service, 'contentCacheFrontend', $this->contentCacheFrontend);
+        $this->mockTokenStorage = $this->createMock('MOC\Varnish\Service\TokenStorage');
+        $this->inject($this->service, 'tokenStorage', $this->mockTokenStorage);
 
-	/**
-	 * @test
-	 */
-	public function addHeadersInLiveWorkspaceAndCachedResponseAddsTagsFromCache() {
-		$this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
+        $this->mockRequest = $this->createMock('Neos\Flow\Mvc\RequestInterface');
+        $this->mockResponse = $this->createMock('Neos\Flow\Http\Response');
+        $this->mockController = $this->createMock('Neos\Neos\Controller\Frontend\NodeController');
+        $this->mockControllerContext = $this->getMockBuilder('Neos\Flow\Mvc\Controller\ControllerContext')->disableOriginalConstructor()->getMock();
+        $this->mockController->expects($this->any())->method('getControllerContext')->willReturn($this->mockControllerContext);
+        $this->mockArguments = $this->getMockBuilder('Neos\Flow\Mvc\Controller\Arguments')->getMock();
+        $this->mockControllerContext->expects($this->any())->method('getArguments')->willReturn($this->mockArguments);
+        $this->mockArguments->expects($this->any())->method('hasArgument')->with('node')->willReturn(true);
+        $this->mockArgument = $this->getMockBuilder('Neos\Flow\Mvc\Controller\Argument')->disableOriginalConstructor()->getMock();
+        $this->mockArguments->expects($this->any())->method('getArgument')->with('node')->willReturn($this->mockArgument);
+        $this->mockNode = $this->createMock('Neos\ContentRepository\Domain\Model\NodeInterface');
+        $this->mockArgument->expects($this->any())->method('getValue')->willReturn($this->mockNode);
+        $this->mockContext = $this->getMockBuilder('Neos\ContentRepository\Domain\Service\Context')->disableOriginalConstructor()->getMock();
+        $this->mockNode->expects($this->any())->method('getContext')->willReturn($this->mockContext);
+    }
 
-		$this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'));
-		$this->contentCacheFrontend->set('entry2', 'Bar', array('Tag2'));
+    /**
+     * @test
+     */
+    public function addHeadersInLiveWorkspaceAndCachedResponseAddsTagsFromCache()
+    {
+        $this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
 
-		$this->mockResponse->expects($this->at(0))->method('setHeader')->with('X-Cache-Tags', 'Tag1,Tag2');
+        $this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'));
+        $this->contentCacheFrontend->set('entry2', 'Bar', array('Tag2'));
 
-		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
-	}
+        $this->mockResponse->expects($this->at(0))->method('setHeader')->with('X-Cache-Tags', 'Tag1,Tag2');
 
-	/**
-	 * @test
-	 */
-	public function addHeadersInLiveWorkspaceAndCachedResponseWillSetMinimalLifetimeOfEntries() {
-		$this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
+        $this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
+    }
 
-		$this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'), 10000);
-		$this->contentCacheFrontend->set('entry2', 'Bar', array('Tag2'), 1000);
+    /**
+     * @test
+     */
+    public function addHeadersInLiveWorkspaceAndCachedResponseWillSetMinimalLifetimeOfEntries()
+    {
+        $this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
 
-		$this->mockResponse->expects($this->atLeastOnce())->method('setSharedMaximumAge')->with(1000);
+        $this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'), 10000);
+        $this->contentCacheFrontend->set('entry2', 'Bar', array('Tag2'), 1000);
 
-		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
-	}
+        $this->mockResponse->expects($this->atLeastOnce())->method('setSharedMaximumAge')->with(1000);
 
-	/**
-	 * @test
-	 */
-	public function addHeadersInLiveWorkspaceAndCachedResponseWithDefaultAndSmallEntryLifetime() {
-		$this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
+        $this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
+    }
 
-		$this->service->injectSettings(array(
-			'cacheHeaders' => array(
-				'defaultSharedMaximumAge' => 86400
-			)
-		));
+    /**
+     * @test
+     */
+    public function addHeadersInLiveWorkspaceAndCachedResponseWithDefaultAndSmallEntryLifetime()
+    {
+        $this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
 
-		$this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'), 10000);
+        $this->service->injectSettings(array(
+            'cacheHeaders' => array(
+                'defaultSharedMaximumAge' => 86400
+            )
+        ));
 
-		$this->mockResponse->expects($this->atLeastOnce())->method('setSharedMaximumAge')->with(10000);
+        $this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'), 10000);
 
-		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
-	}
+        $this->mockResponse->expects($this->atLeastOnce())->method('setSharedMaximumAge')->with(10000);
 
-	/**
-	 * @test
-	 */
-	public function addHeadersInLiveWorkspaceAndCachedResponseWithDefaultAndLargeEntryLifetime() {
-		$this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
+        $this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
+    }
 
-		$this->service->injectSettings(array(
-			'cacheHeaders' => array(
-				'defaultSharedMaximumAge' => 86400
-			)
-		));
+    /**
+     * @test
+     */
+    public function addHeadersInLiveWorkspaceAndCachedResponseWithDefaultAndLargeEntryLifetime()
+    {
+        $this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
 
-		$this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'), 124800);
+        $this->service->injectSettings(array(
+            'cacheHeaders' => array(
+                'defaultSharedMaximumAge' => 86400
+            )
+        ));
 
-		$this->mockResponse->expects($this->atLeastOnce())->method('setSharedMaximumAge')->with(86400);
+        $this->contentCacheFrontend->set('entry1', 'Foo', array('Tag1'), 124800);
 
-		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
-	}
+        $this->mockResponse->expects($this->atLeastOnce())->method('setSharedMaximumAge')->with(86400);
 
-	/**
-	 * @test
-	 */
-	public function addHeadersInLiveWorkspaceAndCachedResponseAddsSiteToken() {
-		$this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
-		$this->mockTokenStorage->expects($this->any())->method('getToken')->willReturn('RandomSiteToken');
+        $this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
+    }
 
-		$this->mockResponse->expects($this->at(0))->method('setHeader')->with('X-Site', 'RandomSiteToken');
+    /**
+     * @test
+     */
+    public function addHeadersInLiveWorkspaceAndCachedResponseAddsSiteToken()
+    {
+        $this->mockContext->expects($this->any())->method('getWorkspaceName')->willReturn('live');
+        $this->mockTokenStorage->expects($this->any())->method('getToken')->willReturn('RandomSiteToken');
 
-		$this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
-	}
+        $this->mockResponse->expects($this->at(0))->method('setHeader')->with('X-Site', 'RandomSiteToken');
 
+        $this->service->addHeaders($this->mockRequest, $this->mockResponse, $this->mockController);
+    }
 }

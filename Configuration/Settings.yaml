@@ -1,43 +1,43 @@
+
 MOC:
   Varnish:
-    # Disables Varnish caching if set to FALSE
-    enabled: TRUE
+    # Disables Varnish caching if set to false
+    enabled: true
     # URL or URLs (if array) Varnish is running on for purge requests (skip trailing slash)
     varnishUrl: 'http://127.0.0.1'
     # Cache header sending configuration
     cacheHeaders:
       # Default and maximum TTL in seconds
-      defaultSharedMaximumAge: ~
+      defaultSharedMaximumAge: null
       # Disable sending headers (useful for staging environments)
-      disabled: FALSE
+      disabled: false
     # Port to use for reverse lookup in backend module
-    reverseLookupPort: ~
+    reverseLookupPort: null
     # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
     ignoredCacheTags: []
     # Log configuration
     log:
-      backend: TYPO3\Flow\Log\Backend\FileBackend
+      backend: Neos\Flow\Log\Backend\FileBackend
       backendOptions:
         logFileURL: '%FLOW_PATH_DATA%Logs/Varnish.log'
-        createParentDirectories: TRUE
+        createParentDirectories: true
         severityThreshold: '%LOG_INFO%'
         maximumLogFileSize: 1048576
         logFilesToKeep: 1
-
-TYPO3:
+Neos:
   Neos:
     modules:
       administration:
         submodules:
           varnish:
             label: 'Varnish cache purging'
-            controller: '\MOC\Varnish\Controller\VarnishCacheController'
+            controller: \MOC\Varnish\Controller\VarnishCacheController
             description: 'Clear Varnish cache.'
-            icon: 'icon-gear'
-            resource: 'MOC.Varnish:BackendModuleClearCache'
+            icon: icon-gear
             additionalResources:
               styleSheets:
                 - 'resource://MOC.Varnish/Public/Styles/Module.css'
-    typoScript:
+            privilegeTarget: 'MOC.Varnish:BackendModuleClearCache'
+    fusion:
       autoInclude:
-        'MOC.Varnish': TRUE
+        MOC.Varnish: true

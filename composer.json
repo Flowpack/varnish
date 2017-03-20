@@ -36,8 +36,8 @@
         "friendsofsymfony/http-cache": "~1.3"
     },
     "autoload": {
-        "psr-0": {
-            "MOC\\Varnish": "Classes"
+        "psr-4": {
+            "MOC\\Varnish\\": "Classes"
         }
     },
     "extra": {

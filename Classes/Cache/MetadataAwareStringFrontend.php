@@ -58,7 +58,7 @@ class MetadataAwareStringFrontend extends StringFrontend
     /**
      * {@inheritdoc}
      */
-    public function getByTag($tag)
+    public function getByTag($tag): array
     {
         $entries = parent::getByTag($tag);
         foreach ($entries as $identifier => $content) {

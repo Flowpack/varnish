@@ -37,7 +37,7 @@ class MetadataAwareStringFrontend extends StringFrontend
      *
      * {@inheritdoc}
      */
-    public function set($entryIdentifier, $content, array $tags = array(), $lifetime = null)
+    public function set(string $entryIdentifier, $content, array $tags = [], int $lifetime = null)
     {
         $content = $this->insertMetadata($content, $entryIdentifier, $tags, $lifetime);
         parent::set($entryIdentifier, $content, $tags, $lifetime);
@@ -46,7 +46,7 @@ class MetadataAwareStringFrontend extends StringFrontend
     /**
      * {@inheritdoc}
      */
-    public function get($entryIdentifier)
+    public function get(string $entryIdentifier)
     {
         $content = parent::get($entryIdentifier);
         if ($content !== false) {
@@ -58,7 +58,7 @@ class MetadataAwareStringFrontend extends StringFrontend
     /**
      * {@inheritdoc}
      */
-    public function getByTag($tag): array
+    public function getByTag(string $tag): array
     {
         $entries = parent::getByTag($tag);
         foreach ($entries as $identifier => $content) {

@@ -1,7 +1,7 @@
 language: php
 
 php:
-  - 7.0
+  - 7.2
 
 before_script:
   - env
@@ -16,13 +16,13 @@ before_script:
           "bin-dir": "bin"
       },
       "require": {
-          "neos/neos": "^3.0",
+          "neos/neos": "^4.0",
           "moc/varnish": "${VERSION}"
       },
       "require-dev": {
-          "typo3/buildessentials": "~4.0",
+          "neos/buildessentials": "~5.0",
           "mikey179/vfsstream": "~1.6",
-          "phpunit/phpunit": "~5.4.0"
+          "phpunit/phpunit": "~7.1.0"
       },
       "scripts": {
           "post-update-cmd": "Neos\\\\Flow\\\\Composer\\\\InstallerScripts::postUpdateAndInstall",

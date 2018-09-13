@@ -23,7 +23,7 @@
 										Site: {site.site.name}
 									</td>
 									<td class="neos-priority1 neos-aRight">
-										<i class="fold-toggle icon-chevron-up icon-white" data-toggle="fold-{site.site.nodeName}"></i>
+										<i class="fold-toggle fa fa-chevron-up icon-white" data-toggle="fold-{site.site.nodeName}"></i>
 									</td>
 								</tr>
 							</f:if>
@@ -38,12 +38,12 @@
 										</td>
 										<td title="{node.path}"><a href="{url}" target="_blank">{neos:uri.node(node: node)}</a></td>
 										<td><f:if condition="{node.properties.disableVarnishCache}">
-											<f:then><i class="icon-warning-sign"></i> Caching disabled</f:then>
-											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="icon-time"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
+											<f:then><i class="fa fa-warning-sign"></i> Caching disabled</f:then>
+											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="fa fa-time"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
 										</f:if></td>
 										<td class="neos-action">
-											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: url})}"><i class="icon-info-sign"></i></button>
-											<f:link.action action="purgeCache" format="json" arguments="{node: node}" class="neos-button clear-cache" title="Clear cache" data="{node-label: node.label}"><i class="icon-bolt"></i></f:link.action>
+											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: url})}"><i class="fa fa-info-circle"></i></button>
+											<f:link.action action="purgeCache" format="json" arguments="{node: node}" class="neos-button clear-cache" title="Clear cache" data="{node-label: node.label}"><i class="fa fa-bolt"></i></f:link.action>
 											<div class="neos-hide" id="{node.identifier}">
 												<div class="neos-modal">
 													<div class="neos-modal-header">
@@ -68,7 +68,7 @@
 	<script>
 		(function($) {
 			$('.fold-toggle').click(function() {
-				$(this).toggleClass('icon-chevron-down icon-chevron-up');
+				$(this).toggleClass('fa-chevron-down fa-chevron-up');
 				$('tr.' + $(this).data('toggle')).toggle();
 			});
 			$('.neos-button[data-toggle="modal"]').on('click', function() {
@@ -142,14 +142,14 @@
 				var button = $(this);
 				button.html('<span class="neos-ellipsis"></span>');
 				$.ajax($(this).attr('href')).done(function(data, textStatus, jqXHR) {
-					button.html('<i class="icon-bolt"></i>');
+					button.html('<i class="fa fa-bolt"></i>');
 					if (window.Typo3Neos) {
 						window.Typo3Neos.Notification.ok('Cleared cache for node "' + button.data('node-label') + '"');
 					} else {
 						alert(message);
 					}
 				}).fail(function(jqXHR, textStatus, errorThrown) {
-					button.html('<i class="icon-bolt"></i>');
+					button.html('<i class="fa fa-bolt"></i>');
 					console.error(jqXHR);
 					var message = 'An error occurred while clearing the cache: ' + errorThrown;
 					if (window.Typo3Neos) {

@@ -1,3 +1,5 @@
+{namespace neos=Neos\Neos\ViewHelpers}
+
 <f:layout name="BackendSubModule" />
 
 <f:section name="content">
@@ -56,7 +58,7 @@
 	</f:form>
 	<legend>Configuration</legend>
 	<dl class="dl-horizontal">
-		<dt>Varnish URL</dt><dd><f:if condition="{settings.varnishUrl -> f:count()} > 1"><f:then><f:for each="{settings.varnishUrl}" as="varnishUrl" iteration="iterator"><span class="neos-badge">{varnishUrl}</span><f:if condition="{iterator.isLast}"><f:else> </f:else></f:if></f:for></f:then><f:else><span class="neos-badge">{settings.varnishUrl}</span></f:else></f:if></dd>
+		<dt>Varnish URL</dt><dd><f:if condition="{settings.varnishUrl -> neos:getType()} == 'array'"><f:then><f:for each="{settings.varnishUrl}" as="varnishUrl" iteration="iterator"><span class="neos-badge">{varnishUrl}</span><f:if condition="{iterator.isLast}"><f:else> </f:else></f:if></f:for></f:then><f:else><span class="neos-badge">{settings.varnishUrl}</span></f:else></f:if></dd>
 		<f:if condition="{settings.cacheHeaders.disabled}"><dt>Cache headers</dt><dd><span class="neos-badge neos-badge-important">Disabled</span></dd></f:if>
 		<f:if condition="{settings.reverseLookupPort}"><dt>Reverse lookup port</dt><dd>{settings.reverseLookupPort}</dd></f:if>
 		<dt>Default maximum age</dt><dd><span class="neos-badge">{f:if(condition: settings.cacheHeaders.defaultSharedMaximumAge, then: '{settings.cacheHeaders.defaultSharedMaximumAge} s', else: 'N/A')}</span></dd>

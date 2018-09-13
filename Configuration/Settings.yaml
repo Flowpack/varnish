@@ -33,7 +33,7 @@ Neos:
             label: 'Varnish cache purging'
             controller: \MOC\Varnish\Controller\VarnishCacheController
             description: 'Clear Varnish cache.'
-            icon: icon-gear
+            icon: 'fa fa-bolt'
             additionalResources:
               styleSheets:
                 - 'resource://MOC.Varnish/Public/Styles/Module.css'

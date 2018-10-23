@@ -1,14 +1,18 @@
 <?php
 namespace MOC\Varnish\Service;
 
-use Neos\Flow\Annotations as Flow;
-use Neos\Neos\Domain\Model\Domain;
-use Neos\Neos\Domain\Model\Site;
-use Neos\Neos\Domain\Service\ContentContext;
 use Neos\ContentRepository\Domain\Model\NodeData;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\ContentRepository\Domain\Model\NodeType;
+use Neos\ContentRepository\Domain\Model\Workspace;
+use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
+use Neos\ContentRepository\Domain\Service\NodeTypeManager;
+use Neos\Flow\Annotations as Flow;
 use Neos\Fusion\Core\Cache\ContentCache;
+use Neos\Neos\Domain\Model\Domain;
+use Neos\Neos\Domain\Model\Site;
+use Neos\Neos\Domain\Service\ContentContext;
+use Neos\Neos\Fusion\Helper\CachingHelper;
 
 /**
  * @Flow\Scope("singleton")
@@ -23,14 +27,36 @@ class ContentCacheFlusherService
     protected $varnishBanService;
 
     /**
-     * @var array
+     * @var CachingHelper
      */
-    protected $tagsToFlush = array();
+    protected $cachingHelper;
+
+    /**
+     * @Flow\Inject
+     * @var WorkspaceRepository
+     */
+    protected $workspaceRepository;
+
+    /**
+     * @Flow\Inject
+     * @var NodeTypeManager
+     */
+    protected $nodeTypeManager;
 
     /**
      * @var array
      */
-    protected $domainsToFlush = array();
+    protected $tagsToFlush = [];
+
+    /**
+     * @var array
+     */
+    protected $workspacesToFlush = [];
+
+    /**
+     * @var array
+     */
+    protected $domainsToFlush = [];
 
     /**
      * @param NodeInterface $node The node which has changed in some way
@@ -57,36 +83,102 @@ class ContentCacheFlusherService
      *
      * @param NodeInterface|NodeData $node The node which has changed in some way
      * @return void
+     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
      */
     protected function generateCacheTags($node)
     {
         $this->tagsToFlush[ContentCache::TAG_EVERYTHING] = 'which were tagged with "Everything".';
 
-        $nodeTypesToFlush = $this->getAllImplementedNodeTypes($node->getNodeType());
-        foreach ($nodeTypesToFlush as $nodeType) {
-            /** @var NodeType $nodeType */
-            $nodeTypeName = $nodeType->getName();
-            $this->tagsToFlush['NodeType_' . $nodeTypeName] = sprintf('which were tagged with "NodeType_%s" because node "%s" has changed and was of type "%s".', $nodeTypeName, $node->getPath(), $node->getNodeType()->getName());
+        if (empty($this->workspacesToFlush[$node->getWorkspace()->getName()])) {
+            $this->resolveWorkspaceChain($node->getWorkspace());
         }
-
-        $this->tagsToFlush['Node_' . $node->getIdentifier()] = sprintf('which were tagged with "Node_%s" because node "%s" has changed.', $node->getIdentifier(), $node->getPath());
-
-        while ($node->getDepth() > 1) {
-            $node = $node->getParent();
-            if ($node === null) {
-                break;
+        if (!array_key_exists($node->getWorkspace()->getName(), $this->workspacesToFlush)) {
+            return;
+        }
+        $nodeIdentifier = $node->getIdentifier();
+        foreach ($this->workspacesToFlush[$node->getWorkspace()->getName()] as $workspaceName => $workspaceHash) {
+            $this->generateCacheTagsForNodeIdentifier($workspaceHash .'_'. $nodeIdentifier);
+            $this->generateCacheTagsForNodeType($node->getNodeType()->getName(), $nodeIdentifier, $workspaceHash);
+            $nodeInWorkspace = $node;
+            while ($nodeInWorkspace->getDepth() > 1) {
+                $nodeInWorkspace = $nodeInWorkspace->getParent();
+                // Workaround for issue #56566 in Neos.ContentRepository
+                if ($nodeInWorkspace === null) {
+                    break;
+                }
+                $tagName = 'DescendantOf_' . $workspaceHash . '_' . $nodeInWorkspace->getIdentifier();
+                $this->tagsToFlush[$tagName] = sprintf('which were tagged with "%s" because node "%s" has changed.', $tagName, $node->getPath());
             }
-            $this->tagsToFlush['DescendantOf_' . $node->getIdentifier()] = sprintf('which were tagged with "DescendantOf_%s" because node "%s" has changed.', $node->getIdentifier(), $node->getPath());
         }
 
         if ($node instanceof NodeInterface && $node->getContext() instanceof ContentContext) {
             /** @var Site $site */
-                $site = $node->getContext()->getCurrentSite();
+            $site = $node->getContext()->getCurrentSite();
             if ($site->hasActiveDomains()) {
                 $domains = $site->getActiveDomains()->map(function (Domain $domain) {
                     return $domain->getHostname();
                 })->toArray();
                 $this->domainsToFlush = array_unique(array_merge($this->domainsToFlush, $domains));
+            }
+        }
+    }
+
+    /**
+     * @param string $cacheIdentifier
+     */
+    protected function generateCacheTagsForNodeIdentifier(string $cacheIdentifier)
+    {
+        $this->tagsToFlush['Node_' . $cacheIdentifier] = sprintf('which were tagged with "Node_%s" because that identifier has changed.', $cacheIdentifier);
+        // Note, as we don't have a node here we cannot go up the structure.
+        $tagName = 'DescendantOf_' . $cacheIdentifier;
+        $this->tagsToFlush[$tagName] = sprintf('which were tagged with "%s" because node "%s" has changed.', $tagName, $cacheIdentifier);
+    }
+
+    /**
+     * @param string $nodeTypeName
+     * @param string $referenceNodeIdentifier
+     * @param string $nodeTypePrefix
+     *
+     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
+     */
+    protected function generateCacheTagsForNodeType(string $nodeTypeName, string $referenceNodeIdentifier = null, string $nodeTypePrefix = '')
+    {
+        $nodeTypesToFlush = $this->getAllImplementedNodeTypeNames($this->nodeTypeManager->getNodeType($nodeTypeName));
+
+        if (strlen($nodeTypePrefix) > 0) {
+            $nodeTypePrefix = rtrim($nodeTypePrefix, '_') . '_';
+        }
+        foreach ($nodeTypesToFlush as $nodeTypeNameToFlush) {
+            $this->tagsToFlush['NodeType_' . $nodeTypePrefix . $nodeTypeNameToFlush] = sprintf('which were tagged with "NodeType_%s" because node "%s" has changed and was of type "%s".', $nodeTypeNameToFlush, ($referenceNodeIdentifier ? $referenceNodeIdentifier : ''), $nodeTypeName);
+        }
+    }
+
+    /**
+     * @param Workspace $workspace
+     * @return void
+     */
+    protected function resolveWorkspaceChain(Workspace $workspace)
+    {
+        $cachingHelper = $this->getCachingHelper();
+
+        $this->workspacesToFlush[$workspace->getName()][$workspace->getName()] = $cachingHelper->renderWorkspaceTagForContextNode($workspace->getName());
+        $this->resolveTagsForChildWorkspaces($workspace, $workspace->getName());
+    }
+
+    /**
+     * @param Workspace $workspace
+     * @param string $startingPoint
+     * @return void
+     */
+    protected function resolveTagsForChildWorkspaces(Workspace $workspace, string $startingPoint)
+    {
+        $cachingHelper = $this->getCachingHelper();
+        $this->workspacesToFlush[$startingPoint][$workspace->getName()] = $cachingHelper->renderWorkspaceTagForContextNode($workspace->getName());
+
+        $childWorkspaces = $this->workspaceRepository->findByBaseWorkspace($workspace->getName());
+        if ($childWorkspaces->valid()) {
+            foreach ($childWorkspaces as $childWorkspace) {
+                $this->resolveTagsForChildWorkspaces($childWorkspace, $startingPoint);
             }
         }
     }
@@ -98,21 +190,33 @@ class ContentCacheFlusherService
      */
     public function shutdownObject()
     {
-        if ($this->tagsToFlush !== array()) {
+        if (!empty($this->tagsToFlush)) {
             $this->varnishBanService->banByTags(array_keys($this->tagsToFlush), $this->domainsToFlush);
         }
     }
 
     /**
-     * @param \Neos\ContentRepository\Domain\Model\NodeType $nodeType
-     * @return array<\Neos\ContentRepository\Domain\Model\NodeType>
+     * @param NodeType $nodeType
+     * @return array<string>
      */
-    protected function getAllImplementedNodeTypes($nodeType)
+    protected function getAllImplementedNodeTypeNames(NodeType $nodeType)
     {
-        $types = array($nodeType);
-        foreach ($nodeType->getDeclaredSuperTypes() as $superType) {
-            $types = array_merge($types, $this->getAllImplementedNodeTypes($superType));
-        }
+        $self = $this;
+        $types = array_reduce($nodeType->getDeclaredSuperTypes(), function (array $types, NodeType $superType) use ($self) {
+            return array_merge($types, $self->getAllImplementedNodeTypeNames($superType));
+        }, [$nodeType->getName()]);
+        $types = array_unique($types);
         return $types;
+    }
+
+    /**
+     * @return CachingHelper
+     */
+    protected function getCachingHelper(): CachingHelper
+    {
+        if (!$this->cachingHelper instanceof CachingHelper) {
+            $this->cachingHelper = new CachingHelper();
+        }
+        return $this->cachingHelper;
     }
 }

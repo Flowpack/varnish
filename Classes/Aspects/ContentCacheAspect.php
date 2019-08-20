@@ -3,8 +3,11 @@ namespace MOC\Varnish\Aspects;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Aop\JoinPointInterface;
+use Neos\Flow\Log\Utility\LogEnvironment;
+use Neos\Utility\Exception\PropertyNotAccessibleException;
 use Neos\Utility\ObjectAccess;
 use Neos\Fusion\Core\Runtime;
+use Psr\Log\LoggerInterface;
 
 /**
  * Advice the RuntimeContentCache to check for uncached segments that should prevent caching
@@ -17,7 +20,7 @@ class ContentCacheAspect
 
     /**
      * @Flow\Inject
-     * @var \MOC\Varnish\Log\LoggerInterface
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -31,6 +34,7 @@ class ContentCacheAspect
      *
      * @Flow\AfterReturning("setting(MOC.Varnish.enabled) && method(Neos\Fusion\Core\Cache\RuntimeContentCache->postProcess())")
      * @param JoinPointInterface $joinPoint
+     * @throws PropertyNotAccessibleException
      */
     public function registerCreateUncached(JoinPointInterface $joinPoint)
     {
@@ -43,7 +47,7 @@ class ContentCacheAspect
         if ($evaluateContext['cacheForPathDisabled']) {
             $mocVarnishIgnoreUncached = $runtime->evaluate($evaluateContext['fusionPath'] . '/__meta/cache/mocVarnishIgnoreUncached');
             if ($mocVarnishIgnoreUncached !== true) {
-                $this->logger->log(sprintf('Varnish cache disabled due to uncached path "%s" (can be prevented using "mocVarnishIgnoreUncached")', $evaluateContext['fusionPath']), LOG_DEBUG);
+                $this->logger->debug(sprintf('Varnish cache disabled due to uncached path "%s" (can be prevented using "mocVarnishIgnoreUncached")', $evaluateContext['fusionPath']), LogEnvironment::fromMethodName(__METHOD__));
                 $this->evaluatedUncached = true;
             }
         }
@@ -54,6 +58,7 @@ class ContentCacheAspect
      *
      * @Flow\AfterReturning("setting(MOC.Varnish.enabled) && method(Neos\Fusion\Core\Cache\RuntimeContentCache->evaluateUncached())")
      * @param JoinPointInterface $joinPoint
+     * @throws PropertyNotAccessibleException
      */
     public function registerEvaluateUncached(JoinPointInterface $joinPoint)
     {
@@ -65,7 +70,7 @@ class ContentCacheAspect
 
         $mocVarnishIgnoreUncached = $runtime->evaluate($path . '/__meta/cache/mocVarnishIgnoreUncached');
         if ($mocVarnishIgnoreUncached !== true) {
-            $this->logger->log(sprintf('Varnish cache disabled due to uncached path "%s" (can be prevented using "mocVarnishIgnoreUncached")', $path . '/__meta/cache/mocVarnishIgnoreUncached'), LOG_DEBUG);
+            $this->logger->debug(sprintf('Varnish cache disabled due to uncached path "%s" (can be prevented using "mocVarnishIgnoreUncached")', $path . '/__meta/cache/mocVarnishIgnoreUncached'), LogEnvironment::fromMethodName(__METHOD__));
             $this->evaluatedUncached = true;
         }
     }
@@ -80,7 +85,7 @@ class ContentCacheAspect
     {
         $enableContentCache = $joinPoint->getMethodArgument('enableContentCache');
         if ($enableContentCache !== true) {
-            $this->logger->log('Varnish cache disabled due content cache being disabled (e.g. because an exception was handled)', LOG_DEBUG);
+            $this->logger->debug('Varnish cache disabled due content cache being disabled (e.g. because an exception was handled)', LogEnvironment::fromMethodName(__METHOD__));
             $this->evaluatedUncached = true;
         }
     }

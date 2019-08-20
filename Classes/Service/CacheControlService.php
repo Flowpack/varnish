@@ -1,13 +1,19 @@
 <?php
 namespace MOC\Varnish\Service;
 
+use MOC\Varnish\Aspects\ContentCacheAspect;
+use MOC\Varnish\Cache\MetadataAwareStringFrontend;
+use Neos\ContentRepository\Exception\NodeException;
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Log\Utility\LogEnvironment;
+use Neos\Flow\Mvc\ActionResponse;
 use Neos\Flow\Mvc\Controller\ControllerInterface;
+use Neos\Flow\Mvc\Exception\NoSuchArgumentException;
 use Neos\Flow\Mvc\RequestInterface;
-use Neos\Flow\Mvc\ResponseInterface;
-use Neos\Flow\Http\Response;
 use Neos\Neos\Controller\Frontend\NodeController;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Service for adding cache headers to a to-be-sent response
@@ -18,26 +24,26 @@ class CacheControlService
 {
 
     /**
-     * @var \MOC\Varnish\Aspects\ContentCacheAspect
+     * @var ContentCacheAspect
      * @Flow\Inject
      */
     protected $contentCacheAspect;
 
     /**
-     * @var \MOC\Varnish\Cache\MetadataAwareStringFrontend
+     * @var MetadataAwareStringFrontend
      * @Flow\Inject
      */
     protected $contentCacheFrontend;
 
     /**
-     * @var \MOC\Varnish\Service\TokenStorage
+     * @var TokenStorage
      * @Flow\Inject
      */
     protected $tokenStorage;
 
     /**
      * @Flow\Inject
-     * @var \MOC\Varnish\Log\LoggerInterface
+     * @var LoggerInterface
      */
     protected $logger;
 
@@ -64,14 +70,16 @@ class CacheControlService
      * @param ResponseInterface $response
      * @param ControllerInterface $controller
      * @return void
+     * @throws NodeException
+     * @throws NoSuchArgumentException
      */
     public function addHeaders(RequestInterface $request, ResponseInterface $response, ControllerInterface $controller)
     {
         if (isset($this->settings['cacheHeaders']['disabled']) && $this->settings['cacheHeaders']['disabled'] === true) {
-            $this->logger->log(sprintf('Varnish cache headers disabled (see configuration setting MOC.Varnish.cacheHeaders.disabled)'), LOG_DEBUG);
+            $this->logger->debug(sprintf('Varnish cache headers disabled (see configuration setting MOC.Varnish.cacheHeaders.disabled)'), LogEnvironment::fromMethodName(__METHOD__));
             return;
         }
-        if (!$response instanceof Response || !$controller instanceof NodeController) {
+        if (!$response instanceof ActionResponse || !$controller instanceof NodeController) {
             return;
         }
         $arguments = $controller->getControllerContext()->getArguments();
@@ -86,12 +94,12 @@ class CacheControlService
             return;
         }
         if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === true) {
-            $this->logger->log(sprintf('Varnish cache headers skipped due to property "disableVarnishCache" for node "%s" (%s)', $node->getLabel(), $node->getPath()), LOG_DEBUG);
+            $this->logger->debug(sprintf('Varnish cache headers skipped due to property "disableVarnishCache" for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
             return;
         }
 
         if ($this->contentCacheAspect->isEvaluatedUncached()) {
-            $this->logger->log(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $node->getLabel(), $node->getPath()), LOG_DEBUG);
+            $this->logger->debug(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
             $response->getHeaders()->setCacheControlDirective('no-cache');
         } else {
             list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
@@ -116,9 +124,9 @@ class CacheControlService
 
             if ($timeToLive !== null) {
                 $response->setSharedMaximumAge(intval($timeToLive));
-                $this->logger->log(sprintf('Varnish cache enabled for node "%s" (%s) with max-age "%u"', $node->getLabel(), $node->getPath(), $timeToLive), LOG_DEBUG);
+                $this->logger->debug(sprintf('Varnish cache enabled for node "%s" (%s) with max-age "%u"', $node->getLabel(), $node->getPath(), $timeToLive), LogEnvironment::fromMethodName(__METHOD__));
             } else {
-                $this->logger->log(sprintf('Varnish cache headers not sent for node "%s" (%s) due to no max-age', $node->getLabel(), $node->getPath()), LOG_DEBUG);
+                $this->logger->debug(sprintf('Varnish cache headers not sent for node "%s" (%s) due to no max-age', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
             }
         }
     }

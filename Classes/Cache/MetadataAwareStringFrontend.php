@@ -3,8 +3,10 @@ namespace MOC\Varnish\Cache;
 
 use Neos\Cache\Frontend\StringFrontend;
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Log\ThrowableStorageInterface;
 use Neos\Flow\Property\Exception\InvalidDataTypeException;
 use Neos\Flow\Utility\Environment;
+use Psr\Log\LoggerInterface;
 
 /**
  * A string frontend that stores cache metadata (tags, lifetime) for entries
@@ -28,9 +30,15 @@ class MetadataAwareStringFrontend extends StringFrontend
 
     /**
      * @Flow\Inject
-     * @var \MOC\Varnish\Log\LoggerInterface
+     * @var LoggerInterface
      */
     protected $logger;
+
+    /**
+     * @Flow\Inject
+     * @var ThrowableStorageInterface
+     */
+    protected $throwableStorage;
 
     /**
      * Set a cache entry and store additional metadata (tags and lifetime)
@@ -106,7 +114,7 @@ class MetadataAwareStringFrontend extends StringFrontend
         if ($separatorIndex === false) {
             $exception = new InvalidDataTypeException('Could not find cache metadata in entry with identifier ' . $entryIdentifier, 1433155925);
             if ($this->environment->getContext()->isProduction()) {
-                $this->logger->logException($exception);
+                $this->throwableStorage->logThrowable($exception);
             } else {
                 throw $exception;
             }
@@ -117,7 +125,7 @@ class MetadataAwareStringFrontend extends StringFrontend
         if ($metadata === null) {
             $exception = new InvalidDataTypeException('Invalid cache metadata in entry with identifier ' . $entryIdentifier, 1433155926);
             if ($this->environment->getContext()->isProduction()) {
-                $this->logger->logException($exception);
+                $this->throwableStorage->logThrowable($exception);
             } else {
                 throw $exception;
             }

@@ -11,6 +11,10 @@ MOC:
       defaultSharedMaximumAge: null
       # Disable sending headers (useful for staging environments)
       disabled: false
+
+    # Maximum length of header in bytes for requests to varnish. Used when banning. Large requests will be split across multiple smaller ones
+    maximumHeaderLength: 7500
+
     # Port to use for reverse lookup in backend module
     reverseLookupPort: null
     # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements

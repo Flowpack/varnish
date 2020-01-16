@@ -69,7 +69,7 @@ class VarnishBanService
         $this->varnishProxyClient = new ProxyClient\Varnish($varnishUrls);
         $this->varnishProxyClient->setDefaultBanHeader('X-Site', $this->tokenStorage->getToken());
         $this->cacheInvalidator = new CacheInvalidator($this->varnishProxyClient);
-        $this->tagHandler = new TagHandler($this->cacheInvalidator);
+        $this->tagHandler = new TagHandler($this->cacheInvalidator, 'X-Cache-Tags', $this->settings['maximumHeaderLength'] ?? 7500);
     }
 
     /**

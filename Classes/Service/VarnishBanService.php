@@ -17,7 +17,7 @@ class VarnishBanService
 
     /**
      * @Flow\Inject
-     * @var \MOC\Varnish\Log\LoggerInterface
+     * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
 
@@ -87,7 +87,7 @@ class VarnishBanService
     public function banAll($domains = null, $contentType = null)
     {
         $this->cacheInvalidator->invalidateRegex('.*', $contentType, $domains);
-        $this->logger->log(sprintf('Cleared all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
+        $this->logger->debug(sprintf('Cleared all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
         $this->execute();
     }
 
@@ -126,7 +126,7 @@ class VarnishBanService
         if ($domains) {
             $this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, ProxyClient\Varnish::REGEX_MATCH_ALL);
         }
-        $this->logger->log(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''));
+        $this->logger->debug(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''));
         $this->execute();
     }
 

@@ -33,7 +33,8 @@
     ],
     "require": {
         "neos/neos": "^5.0",
-        "friendsofsymfony/http-cache": "~1.3"
+        "friendsofsymfony/http-cache": "~2.0",
+        "php-http/curl-client": "~1"
     },
     "autoload": {
         "psr-4": {

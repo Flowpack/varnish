@@ -45,10 +45,9 @@ class VarnishBanService
     protected $cacheInvalidator;
 
     /**
-     * @var TagHandler
+     * @param array $settings
+     * @return void
      */
-    protected $tagHandler;
-
     public function injectSettings(array $settings): void
     {
         $this->settings = $settings;
@@ -61,10 +60,14 @@ class VarnishBanService
         array_walk($varnishUrls, function (&$varnishUrl) {
             $varnishUrl = rtrim($varnishUrl, '/');
         });
-        $this->varnishProxyClient = new ProxyClient\Varnish($varnishUrls);
-        $this->varnishProxyClient->setDefaultBanHeader('X-Site', $this->tokenStorage->getToken());
+        $httpDispatcher = new FOS\HttpCache\ProxyClient\HttpDispatcher($varnishUrls, '');
+        $options = [
+            'default_ban_headers' => [
+                "X-Site" => $this->tokenStorage->getToken()
+            ]
+        ];
+        $this->varnishProxyClient = new Varnish($httpDispatcher, $options);
         $this->cacheInvalidator = new CacheInvalidator($this->varnishProxyClient);
-        $this->tagHandler = new TagHandler($this->cacheInvalidator, 'X-Cache-Tags', $this->settings['maximumHeaderLength'] ?? 7500);
     }
 
     /**
@@ -81,8 +84,8 @@ class VarnishBanService
      */
     public function banAll($domains = null, $contentType = null): void
     {
-        $this->cacheInvalidator->invalidateRegex('.*', $contentType, $domains);
-        $this->logger->debug(sprintf('Clearing all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
+        $this->cacheInvalidator->invalidate($this->getHostHeader($domains))->invalidateRegex('.*', $contentType, $domains);
+        $this->logger->debug(sprintf('Cleared all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
         $this->execute();
     }
 
@@ -113,15 +116,8 @@ class VarnishBanService
         }
 
         // Set specific domain before invalidating tags
-        if ($domains) {
-            $this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, is_array($domains) ? '^(' . implode('|', $domains) . ')$' : $domains);
-        }
-        $this->tagHandler->invalidateTags($tags);
-        // Unset specific domain after invalidating tags
-        if ($domains) {
-            $this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, ProxyClient\Varnish::REGEX_MATCH_ALL);
-        }
-        $this->logger->debug(sprintf('Clearing Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''));
+        $this->cacheInvalidator->invalidate($this->getHostHeader($domains))->invalidateTags($tags);
+        $this->logger->debug(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''));
         $this->execute();
     }
 
@@ -140,5 +136,12 @@ class VarnishBanService
                 }
             }
         }
+    }
+
+    private function getHostHeader($domains = null)
+    {
+        return ($domains !== null) ? [
+            ProxyClient\Varnish::HTTP_HEADER_HOST => is_array($domains) ? '^(' . implode('|', $domains) . ')$' : $domains
+        ] : [];
     }
 }

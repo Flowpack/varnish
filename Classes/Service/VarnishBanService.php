@@ -7,7 +7,6 @@ use FOS\HttpCache\CacheInvalidator;
 use FOS\HttpCache\Exception\ExceptionCollection;
 use FOS\HttpCache\Exception\ProxyResponseException;
 use FOS\HttpCache\Exception\ProxyUnreachableException;
-use FOS\HttpCache\Handler\TagHandler;
 use FOS\HttpCache\ProxyClient;
 use Neos\Flow\Annotations as Flow;
 
@@ -60,13 +59,14 @@ class VarnishBanService
         array_walk($varnishUrls, function (&$varnishUrl) {
             $varnishUrl = rtrim($varnishUrl, '/');
         });
-        $httpDispatcher = new FOS\HttpCache\ProxyClient\HttpDispatcher($varnishUrls, '');
+        $httpDispatcher = new ProxyClient\HttpDispatcher($varnishUrls);
         $options = [
             'default_ban_headers' => [
-                "X-Site" => $this->tokenStorage->getToken()
+                'X-Site' => $this->tokenStorage->getToken(),
+                'header_length' => $this->settings['maximumHeaderLength'] ?? 7500
             ]
         ];
-        $this->varnishProxyClient = new Varnish($httpDispatcher, $options);
+        $this->varnishProxyClient = new ProxyClient\Varnish($httpDispatcher, $options);
         $this->cacheInvalidator = new CacheInvalidator($this->varnishProxyClient);
     }
 

@@ -6,7 +6,7 @@ Neos:
           chain:
             addCacheHeader:
               position: 'after setHeader'
-              component: 'Moc\Varnish\Http\CacheControlHeaderComponent'
+              component: 'MOC\Varnish\Http\CacheControlHeaderComponent'
 
   Neos:
     modules:

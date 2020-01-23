@@ -1,0 +1,26 @@
+Neos:
+  Flow:
+    http:
+      chain:
+        'process':
+          chain:
+            addCacheHeader:
+              position: 'after setHeader'
+              component: 'Moc\Varnish\Http\CacheControlHeaderComponent'
+
+  Neos:
+    modules:
+      administration:
+        submodules:
+          varnish:
+            label: 'Varnish cache purging'
+            controller: \MOC\Varnish\Controller\VarnishCacheController
+            description: 'Clear Varnish cache.'
+            icon: 'fa fa-bolt'
+            additionalResources:
+              styleSheets:
+                - 'resource://MOC.Varnish/Public/Styles/Module.css'
+            privilegeTarget: 'MOC.Varnish:BackendModuleClearCache'
+    fusion:
+      autoInclude:
+        MOC.Varnish: true

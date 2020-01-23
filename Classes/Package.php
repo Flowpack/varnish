@@ -24,7 +24,6 @@ class Package extends BasePackage
             $enabled = $configurationManager->getConfiguration(ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'MOC.Varnish.enabled');
             if ((boolean)$enabled === true) {
                 $dispatcher->connect(PublishingService::class, 'nodePublished', ContentCacheFlusherService::class, 'flushForNode');
-                //$dispatcher->connect(Dispatcher::class, 'afterControllerInvocation', CacheControlService::class, 'addHeaders');
             }
         });
     }

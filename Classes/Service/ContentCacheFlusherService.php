@@ -7,6 +7,7 @@ use Neos\ContentRepository\Domain\Model\NodeType;
 use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
 use Neos\ContentRepository\Domain\Service\NodeTypeManager;
+use Neos\ContentRepository\Exception\NodeTypeNotFoundException;
 use Neos\Flow\Annotations as Flow;
 use Neos\Fusion\Core\Cache\ContentCache;
 use Neos\Neos\Domain\Model\Domain;
@@ -61,8 +62,9 @@ class ContentCacheFlusherService
     /**
      * @param NodeInterface $node The node which has changed in some way
      * @return void
+     * @throws NodeTypeNotFoundException
      */
-    public function flushForNode(NodeInterface $node)
+    public function flushForNode(NodeInterface $node): void
     {
         $this->generateCacheTags($node);
     }
@@ -70,8 +72,9 @@ class ContentCacheFlusherService
     /**
      * @param NodeData $nodeData The node which has changed in some way
      * @return void
+     * @throws NodeTypeNotFoundException
      */
-    public function flushForNodeData(NodeData $nodeData)
+    public function flushForNodeData(NodeData $nodeData): void
     {
         $this->generateCacheTags($nodeData);
     }
@@ -83,9 +86,9 @@ class ContentCacheFlusherService
      *
      * @param NodeInterface|NodeData $node The node which has changed in some way
      * @return void
-     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
+     * @throws NodeTypeNotFoundException
      */
-    protected function generateCacheTags($node)
+    protected function generateCacheTags(NodeInterface $node): void
     {
         $this->tagsToFlush[ContentCache::TAG_EVERYTHING] = 'which were tagged with "Everything".';
 
@@ -126,7 +129,7 @@ class ContentCacheFlusherService
     /**
      * @param string $cacheIdentifier
      */
-    protected function generateCacheTagsForNodeIdentifier(string $cacheIdentifier)
+    protected function generateCacheTagsForNodeIdentifier(string $cacheIdentifier): void
     {
         $this->tagsToFlush['Node_' . $cacheIdentifier] = sprintf('which were tagged with "Node_%s" because that identifier has changed.', $cacheIdentifier);
         // Note, as we don't have a node here we cannot go up the structure.
@@ -139,9 +142,9 @@ class ContentCacheFlusherService
      * @param string $referenceNodeIdentifier
      * @param string $nodeTypePrefix
      *
-     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
+     * @throws NodeTypeNotFoundException
      */
-    protected function generateCacheTagsForNodeType(string $nodeTypeName, string $referenceNodeIdentifier = null, string $nodeTypePrefix = '')
+    protected function generateCacheTagsForNodeType(string $nodeTypeName, string $referenceNodeIdentifier = null, string $nodeTypePrefix = ''): void
     {
         $nodeTypesToFlush = $this->getAllImplementedNodeTypeNames($this->nodeTypeManager->getNodeType($nodeTypeName));
 

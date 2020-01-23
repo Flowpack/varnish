@@ -1,4 +1,4 @@
-MOC\Varnish\Service\CacheControlService:
+MOC\Varnish\Http\CacheControlHeaderComponent:
   properties:
     contentCacheFrontend:
       object:
@@ -17,11 +17,3 @@ MOC\Varnish\Service\TokenStorage:
         arguments:
           1:
             value: Moc_Varnish_Site_Token
-
-Psr\Log\LoggerInterface:
-  scope: singleton
-  factoryObjectName: Neos\Flow\Log\PsrLoggerFactoryInterface
-  factoryMethodName: get
-  arguments:
-    1:
-      value: systemLogger

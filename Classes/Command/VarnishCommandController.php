@@ -25,7 +25,7 @@ class VarnishCommandController extends \Neos\Flow\Cli\CommandController
      * @param string $contentType The mime type to flush, e.g. "image/png"
      * @return void
      */
-    public function clearCommand($domain = null, $contentType = null)
+    public function clearCommand($domain = null, $contentType = null): void
     {
         $this->varnishBanService->banAll($domain, $contentType);
     }

@@ -1,9 +1,15 @@
 <?php
+declare(strict_types=1);
+
 namespace MOC\Varnish\Aspects;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Aop\JoinPointInterface;
+use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
 use Neos\Flow\Log\Utility\LogEnvironment;
+use Neos\Flow\Mvc\Exception\StopActionException;
+use Neos\Fusion\Exception;
+use Neos\Fusion\Exception\RuntimeException;
 use Neos\Utility\Exception\PropertyNotAccessibleException;
 use Neos\Utility\ObjectAccess;
 use Neos\Fusion\Core\Runtime;
@@ -25,9 +31,9 @@ class ContentCacheAspect
     protected $logger;
 
     /**
-     * @var boolean
+     * @var bool
      */
-    protected $evaluatedUncached;
+    protected $evaluatedUncached = false;
 
     /**
      * Advice for uncached segments when rendering the initial output (without replacing an uncached marker in cached output)
@@ -35,8 +41,13 @@ class ContentCacheAspect
      * @Flow\AfterReturning("setting(MOC.Varnish.enabled) && method(Neos\Fusion\Core\Cache\RuntimeContentCache->postProcess())")
      * @param JoinPointInterface $joinPoint
      * @throws PropertyNotAccessibleException
+     * @throws InvalidConfigurationException
+     * @throws StopActionException
+     * @throws \Neos\Flow\Security\Exception
+     * @throws Exception
+     * @throws RuntimeException
      */
-    public function registerCreateUncached(JoinPointInterface $joinPoint)
+    public function registerCreateUncached(JoinPointInterface $joinPoint): void
     {
         $evaluateContext = $joinPoint->getMethodArgument('evaluateContext');
 
@@ -59,8 +70,13 @@ class ContentCacheAspect
      * @Flow\AfterReturning("setting(MOC.Varnish.enabled) && method(Neos\Fusion\Core\Cache\RuntimeContentCache->evaluateUncached())")
      * @param JoinPointInterface $joinPoint
      * @throws PropertyNotAccessibleException
+     * @throws InvalidConfigurationException
+     * @throws StopActionException
+     * @throws \Neos\Flow\Security\Exception
+     * @throws Exception
+     * @throws RuntimeException
      */
-    public function registerEvaluateUncached(JoinPointInterface $joinPoint)
+    public function registerEvaluateUncached(JoinPointInterface $joinPoint): void
     {
         $path = $joinPoint->getMethodArgument('path');
 
@@ -81,7 +97,7 @@ class ContentCacheAspect
      * @Flow\AfterReturning("setting(MOC.Varnish.enabled) && method(Neos\Fusion\Core\Cache\RuntimeContentCache->setEnableContentCache())")
      * @param JoinPointInterface $joinPoint
      */
-    public function registerDisableContentCache(JoinPointInterface $joinPoint)
+    public function registerDisableContentCache(JoinPointInterface $joinPoint): void
     {
         $enableContentCache = $joinPoint->getMethodArgument('enableContentCache');
         if ($enableContentCache !== true) {
@@ -91,9 +107,9 @@ class ContentCacheAspect
     }
 
     /**
-     * @return boolean TRUE if an uncached segment was evaluated
+     * @return bool true if an uncached segment was evaluated
      */
-    public function isEvaluatedUncached()
+    public function isEvaluatedUncached(): bool
     {
         return $this->evaluatedUncached;
     }

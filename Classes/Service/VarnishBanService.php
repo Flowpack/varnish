@@ -61,9 +61,9 @@ class VarnishBanService
         });
         $httpDispatcher = new ProxyClient\HttpDispatcher($varnishUrls);
         $options = [
+            'header_length' => $this->settings['maximumHeaderLength'] ?? 7500,
             'default_ban_headers' => [
-                'X-Site' => $this->tokenStorage->getToken(),
-                'header_length' => $this->settings['maximumHeaderLength'] ?? 7500
+                'X-Site' => $this->tokenStorage->getToken()
             ]
         ];
         $this->varnishProxyClient = new ProxyClient\Varnish($httpDispatcher, $options);

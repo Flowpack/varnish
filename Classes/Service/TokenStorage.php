@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace MOC\Varnish\Service;
 
 use Neos\Flow\Annotations as Flow;
@@ -25,8 +27,9 @@ class TokenStorage
      * Fetch the token or generate a new random token
      *
      * @return string
+     * @throws \Exception
      */
-    public function getToken()
+    public function getToken(): string
     {
         $token = $this->cache->get($this->tokenName);
         if ($token === false) {
@@ -39,8 +42,10 @@ class TokenStorage
     /**
      * @param string $token
      * @return void
+     * @throws \Neos\Cache\Exception
+     * @throws \Neos\Cache\Exception\InvalidDataException
      */
-    protected function storeToken($token)
+    protected function storeToken(string $token): void
     {
         $this->cache->set($this->tokenName, $token);
     }

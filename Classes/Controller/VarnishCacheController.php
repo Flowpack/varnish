@@ -1,42 +1,50 @@
 <?php
+declare(strict_types=1);
+
 namespace MOC\Varnish\Controller;
 
 use MOC\Varnish\Service\ContentCacheFlusherService;
 use MOC\Varnish\Service\VarnishBanService;
+use Neos\ContentRepository\Domain\Model\Node;
+use Neos\ContentRepository\Domain\Service\NodeTypeManager;
 use Neos\Flow\Annotations as Flow;
 use Neos\Error\Messages\Message;
 use Neos\Flow\Http\Client\CurlEngine;
-use Neos\Flow\Http\Uri;
-use Neos\Flow\Http\Request;
+use Neos\Flow\Mvc\View\JsonView;
+use Neos\FluidAdaptor\View\TemplateView;
+use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Neos\Domain\Model\Domain;
 use Neos\Neos\Domain\Model\Site;
+use Neos\Neos\Domain\Repository\SiteRepository;
 use Neos\Neos\Domain\Service\ContentContext;
+use Neos\Neos\Domain\Service\ContentContextFactory;
 use Neos\Neos\Domain\Service\ContentDimensionPresetSourceInterface;
+use Neos\Neos\Domain\Service\NodeSearchService;
 
-class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModuleController
+class VarnishCacheController extends AbstractModuleController
 {
 
     /**
      * @Flow\Inject
-     * @var \Neos\ContentRepository\Domain\Service\NodeTypeManager
+     * @var NodeTypeManager
      */
     protected $nodeTypeManager;
 
     /**
      * @Flow\Inject
-     * @var \Neos\Neos\Domain\Service\ContentContextFactory
+     * @var ContentContextFactory
      */
     protected $contextFactory;
 
     /**
      * @Flow\Inject
-     * @var \Neos\Neos\Domain\Service\NodeSearchService
+     * @var NodeSearchService
      */
     protected $nodeSearchService;
 
     /**
      * @Flow\Inject
-     * @var \Neos\Neos\Domain\Repository\SiteRepository
+     * @var SiteRepository
      */
     protected $siteRepository;
 
@@ -49,15 +57,12 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
     /**
      * @var array
      */
-    protected $viewFormatToObjectNameMap = array(
-        'html' => 'Neos\FluidAdaptor\View\TemplateView',
-        'json' => 'Neos\Flow\Mvc\View\JsonView'
-    );
+    protected $viewFormatToObjectNameMap = [
+        'html' => TemplateView::class,
+        'json' => JsonView::class,
+    ];
 
-    /**
-     * @return void
-     */
-    public function indexAction()
+    public function indexAction(): void
     {
         $this->view->assign('activeSites', $this->siteRepository->findOnline());
     }
@@ -66,25 +71,32 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
      * @param string $searchWord
      * @param Site $selectedSite
      * @return void
+     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
+     * @throws \Neos\Flow\Mvc\Exception\ForwardException
      */
-    public function searchForNodeAction($searchWord, Site $selectedSite = null)
+    public function searchForNodeAction(string $searchWord = '', Site $selectedSite = null): void
     {
+        // Legacy UI sends a XHR GET request to the same URL with missing POST values
+        if ($searchWord === '') {
+            $this->forward('index');
+        }
+
         $documentNodeTypes = $this->nodeTypeManager->getSubNodeTypes('Neos.Neos:Document');
         $shortcutNodeType = $this->nodeTypeManager->getNodeType('Neos.Neos:Shortcut');
         $nodeTypes = array_diff($documentNodeTypes, array($shortcutNodeType));
-        $sites = array();
+        $sites = [];
         $activeSites = $this->siteRepository->findOnline();
-        foreach ($selectedSite ? array($selectedSite) : $activeSites as $site) {
+        foreach ($selectedSite ? [$selectedSite] : $activeSites as $site) {
             /** @var Site $site */
-            $contextProperties = array(
+            $contextProperties = [
                 'workspaceName' => 'live',
                 'currentSite' => $site
-            );
+            ];
             $contentDimensionPresets = $this->contentDimensionPresetSource->getAllPresets();
             if (count($contentDimensionPresets) > 0) {
-                $mergedContentDimensions = array();
+                $mergedContentDimensions = [];
                 foreach ($contentDimensionPresets as $contentDimensionIdentifier => $contentDimension) {
-                    $mergedContentDimensions[$contentDimensionIdentifier] = array($contentDimension['default']);
+                    $mergedContentDimensions[$contentDimensionIdentifier] = [$contentDimension['default']];
                     foreach ($contentDimension['presets'] as $contentDimensionPreset) {
                         $mergedContentDimensions[$contentDimensionIdentifier] = array_merge($mergedContentDimensions[$contentDimensionIdentifier], $contentDimensionPreset['values']);
                     }
@@ -96,25 +108,26 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
             $liveContext = $this->contextFactory->create($contextProperties);
             $nodes = $this->nodeSearchService->findByProperties($searchWord, $nodeTypes, $liveContext, $liveContext->getCurrentSiteNode());
             if (count($nodes) > 0) {
-                $sites[$site->getNodeName()] = array(
+                $sites[$site->getNodeName()] = [
                     'site' => $site,
                     'nodes' => $nodes
-                );
+                ];
             }
         }
-        $this->view->assignMultiple(array(
+        $this->view->assignMultiple([
             'searchWord' => $searchWord,
             'selectedSite' => $selectedSite,
             'sites' => $sites,
             'activeSites' => $activeSites
-        ));
+        ]);
     }
 
     /**
-     * @param \Neos\ContentRepository\Domain\Model\Node $node
+     * @param Node $node
      * @return void
+     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
      */
-    public function purgeCacheAction(\Neos\ContentRepository\Domain\Model\Node $node)
+    public function purgeCacheAction(Node $node): void
     {
         $service = new ContentCacheFlusherService();
         $service->flushForNode($node);
@@ -125,8 +138,9 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
      * @param string $tags
      * @param Site $site
      * @return void
+     * @throws \Neos\Flow\Mvc\Exception\StopActionException
      */
-    public function purgeCacheByTagsAction($tags, Site $site = null)
+    public function purgeCacheByTagsAction(string $tags, Site $site = null): void
     {
         $domains = null;
         if ($site !== null && $site->hasActiveDomains()) {
@@ -134,10 +148,11 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
                 return $domain->getHostname();
             })->toArray();
         }
+
         $tags = explode(',', $tags);
         $service = new VarnishBanService();
         $service->banByTags($tags, $domains);
-        $this->flashMessageContainer->addMessage(new Message(sprintf('Varnish cache cleared for tags "%s" for %s', implode('", "', $tags), $site ? 'site ' . $site->getName() : 'installation')));
+        $this->addFlashMessage(sprintf('Varnish cache cleared for tags "%s" for %s', implode('", "', $tags), $site ? 'site ' . $site->getName() : 'installation'));
         $this->redirect('index');
     }
 
@@ -145,8 +160,9 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
      * @param Site $site
      * @param string $contentType
      * @return void
+     * @throws \Neos\Flow\Mvc\Exception\StopActionException
      */
-    public function purgeAllVarnishCacheAction(Site $site = null, $contentType = null)
+    public function purgeAllVarnishCacheAction(Site $site = null, $contentType = null): void
     {
         $domains = null;
         if ($site !== null && $site->hasActiveDomains()) {
@@ -156,22 +172,24 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
         }
         $service = new VarnishBanService();
         $service->banAll($domains, $contentType);
-        $this->flashMessageContainer->addMessage(new Message(sprintf('All varnish cache cleared for %s%s', $site ? 'site ' . $site->getName() : 'installation', $contentType ? ' with content type "' . $contentType . '"' : '')));
+        $this->addFlashMessage(new Message(sprintf('All varnish cache cleared for %s%s', $site ? 'site ' . $site->getName() : 'installation', $contentType ? ' with content type "' . $contentType . '"' : '')));
         $this->redirect('index');
     }
 
     /**
      * @param string $url
-     * @return string
+     * @return void
+     * @throws \Neos\Flow\Http\Client\CurlEngineException
+     * @throws \Neos\Flow\Http\Exception
      */
-    public function checkUrlAction($url)
+    public function checkUrlAction(string $url): void
     {
-        $uri = new Uri($url);
+        $uri = new \GuzzleHttp\Psr7\Uri($url);
         if (isset($this->settings['reverseLookupPort'])) {
-            $uri->setPort($this->settings['reverseLookupPort']);
+            $uri = $uri->withPort($this->settings['reverseLookupPort']);
         }
-        $request = Request::create($uri);
-        $request->setHeader('X-Cache-Debug', '1');
+        $request = new \GuzzleHttp\Psr7\ServerRequest('GET', $uri);
+        $request = $request->withHeader('X-Cache-Debug', '1');
         $engine = new CurlEngine();
         $engine->setOption(CURLOPT_SSL_VERIFYPEER, false);
         $engine->setOption(CURLOPT_SSL_VERIFYHOST, false);
@@ -181,8 +199,8 @@ class VarnishCacheController extends \Neos\Neos\Controller\Module\AbstractModule
             'host' => parse_url($url, PHP_URL_HOST),
             'url' => $url,
             'headers' => array_map(function ($value) {
-                return array_pop($value);
-            }, $response->getHeaders()->getAll())
+                return current($value);
+            }, $response->getHeaders())
         ));
     }
 }

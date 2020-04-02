@@ -17,7 +17,7 @@
 
 .neos.neos-module.neos-module-administration-varnish dt,
 .neos.neos-module.neos-module-administration-varnish dd {
-	line-height: 20px;
+	line-height: 25px;
 }
 
 .neos.neos-module.neos-module-administration-varnish dt {
@@ -60,4 +60,9 @@
 .neos.neos-module.neos-module-administration-varnish .neos-table [class^="icon-"],
 .neos.neos-module.neos-module-administration-varnish .neos-table [class*=" icon-"] {
 	vertical-align: baseline;
+}
+
+.neos.neos-module.neos-module-administration-varnish .neos-modal {
+    width: 50%;
+    margin-left: -25%;
 }

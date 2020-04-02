@@ -1,4 +1,3 @@
-
 MOC:
   Varnish:
     # Disables Varnish caching if set to false
@@ -17,31 +16,5 @@ MOC:
 
     # Port to use for reverse lookup in backend module
     reverseLookupPort: null
-    # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
+    # List of ignored  cache tags to skip when flushing caches by tag, e.g. 'Neos.Neos:Document' which is used in 'Neos.Neos:Menu' elements
     ignoredCacheTags: []
-    # Log configuration
-    log:
-      backend: Neos\Flow\Log\Backend\FileBackend
-      backendOptions:
-        logFileURL: '%FLOW_PATH_DATA%Logs/Varnish.log'
-        createParentDirectories: true
-        severityThreshold: '%LOG_INFO%'
-        maximumLogFileSize: 1048576
-        logFilesToKeep: 1
-Neos:
-  Neos:
-    modules:
-      administration:
-        submodules:
-          varnish:
-            label: 'Varnish cache purging'
-            controller: \MOC\Varnish\Controller\VarnishCacheController
-            description: 'Clear Varnish cache.'
-            icon: 'fa fa-bolt'
-            additionalResources:
-              styleSheets:
-                - 'resource://MOC.Varnish/Public/Styles/Module.css'
-            privilegeTarget: 'MOC.Varnish:BackendModuleClearCache'
-    fusion:
-      autoInclude:
-        MOC.Varnish: true

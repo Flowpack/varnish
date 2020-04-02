@@ -1,10 +1,10 @@
 <?php
+declare(strict_types=1);
+
 namespace MOC\Varnish;
 
-use MOC\Varnish\Service\CacheControlService;
 use MOC\Varnish\Service\ContentCacheFlusherService;
 use Neos\Flow\Configuration\ConfigurationManager;
-use Neos\Flow\Mvc\Dispatcher;
 use Neos\Flow\Package\Package as BasePackage;
 use Neos\Neos\Service\PublishingService;
 

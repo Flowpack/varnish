@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace MOC\Varnish\Cache;
 
 use Neos\Cache\Frontend\StringFrontend;
@@ -46,7 +48,7 @@ class MetadataAwareStringFrontend extends StringFrontend
      * {@inheritdoc}
      * @throws InvalidDataTypeException
      */
-    public function set(string $entryIdentifier, $content, array $tags = [], int $lifetime = null): void
+    public function set(string $entryIdentifier, $content, array $tags = [], int $lifetime = null)
     {
         $content = $this->insertMetadata($content, $entryIdentifier, $tags, $lifetime);
         parent::set($entryIdentifier, $content, $tags, $lifetime);

@@ -15,7 +15,7 @@ This package provides a out-of-the-box seamless integration between Varnish and 
 
 When installed, Neos send headers for cache lifetime and cache invalidation requests.
 
-Compatible with Neos 1.x-4.x
+Compatible with Neos 1.x-5.x
 
 Documentation
 -------------

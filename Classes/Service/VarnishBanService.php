@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace MOC\Varnish\Service;
 
 use FOS\HttpCache\CacheInvalidator;
@@ -47,19 +49,12 @@ class VarnishBanService
      */
     protected $tagHandler;
 
-    /**
-     * @param array $settings
-     * @return void
-     */
-    public function injectSettings(array $settings)
+    public function injectSettings(array $settings): void
     {
         $this->settings = $settings;
     }
 
-    /**
-     * @return void
-     */
-    public function initializeObject()
+    public function initializeObject(): void
     {
         $varnishUrls = is_array($this->settings['varnishUrl']) ? $this->settings['varnishUrl'] : array($this->settings['varnishUrl'] ?: 'http://127.0.0.1');
         // Remove trailing slash as it will break the Varnish ProxyClient
@@ -84,10 +79,10 @@ class VarnishBanService
      * @param string $contentType The mime type to flush, e.g. "image/png"
      * @return void
      */
-    public function banAll($domains = null, $contentType = null)
+    public function banAll($domains = null, $contentType = null): void
     {
         $this->cacheInvalidator->invalidateRegex('.*', $contentType, $domains);
-        $this->logger->debug(sprintf('Cleared all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
+        $this->logger->debug(sprintf('Clearing all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
         $this->execute();
     }
 
@@ -103,7 +98,7 @@ class VarnishBanService
      * @param array|string $domains The domain to flush, e.g. "example.com"
      * @return void
      */
-    public function banByTags(array $tags, $domains = null)
+    public function banByTags(array $tags, $domains = null): void
     {
         if (count($this->settings['ignoredCacheTags']) > 0) {
             $tags = array_diff($tags, $this->settings['ignoredCacheTags']);
@@ -126,25 +121,22 @@ class VarnishBanService
         if ($domains) {
             $this->varnishProxyClient->setDefaultBanHeader(ProxyClient\Varnish::HTTP_HEADER_HOST, ProxyClient\Varnish::REGEX_MATCH_ALL);
         }
-        $this->logger->debug(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''));
+        $this->logger->debug(sprintf('Clearing Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''));
         $this->execute();
     }
 
-    /**
-     * @return void
-     */
-    protected function execute()
+    protected function execute(): void
     {
         try {
             $this->cacheInvalidator->flush();
         } catch (ExceptionCollection $exceptions) {
             foreach ($exceptions as $exception) {
                 if ($exception instanceof ProxyResponseException) {
-                    $this->logger->log(sprintf('Error calling Varnish with BAN request (cannot connect to the caching proxy). Error %s', $exception->getMessage()), LOG_ERR);
+                    $this->logger->error(sprintf('Error calling Varnish with BAN request (caching proxy returned an error response). Error %s', $exception->getMessage()));
                 } elseif ($exception instanceof ProxyUnreachableException) {
-                    $this->logger->log(sprintf('Error calling Varnish with BAN request (caching proxy returned an error response). Error %s', $exception->getMessage()), LOG_ERR);
+                    $this->logger->error(sprintf('Error calling Varnish with BAN request (cannot connect to the caching proxy). Error %s', $exception->getMessage()));
                 } else {
-                    $this->logger->log(sprintf('Error calling Varnish with BAN request. Error %s', $exception->getMessage()), LOG_ERR);
+                    $this->logger->error(sprintf('Error calling Varnish with BAN request. Error %s', $exception->getMessage()));
                 }
             }
         }

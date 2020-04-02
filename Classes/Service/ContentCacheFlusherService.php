@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace MOC\Varnish\Service;
 
 use Neos\ContentRepository\Domain\Model\NodeData;
@@ -160,7 +162,7 @@ class ContentCacheFlusherService
      * @param Workspace $workspace
      * @return void
      */
-    protected function resolveWorkspaceChain(Workspace $workspace)
+    protected function resolveWorkspaceChain(Workspace $workspace): void
     {
         $cachingHelper = $this->getCachingHelper();
 
@@ -173,7 +175,7 @@ class ContentCacheFlusherService
      * @param string $startingPoint
      * @return void
      */
-    protected function resolveTagsForChildWorkspaces(Workspace $workspace, string $startingPoint)
+    protected function resolveTagsForChildWorkspaces(Workspace $workspace, string $startingPoint): void
     {
         $cachingHelper = $this->getCachingHelper();
         $this->workspacesToFlush[$startingPoint][$workspace->getName()] = $cachingHelper->renderWorkspaceTagForContextNode($workspace->getName());
@@ -191,7 +193,7 @@ class ContentCacheFlusherService
      *
      * @return void
      */
-    public function shutdownObject()
+    public function shutdownObject(): void
     {
         if (!empty($this->tagsToFlush)) {
             $this->varnishBanService->banByTags(array_keys($this->tagsToFlush), $this->domainsToFlush);
@@ -202,7 +204,7 @@ class ContentCacheFlusherService
      * @param NodeType $nodeType
      * @return array<string>
      */
-    protected function getAllImplementedNodeTypeNames(NodeType $nodeType)
+    protected function getAllImplementedNodeTypeNames(NodeType $nodeType): array
     {
         $self = $this;
         $types = array_reduce($nodeType->getDeclaredSuperTypes(), function (array $types, NodeType $superType) use ($self) {

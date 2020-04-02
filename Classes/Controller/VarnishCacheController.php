@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace MOC\Varnish\Controller;
 
 use MOC\Varnish\Service\ContentCacheFlusherService;
@@ -9,6 +11,7 @@ use Neos\Flow\Annotations as Flow;
 use Neos\Error\Messages\Message;
 use Neos\Flow\Http\Client\CurlEngine;
 use Neos\Flow\Mvc\View\JsonView;
+use Neos\FluidAdaptor\View\TemplateView;
 use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Neos\Domain\Model\Domain;
 use Neos\Neos\Domain\Model\Site;
@@ -55,14 +58,11 @@ class VarnishCacheController extends AbstractModuleController
      * @var array
      */
     protected $viewFormatToObjectNameMap = [
-        'html' => \Neos\FluidAdaptor\View\TemplateView::class,
+        'html' => TemplateView::class,
         'json' => JsonView::class,
     ];
 
-    /**
-     * @return void
-     */
-    public function indexAction()
+    public function indexAction(): void
     {
         $this->view->assign('activeSites', $this->siteRepository->findOnline());
     }
@@ -72,9 +72,15 @@ class VarnishCacheController extends AbstractModuleController
      * @param Site $selectedSite
      * @return void
      * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
+     * @throws \Neos\Flow\Mvc\Exception\ForwardException
      */
-    public function searchForNodeAction($searchWord, Site $selectedSite = null)
+    public function searchForNodeAction(string $searchWord = '', Site $selectedSite = null): void
     {
+        // Legacy UI sends a XHR GET request to the same URL with missing POST values
+        if ($searchWord === '') {
+            $this->forward('index');
+        }
+
         $documentNodeTypes = $this->nodeTypeManager->getSubNodeTypes('Neos.Neos:Document');
         $shortcutNodeType = $this->nodeTypeManager->getNodeType('Neos.Neos:Shortcut');
         $nodeTypes = array_diff($documentNodeTypes, array($shortcutNodeType));
@@ -119,6 +125,7 @@ class VarnishCacheController extends AbstractModuleController
     /**
      * @param Node $node
      * @return void
+     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
      */
     public function purgeCacheAction(Node $node): void
     {
@@ -133,7 +140,7 @@ class VarnishCacheController extends AbstractModuleController
      * @return void
      * @throws \Neos\Flow\Mvc\Exception\StopActionException
      */
-    public function purgeCacheByTagsAction($tags, Site $site = null): void
+    public function purgeCacheByTagsAction(string $tags, Site $site = null): void
     {
         $domains = null;
         if ($site !== null && $site->hasActiveDomains()) {
@@ -171,18 +178,18 @@ class VarnishCacheController extends AbstractModuleController
 
     /**
      * @param string $url
-     * @return string
+     * @return void
      * @throws \Neos\Flow\Http\Client\CurlEngineException
      * @throws \Neos\Flow\Http\Exception
      */
-    public function checkUrlAction(string $url): string
+    public function checkUrlAction(string $url): void
     {
-        $uri = new Uri($url);
+        $uri = new \GuzzleHttp\Psr7\Uri($url);
         if (isset($this->settings['reverseLookupPort'])) {
-            $uri->setPort($this->settings['reverseLookupPort']);
+            $uri = $uri->withPort($this->settings['reverseLookupPort']);
         }
-        $request = Request::create($uri);
-        $request->setHeader('X-Cache-Debug', '1');
+        $request = new \GuzzleHttp\Psr7\ServerRequest('GET', $uri);
+        $request = $request->withHeader('X-Cache-Debug', '1');
         $engine = new CurlEngine();
         $engine->setOption(CURLOPT_SSL_VERIFYPEER, false);
         $engine->setOption(CURLOPT_SSL_VERIFYHOST, false);
@@ -192,8 +199,8 @@ class VarnishCacheController extends AbstractModuleController
             'host' => parse_url($url, PHP_URL_HOST),
             'url' => $url,
             'headers' => array_map(function ($value) {
-                return array_pop($value);
-            }, $response->getHeaders()->getAll())
+                return current($value);
+            }, $response->getHeaders())
         ));
     }
 }

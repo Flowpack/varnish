@@ -172,7 +172,7 @@ class VarnishCacheController extends AbstractModuleController
         }
         $service = new VarnishBanService();
         $service->banAll($domains, $contentType);
-        $this->addFlashMessage((string) new Message(sprintf('All varnish cache cleared for %s%s', $site ? 'site ' . $site->getName() : 'installation', $contentType ? ' with content type "' . $contentType . '"' : '')));
+        $this->addFlashMessage(sprintf('All varnish cache cleared for %s%s', $site ? 'site ' . $site->getName() : 'installation', $contentType ? ' with content type "' . $contentType . '"' : ''));
         $this->redirect('index');
     }
 

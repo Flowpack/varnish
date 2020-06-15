@@ -121,7 +121,7 @@ class CacheControlHeaderComponent implements ComponentInterface
         $nodeLifetime = $node->getProperty('cacheTimeToLive');
 
         if ($nodeLifetime === '' || $nodeLifetime === null) {
-            $defaultLifetime = $this->settings['cacheHeaders']['defaultSharedMaximumAge'] ?? null;
+            $defaultLifetime = $this->cacheHeaderSettings['cacheHeaders']['defaultSharedMaximumAge'] ?? null;
             $timeToLive = $defaultLifetime;
             if ($defaultLifetime === null) {
                 $timeToLive = $cacheLifetime;

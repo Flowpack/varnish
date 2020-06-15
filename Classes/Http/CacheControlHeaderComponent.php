@@ -88,12 +88,15 @@ class CacheControlHeaderComponent implements ComponentInterface
             return;
         }
 
+        $response = $componentContext->getHttpResponse();
+
         if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === true) {
             $this->logger->debug(sprintf('Varnish cache headers skipped due to property "disableVarnishCache" for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
+
+            $modifiedResponse = $response->withAddedHeader('Cache-Control', 'no-cache');
+            $componentContext->replaceHttpResponse($modifiedResponse);
             return;
         }
-
-        $response = $componentContext->getHttpResponse();
 
         if ($response->hasHeader('Set-Cookie')) {
             return;
@@ -103,7 +106,8 @@ class CacheControlHeaderComponent implements ComponentInterface
 
         if ($this->contentCacheAspect->isEvaluatedUncached()) {
             $this->logger->debug(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
-            // $modifiedResponse = $modifiedResponse->getHeaders()->setCacheControlDirective('no-cache');
+            $modifiedResponse = $modifiedResponse->withAddedHeader('Cache-Control', 'no-cache');
+            $componentContext->replaceHttpResponse($modifiedResponse);
             return;
         }
         list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();

@@ -16,7 +16,7 @@ before_script:
           "bin-dir": "bin"
       },
       "require": {
-          "neos/neos": "^4.0",
+          "neos/neos": "^5.0",
           "moc/varnish": "${VERSION}"
       },
       "require-dev": {

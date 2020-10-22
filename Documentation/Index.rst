@@ -19,6 +19,10 @@ There are several configuration options can/needs to be set:
    If not set, the Varnish configuration needs to cache by default since no ``Cache-Control`` header will be sent
 - Disable sending of cache headers - can be used to disable Varnish on staging environment e.g.
    ``MOC.Varnish.cacheHeaders.disabled`` accepts boolean value (defaults to ``FALSE``)
+- Since 4.1.0: The generated Cache Tags can be shortened using this option
+   ``MOC.Varnish.cacheHeaders.shortenCacheTags`` accepts boolean value (defaults to ``FALSE``)
+- Since 4.1.0: If shortenCacheTags is enabled, this option controls the length of the used md5 for tags
+   ``MOC.Varnish.cacheHeaders.cacheTagLength`` accepts integer value (defaults to ``8``)
 - Reverse lookup port can be set to allow debugging in the backend module if the web server port is not ``80``
    ``MOC.Varnish.reverseLookupPort`` accepts integer (defaults to ``NULL``)
 - Ignored cache tags can be used to ignore certain cache tags from being cleared at all (useful for optimizing)

@@ -7,29 +7,29 @@ use MOC\Varnish\Aspects\ContentCacheAspect;
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
 use MOC\Varnish\Service\TokenStorage;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
-use Neos\ContentRepository\Exception\NodeException;
+use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Http\Component\ComponentContext;
 use Neos\Flow\Http\Component\ComponentInterface;
 use Neos\Flow\Log\Utility\LogEnvironment;
 use Neos\Flow\Mvc\DispatchComponent;
 use Neos\Flow\Mvc\Exception\NoSuchArgumentException;
 use Neos\Flow\Property\PropertyMapper;
-use Neos\Flow\Annotations as Flow;
 use Psr\Log\LoggerInterface;
 
 class CacheControlHeaderComponent implements ComponentInterface
 {
+
+    /**
+     * @var array
+     * @Flow\InjectConfiguration(path="cacheHeaders")
+     */
+    protected $cacheHeaderSettings;
+
     /**
      * @var ContentCacheAspect
      * @Flow\Inject
      */
     protected $contentCacheAspect;
-
-    /**
-     * @var MetadataAwareStringFrontend
-     * @Flow\Inject
-     */
-    protected $contentCacheFrontend;
 
     /**
      * @var TokenStorage
@@ -38,34 +38,31 @@ class CacheControlHeaderComponent implements ComponentInterface
     protected $tokenStorage;
 
     /**
-     * @Flow\Inject
      * @var LoggerInterface
+     * @Flow\Inject
      */
     protected $logger;
 
     /**
-     * @Flow\InjectConfiguration()
-     * @var array
-     */
-    protected $cacheHeaderSettings;
-
-    /**
-     * @Flow\Inject
      * @var PropertyMapper
+     * @Flow\Inject
      */
     protected $propertyMapper;
 
     /**
+     * @var MetadataAwareStringFrontend
+     */
+    protected $contentCacheFrontend;
+
+    /**
      * @param ComponentContext $componentContext
      * @return void
-     * @throws NodeException
      * @throws NoSuchArgumentException
      * @throws \Exception
      * @api
      */
     public function handle(ComponentContext $componentContext)
     {
-
         if ($this->cacheHeaderSettings['disabled'] ?? false) {
             $this->logger->debug(sprintf('Varnish cache headers disabled (see configuration setting MOC.Varnish.cacheHeaders.disabled)'), LogEnvironment::fromMethodName(__METHOD__));
             return;
@@ -73,7 +70,6 @@ class CacheControlHeaderComponent implements ComponentInterface
 
         /** @var \Neos\Flow\Mvc\ActionRequest $actionRequest */
         $actionRequest = $componentContext->getParameter(DispatchComponent::class, 'actionRequest');
-
         if (!$actionRequest->hasArgument('node') || !$actionRequest->getArgument('node')) {
             return;
         }
@@ -121,7 +117,7 @@ class CacheControlHeaderComponent implements ComponentInterface
         $nodeLifetime = $node->getProperty('cacheTimeToLive');
 
         if ($nodeLifetime === '' || $nodeLifetime === null) {
-            $defaultLifetime = $this->cacheHeaderSettings['cacheHeaders']['defaultSharedMaximumAge'] ?? null;
+            $defaultLifetime = $this->cacheHeaderSettings['defaultSharedMaximumAge'] ?? null;
             $timeToLive = $defaultLifetime;
             if ($defaultLifetime === null) {
                 $timeToLive = $cacheLifetime;

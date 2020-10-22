@@ -109,7 +109,7 @@ class CacheControlHeaderComponent implements ComponentInterface
         list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
 
         if (count($tags) > 0) {
-            $modifiedResponse = $modifiedResponse->withHeader('X-Cache-Tags', $tags);
+            $modifiedResponse = $modifiedResponse->withHeader('X-Cache-Tags', implode(',', $tags));
         }
 
         $modifiedResponse = $modifiedResponse->withHeader('X-Site', $this->tokenStorage->getToken());

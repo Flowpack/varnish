@@ -88,12 +88,15 @@ class CacheControlHeaderComponent implements ComponentInterface
             return;
         }
 
+        $response = $componentContext->getHttpResponse();
+
         if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === true) {
             $this->logger->debug(sprintf('Varnish cache headers skipped due to property "disableVarnishCache" for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
+
+            $modifiedResponse = $response->withAddedHeader('Cache-Control', 'no-cache');
+            $componentContext->replaceHttpResponse($modifiedResponse);
             return;
         }
-
-        $response = $componentContext->getHttpResponse();
 
         if ($response->hasHeader('Set-Cookie')) {
             return;
@@ -103,7 +106,8 @@ class CacheControlHeaderComponent implements ComponentInterface
 
         if ($this->contentCacheAspect->isEvaluatedUncached()) {
             $this->logger->debug(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
-            // $modifiedResponse = $modifiedResponse->getHeaders()->setCacheControlDirective('no-cache');
+            $modifiedResponse = $modifiedResponse->withAddedHeader('Cache-Control', 'no-cache');
+            $componentContext->replaceHttpResponse($modifiedResponse);
             return;
         }
         list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
@@ -117,7 +121,7 @@ class CacheControlHeaderComponent implements ComponentInterface
         $nodeLifetime = $node->getProperty('cacheTimeToLive');
 
         if ($nodeLifetime === '' || $nodeLifetime === null) {
-            $defaultLifetime = $this->settings['cacheHeaders']['defaultSharedMaximumAge'] ?? null;
+            $defaultLifetime = $this->cacheHeaderSettings['cacheHeaders']['defaultSharedMaximumAge'] ?? null;
             $timeToLive = $defaultLifetime;
             if ($defaultLifetime === null) {
                 $timeToLive = $cacheLifetime;
@@ -129,7 +133,7 @@ class CacheControlHeaderComponent implements ComponentInterface
         }
 
         if ($timeToLive !== null) {
-            // $response->setSharedMaximumAge((int)$timeToLive);
+            $modifiedResponse = $modifiedResponse->withAddedHeader('Cache-Control', sprintf('public, s-maxage=%d', $timeToLive));
             $this->logger->debug(sprintf('Varnish cache enabled for node "%s" (%s) with max-age "%u"', $node->getLabel(), $node->getPath(), $timeToLive), LogEnvironment::fromMethodName(__METHOD__));
         } else {
             $this->logger->debug(sprintf('Varnish cache headers not sent for node "%s" (%s) due to no max-age', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));

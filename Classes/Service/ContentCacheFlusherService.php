@@ -111,8 +111,7 @@ class ContentCacheFlusherService
                 if ($nodeInWorkspace === null) {
                     break;
                 }
-                $tagName = 'DescendantOf_' . $workspaceHash . '_' . $nodeInWorkspace->getIdentifier();
-                $this->tagsToFlush[$tagName] = sprintf('which were tagged with "%s" because node "%s" has changed.', $tagName, $node->getPath());
+                $this->generateCacheTagsForDescendantOf($workspaceHash . '_' . $nodeInWorkspace->getIdentifier());
             }
         }
 
@@ -133,8 +132,17 @@ class ContentCacheFlusherService
      */
     protected function generateCacheTagsForNodeIdentifier(string $cacheIdentifier): void
     {
-        $this->tagsToFlush['Node_' . $cacheIdentifier] = sprintf('which were tagged with "Node_%s" because that identifier has changed.', $cacheIdentifier);
+        $tagName = 'Node_' . $cacheIdentifier;
+        $this->tagsToFlush[$tagName] = sprintf('which were tagged with "%s" because node identifier "%s" has changed.', $tagName, $cacheIdentifier);
         // Note, as we don't have a node here we cannot go up the structure.
+        $this->generateCacheTagsForDescendantOf($cacheIdentifier);
+    }
+
+    /**
+     * @param string $cacheIdentifier
+     */
+    protected function generateCacheTagsForDescendantOf(string $cacheIdentifier): void
+    {
         $tagName = 'DescendantOf_' . $cacheIdentifier;
         $this->tagsToFlush[$tagName] = sprintf('which were tagged with "%s" because node "%s" has changed.', $tagName, $cacheIdentifier);
     }
@@ -154,7 +162,8 @@ class ContentCacheFlusherService
             $nodeTypePrefix = rtrim($nodeTypePrefix, '_') . '_';
         }
         foreach ($nodeTypesToFlush as $nodeTypeNameToFlush) {
-            $this->tagsToFlush['NodeType_' . $nodeTypePrefix . $nodeTypeNameToFlush] = sprintf('which were tagged with "NodeType_%s" because node "%s" has changed and was of type "%s".', $nodeTypeNameToFlush, ($referenceNodeIdentifier ? $referenceNodeIdentifier : ''), $nodeTypeName);
+            $tagName = 'NodeType_' . $nodeTypePrefix . $nodeTypeNameToFlush;
+            $this->tagsToFlush[$tagName] = sprintf('which were tagged with "%s" because node "%s" has changed and was of type "%s".', $tagName, $referenceNodeIdentifier ?: '', $nodeTypeName);
         }
     }
 

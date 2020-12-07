@@ -30,6 +30,12 @@ class VarnishBanService
     protected $tokenStorage;
 
     /**
+     * @Flow\Inject
+     * @var CacheTagService
+     */
+    protected $cacheTagService;
+
+    /**
      * @var array
      */
     protected $settings;
@@ -109,13 +115,8 @@ class VarnishBanService
             $tags = array_diff($tags, $this->settings['ignoredCacheTags']);
         }
 
-        /**
-         * Sanitize tags
-         * @see \Neos\Fusion\Core\Cache\ContentCache
-         */
-        foreach ($tags as $key => $tag) {
-            $tags[$key] = strtr($tag, '.:', '_-');
-        }
+        $tags = $this->cacheTagService->sanitizeTags($tags);
+        $tags = $this->cacheTagService->shortenTags($tags);
 
         $this->varnishProxyClient->forHosts(...$this->domainsToArray($domains));
         $this->cacheInvalidator->invalidateTags($tags);

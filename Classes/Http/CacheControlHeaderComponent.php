@@ -5,6 +5,7 @@ namespace Moc\Varnish\Http;
 
 use MOC\Varnish\Aspects\ContentCacheAspect;
 use MOC\Varnish\Cache\MetadataAwareStringFrontend;
+use MOC\Varnish\Service\CacheTagService;
 use MOC\Varnish\Service\TokenStorage;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\Flow\Annotations as Flow;
@@ -48,6 +49,12 @@ class CacheControlHeaderComponent implements ComponentInterface
      * @Flow\Inject
      */
     protected $propertyMapper;
+
+    /**
+     * @var CacheTagService
+     * @Flow\Inject
+     */
+    protected $cacheTagService;
 
     /**
      * @var MetadataAwareStringFrontend
@@ -109,7 +116,8 @@ class CacheControlHeaderComponent implements ComponentInterface
         list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
 
         if (count($tags) > 0) {
-            $modifiedResponse = $modifiedResponse->withHeader('X-Cache-Tags', implode(',', $tags));
+            $shortenedTags = $this->cacheTagService->shortenTags($tags);
+            $modifiedResponse = $modifiedResponse->withHeader('X-Cache-Tags', implode(',', $shortenedTags));
         }
 
         $modifiedResponse = $modifiedResponse->withHeader('X-Site', $this->tokenStorage->getToken());

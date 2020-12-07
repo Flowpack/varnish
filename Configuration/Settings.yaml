@@ -6,10 +6,14 @@ MOC:
     varnishUrl: 'http://127.0.0.1'
     # Cache header sending configuration
     cacheHeaders:
-      # Default and maximum TTL in seconds
-      defaultSharedMaximumAge: null
       # Disable sending headers (useful for staging environments)
       disabled: false
+      # Default and maximum TTL in seconds
+      defaultSharedMaximumAge: null
+      # Enable shortening of Cache Tags (useful when response headers get too large)
+      shortenCacheTags: false
+      # Length of the short md5 if shortenCacheTags is enabled
+      cacheTagLength: 8
 
     # Maximum length of header in bytes for requests to varnish. Used when banning. Large requests will be split across multiple smaller ones
     maximumHeaderLength: 7500

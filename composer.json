@@ -16,7 +16,7 @@
     "require": {
         "neos/neos": "^7.0",
         "friendsofsymfony/http-cache": "^2.0",
-        "php-http/curl-client": "^1"
+        "php-http/curl-client": "^2.2"
     },
     "autoload": {
         "psr-4": {

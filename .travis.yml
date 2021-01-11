@@ -1,7 +1,7 @@
 language: php
 
 php:
-  - 7.2
+  - 7.4
 
 before_script:
   - env
@@ -16,7 +16,7 @@ before_script:
           "bin-dir": "bin"
       },
       "require": {
-          "neos/neos": "^5.0",
+          "neos/neos": "^7.0",
           "flowpack/varnish": "${VERSION}"
       },
       "require-dev": {

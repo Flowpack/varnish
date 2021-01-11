@@ -1,8 +1,7 @@
-Flowpack.Varnish
+Varnish
 ===========
 
-[![Build Status](https://travis-ci.org/flowpackdk/Flowpack.Varnish.svg?branch=master)](https://travis-ci.org/flowpackdk/Flowpack.Varnish)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/flowpackdk/Flowpack.Varnish/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/flowpackdk/Flowpack.Varnish/?branch=master)
+[![Build Status](https://travis-ci.org/flowpack/varnish.svg?branch=master)](https://travis-ci.org/flowpack/varnish)
 [![Latest Stable Version](https://poser.pugx.org/flowpack/varnish/v/stable)](https://packagist.org/packages/flowpack/varnish)
 [![Total Downloads](https://poser.pugx.org/flowpack/varnish/downloads)](https://packagist.org/packages/flowpack/varnish)
 [![License](https://poser.pugx.org/flowpack/varnish/license)](https://packagist.org/packages/flowpack/varnish)

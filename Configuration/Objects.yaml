@@ -1,4 +1,4 @@
-Flowpack\Varnish\Http\CacheControlHeaderComponent:
+Flowpack\Varnish\Middleware\CacheControlHeaderComponent:
   properties:
     contentCacheFrontend:
       object:

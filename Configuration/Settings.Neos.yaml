@@ -1,12 +1,10 @@
 Neos:
   Flow:
     http:
-      chain:
-        'process':
-          chain:
-            addCacheHeader:
-              position: 'after setHeader'
-              component: 'Flowpack\Varnish\Http\CacheControlHeaderComponent'
+      middlewares:
+        'addCacheHeader':
+          middleware: 'Flowpack\Varnish\Middleware\CacheControlHeaderComponent'
+          position: 'after securityEntryPoint'
 
   Neos:
     modules:

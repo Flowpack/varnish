@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Flowpack\Varnish\Http;
+namespace Flowpack\Varnish\Middleware;
 
 use Flowpack\Varnish\Aspects\ContentCacheAspect;
 use Flowpack\Varnish\Cache\MetadataAwareStringFrontend;
@@ -9,16 +9,19 @@ use Flowpack\Varnish\Service\CacheTagService;
 use Flowpack\Varnish\Service\TokenStorage;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Http\Component\ComponentContext;
-use Neos\Flow\Http\Component\ComponentInterface;
+use Neos\Flow\Http\ServerRequestAttributes;
 use Neos\Flow\Log\Utility\LogEnvironment;
-use Neos\Flow\Mvc\DispatchComponent;
-use Neos\Flow\Mvc\Exception\NoSuchArgumentException;
+use Neos\Flow\Mvc\ActionRequestFactory;
 use Neos\Flow\Property\PropertyMapper;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 
-class CacheControlHeaderComponent implements ComponentInterface
+class CacheControlHeaderComponent implements MiddlewareInterface
 {
+    protected const HEADER_CACHE_CONTROL = 'Cache-Control';
 
     /**
      * @var array
@@ -62,65 +65,61 @@ class CacheControlHeaderComponent implements ComponentInterface
     protected $contentCacheFrontend;
 
     /**
-     * @param ComponentContext $componentContext
-     * @return void
-     * @throws NoSuchArgumentException
-     * @throws \Exception
-     * @api
+     * @Flow\Inject(lazy=false)
+     * @var ActionRequestFactory
      */
-    public function handle(ComponentContext $componentContext)
+    protected $actionRequestFactory;
+
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($this->cacheHeaderSettings['disabled'] ?? false) {
-            $this->logger->debug(sprintf('Varnish cache headers disabled (see configuration setting Flowpack.Varnish.cacheHeaders.disabled)'), LogEnvironment::fromMethodName(__METHOD__));
-            return;
+        $response = $handler->handle($request);
+
+        if ($response->hasHeader('Set-Cookie')) {
+            return $response;
         }
 
-        /** @var \Neos\Flow\Mvc\ActionRequest $actionRequest */
-        $actionRequest = $componentContext->getParameter(DispatchComponent::class, 'actionRequest');
-        if (!$actionRequest->hasArgument('node') || !$actionRequest->getArgument('node')) {
-            return;
+        if ($this->cacheHeaderSettings['disabled'] ?? false) {
+            $this->logger->info(sprintf('Varnish cache headers disabled (see configuration setting Flowpack.Varnish.cacheHeaders.disabled)'), LogEnvironment::fromMethodName(__METHOD__));
+            return $response;
+        }
+
+        $routingMatchResults = $request->getAttribute(ServerRequestAttributes::ROUTING_RESULTS) ?? [];
+        $actionRequest = $this->actionRequestFactory->createActionRequest($request, $routingMatchResults);
+
+        if (!$actionRequest->hasArgument('node') || $actionRequest->getArgument('node') === '') {
+            $this->logger->debug(sprintf('A node for the request "%s" could not be found', $request->getUri()), LogEnvironment::fromMethodName(__METHOD__));
+            return $response;
         }
 
         try {
             $node = $this->propertyMapper->convert($actionRequest->getArgument('node'), NodeInterface::class);
-        } catch (\Exception $e) {
-            return;
+        } catch (\Exception $exception) {
+            $this->logger->error(sprintf('The node argument was set to "%s", but it could not be converted into a node: %s', $actionRequest->getArgument('node'), $exception->getMessage()));
+            return $response;
         }
 
         if ($node->getContext()->getWorkspaceName() !== 'live') {
-            return;
+            return $response;
         }
-
-        $response = $componentContext->getHttpResponse();
 
         if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === true) {
             $this->logger->debug(sprintf('Varnish cache headers skipped due to property "disableVarnishCache" for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
 
-            $modifiedResponse = $response->withAddedHeader('Cache-Control', 'no-cache');
-            $componentContext->replaceHttpResponse($modifiedResponse);
-            return;
+            return $response->withAddedHeader(self::HEADER_CACHE_CONTROL, 'no-cache');
         }
-
-        if ($response->hasHeader('Set-Cookie')) {
-            return;
-        }
-
-        $modifiedResponse = $response;
 
         if ($this->contentCacheAspect->isEvaluatedUncached()) {
             $this->logger->debug(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
-            $modifiedResponse = $modifiedResponse->withAddedHeader('Cache-Control', 'no-cache');
-            $componentContext->replaceHttpResponse($modifiedResponse);
-            return;
+            return $response->withAddedHeader(self::HEADER_CACHE_CONTROL, 'no-cache');
         }
         list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
 
         if (count($tags) > 0) {
             $shortenedTags = $this->cacheTagService->shortenTags($tags);
-            $modifiedResponse = $modifiedResponse->withHeader('X-Cache-Tags', implode(',', $shortenedTags));
+            $response = $response->withHeader('X-Cache-Tags', implode(',', $shortenedTags));
         }
 
-        $modifiedResponse = $modifiedResponse->withHeader('X-Site', $this->tokenStorage->getToken());
+        $response = $response->withHeader('X-Site', $this->tokenStorage->getToken());
 
         $nodeLifetime = $node->getProperty('cacheTimeToLive');
 
@@ -137,13 +136,13 @@ class CacheControlHeaderComponent implements ComponentInterface
         }
 
         if ($timeToLive !== null) {
-            $modifiedResponse = $modifiedResponse->withAddedHeader('Cache-Control', sprintf('public, s-maxage=%d', $timeToLive));
+            $response = $response->withAddedHeader(self::HEADER_CACHE_CONTROL, sprintf('public, s-maxage=%d', $timeToLive));
             $this->logger->debug(sprintf('Varnish cache enabled for node "%s" (%s) with max-age "%u"', $node->getLabel(), $node->getPath(), $timeToLive), LogEnvironment::fromMethodName(__METHOD__));
         } else {
             $this->logger->debug(sprintf('Varnish cache headers not sent for node "%s" (%s) due to no max-age', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
         }
 
-        $componentContext->replaceHttpResponse($modifiedResponse);
+        return $response;
     }
 
     /**

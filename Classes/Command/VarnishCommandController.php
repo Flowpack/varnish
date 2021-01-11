@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish\Command;
+namespace Flowpack\Varnish\Command;
 
-use MOC\Varnish\Service\VarnishBanService;
+use Flowpack\Varnish\Service\VarnishBanService;
 use Neos\Flow\Annotations as Flow;
 
 /**

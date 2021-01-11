@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish;
+namespace Flowpack\Varnish;
 
-use MOC\Varnish\Service\ContentCacheFlusherService;
+use Flowpack\Varnish\Service\ContentCacheFlusherService;
 use Neos\Flow\Configuration\ConfigurationManager;
 use Neos\Flow\Package\Package as BasePackage;
 use Neos\Neos\Service\PublishingService;
@@ -21,7 +21,7 @@ class Package extends BasePackage
     {
         $dispatcher = $bootstrap->getSignalSlotDispatcher();
         $dispatcher->connect(ConfigurationManager::class, 'configurationManagerReady', function (ConfigurationManager $configurationManager) use ($dispatcher) {
-            $enabled = $configurationManager->getConfiguration(ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'MOC.Varnish.enabled');
+            $enabled = $configurationManager->getConfiguration(ConfigurationManager::CONFIGURATION_TYPE_SETTINGS, 'Flowpack.Varnish.enabled');
             if ((boolean)$enabled === true) {
                 $dispatcher->connect(PublishingService::class, 'nodePublished', ContentCacheFlusherService::class, 'flushForNode');
             }

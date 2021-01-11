@@ -1,11 +1,11 @@
 privilegeTargets:
   'Neos\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
-    'MOC.Varnish:BackendModuleClearCache':
-      matcher: 'within(MOC\Varnish\Controller\VarnishCacheController) && method(public .*->(?!initialize).*Action())'
+    'Flowpack.Varnish:BackendModuleClearCache':
+      matcher: 'within(Flowpack\Varnish\Controller\VarnishCacheController) && method(public .*->(?!initialize).*Action())'
 
 roles:
   'Neos.Neos:Administrator':
     privileges:
       -
-        privilegeTarget: 'MOC.Varnish:BackendModuleClearCache'
+        privilegeTarget: 'Flowpack.Varnish:BackendModuleClearCache'
         permission: GRANT

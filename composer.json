@@ -1,5 +1,5 @@
 {
-    "name": "moc/varnish",
+    "name": "flowpack/varnish",
     "type": "neos-package",
     "license": "MIT",
     "description": "Varnish integration for Neos",
@@ -16,7 +16,7 @@
     "authors": [
         {
             "name": "Jan-Erik Revsbech",
-            "email": "janerik@moc.net"
+            "email": "janerik@flowpack.net"
         },
         {
             "name": "Aske Ertmann",
@@ -38,7 +38,7 @@
     },
     "autoload": {
         "psr-4": {
-            "MOC\\Varnish\\": "Classes"
+            "FLOWPACK\\Varnish\\": "Classes"
         }
     },
     "extra": {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish\Service;
+namespace Flowpack\Varnish\Service;
 
 use Neos\ContentRepository\Domain\Model\NodeData;
 use Neos\ContentRepository\Domain\Model\NodeInterface;

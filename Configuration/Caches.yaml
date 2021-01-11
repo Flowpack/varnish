@@ -1,11 +1,11 @@
 Neos_Fusion_Content:
   # Set up a special cache frontend to store metadata (tags, lifetime) in entries
-  frontend: MOC\Varnish\Cache\MetadataAwareStringFrontend
+  frontend: Flowpack\Varnish\Cache\MetadataAwareStringFrontend
 
-Moc_Varnish_Site_Token:
+Flowpack_Varnish_Site_Token:
   frontend: Neos\Cache\Frontend\StringFrontend
   backend: Neos\Cache\Backend\SimpleFileBackend
   backendOptions:
-    cacheDirectory: '%FLOW_PATH_DATA%Persistent/MocVarnishSiteToken'
+    cacheDirectory: '%FLOW_PATH_DATA%Persistent/FlowpackVarnishSiteToken'
     defaultLifetime: 0
   persistent: true

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish\Cache;
+namespace Flowpack\Varnish\Cache;
 
 use Neos\Cache\Frontend\StringFrontend;
 use Neos\Flow\Annotations as Flow;

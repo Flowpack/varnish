@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish\Service;
+namespace Flowpack\Varnish\Service;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Utility\Algorithms;

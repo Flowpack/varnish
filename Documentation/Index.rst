@@ -13,23 +13,23 @@ Configuration
 There are several configuration options can/needs to be set:
 
 - The URL for the Varnish proxy/proxies (By default the Varnish cache is expected to run on ``http://127.0.0.1``)
-   ``MOC.Varnish.varnishUrl`` allows string or array with URLs (skip trailing slash)
+   ``Flowpack.Varnish.varnishUrl`` allows string or array with URLs (skip trailing slash)
 - Cache header for default shared maximum age (``smax-age``) - default cache and maximum cache TTL, e.g. 86400 for 24 h
-   ``MOC.Varnish.cacheHeaders.defaultSharedMaximumAge`` accepts integers (seconds) - (defaults to ``NULL``)
+   ``Flowpack.Varnish.cacheHeaders.defaultSharedMaximumAge`` accepts integers (seconds) - (defaults to ``NULL``)
    If not set, the Varnish configuration needs to cache by default since no ``Cache-Control`` header will be sent
 - Disable sending of cache headers - can be used to disable Varnish on staging environment e.g.
-   ``MOC.Varnish.cacheHeaders.disabled`` accepts boolean value (defaults to ``FALSE``)
+   ``Flowpack.Varnish.cacheHeaders.disabled`` accepts boolean value (defaults to ``FALSE``)
 - Since 4.1.0: The generated Cache Tags can be shortened using this option
-   ``MOC.Varnish.cacheHeaders.shortenCacheTags`` accepts boolean value (defaults to ``FALSE``)
+   ``Flowpack.Varnish.cacheHeaders.shortenCacheTags`` accepts boolean value (defaults to ``FALSE``)
 - Since 4.1.0: If shortenCacheTags is enabled, this option controls the length of the used md5 for tags
-   ``MOC.Varnish.cacheHeaders.cacheTagLength`` accepts integer value (defaults to ``8``)
+   ``Flowpack.Varnish.cacheHeaders.cacheTagLength`` accepts integer value (defaults to ``8``)
 - Reverse lookup port can be set to allow debugging in the backend module if the web server port is not ``80``
-   ``MOC.Varnish.reverseLookupPort`` accepts integer (defaults to ``NULL``)
+   ``Flowpack.Varnish.reverseLookupPort`` accepts integer (defaults to ``NULL``)
 - Ignored cache tags can be used to ignore certain cache tags from being cleared at all (useful for optimizing)
-   ``MOC.Varnish.ignoredCacheTags`` accepts array of strings (defaults to ``NULL``)
+   ``Flowpack.Varnish.ignoredCacheTags`` accepts array of strings (defaults to ``NULL``)
    E.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
 - To disable the Varnish caching for deployment reasons you can set this option to ``FALSE``
-   ``MOC.Varnish.enabled`` accepts boolean value (defaults to ``TRUE``)
+   ``Flowpack.Varnish.enabled`` accepts boolean value (defaults to ``TRUE``)
 
 =========================
 How it works
@@ -51,7 +51,7 @@ headers ``X-Site`` and ``X-Cache-Tags``. The ``X-Site`` header is auto-generated
 the ``X-Cache-Tags`` contains all tags used on the page, needed for cache clearing. The tags are collected by replacing
 the TypoScript Content Cache frontend with a custom one, that allows for retrieving the meta data (tags) for existing
 entries. This is taken being done in the ``CacheControlService``. If a uncached segment needs to be ignored for determining
-if a page can be cached, the ``mocVarnishIgnoreUncached`` variable can be used in the TypoScript cache configuration.
+if a page can be cached, the ``flowpackVarnishIgnoreUncached`` variable can be used in the TypoScript cache configuration.
 This can be useful in case of a uncached segment that depends on ``GET`` parameters, which means the URL is different
 thus a separate Varnish cache entry, but the page is mostly identical except for the segment. Alternatively this can
 be solved by adding the ``GET`` parameter to the cache ``entryIdentifier``.
@@ -63,7 +63,7 @@ Example::
   	context {
   		1 = 'documentNode'
   	}
-  	mocVarnishIgnoreUncached = true
+  	flowpackVarnishIgnoreUncached = true
   }
 
 ***Note*** For a page to be cached, it must not contains any uncached parts (e.g. plugins which are uncachable by default).
@@ -93,9 +93,9 @@ For Varnish to cache pages correctly, the additional headers need to be availabl
 the server. These include ``X-Site`` & ``X-Cache-Tags``. If those headers aren't present the page won't be
 cached. This is likely due to the page not being cacheable or headers being disabled.
 
-Enable debug logging by changing the configuration setting ``MOC.Varnish.log.backendOptions.severityThreshold`` to '%LOG_DEBUG%'
+Enable debug logging by changing the configuration setting ``Flowpack.Varnish.log.backendOptions.severityThreshold`` to '%LOG_DEBUG%'
 
-Also make sure the setting ``MOC.Varnish.cacheHeaders.disabled`` is not enabled.
+Also make sure the setting ``Flowpack.Varnish.cacheHeaders.disabled`` is not enabled.
 
 =========================
 Command
@@ -127,7 +127,7 @@ Shared Varnish support
 
 A unique token for every Flow installation is generated if one doesn't already exist. This is used to separate cache
 entries in Varnish for every installation to only clear for the correct one. This token is located in
-``Data/Persistent/MocVarnishSiteToken/VarnishSiteToken`` and can be copied to keep across installations.
+``Data/Persistent/FlowpackVarnishSiteToken/VarnishSiteToken`` and can be copied to keep across installations.
 
 =========================
 Multi-site support
@@ -278,4 +278,4 @@ This can be done by using the following example vcl:
 
 ***Note*** Example_ of full VCL configuration file (Varnish 3) – Use with care!
 
-.. _Example: https://github.com/mocdk/MOC.Varnish/blob/master/Documentation/example.vcl
+.. _Example: https://github.com/flowpackdk/Flowpack.Varnish/blob/master/Documentation/example.vcl

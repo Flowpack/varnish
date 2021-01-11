@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish\Controller;
+namespace Flowpack\Varnish\Controller;
 
-use MOC\Varnish\Service\ContentCacheFlusherService;
-use MOC\Varnish\Service\VarnishBanService;
+use Flowpack\Varnish\Service\ContentCacheFlusherService;
+use Flowpack\Varnish\Service\VarnishBanService;
 use Neos\ContentRepository\Domain\Model\Node;
 use Neos\ContentRepository\Domain\Service\NodeTypeManager;
 use Neos\Flow\Annotations as Flow;

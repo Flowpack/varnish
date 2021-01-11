@@ -1,11 +1,11 @@
-MOC.Varnish
+Flowpack.Varnish
 ===========
 
-[![Build Status](https://travis-ci.org/mocdk/MOC.Varnish.svg?branch=master)](https://travis-ci.org/mocdk/MOC.Varnish)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mocdk/MOC.Varnish/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mocdk/MOC.Varnish/?branch=master)
-[![Latest Stable Version](https://poser.pugx.org/moc/varnish/v/stable)](https://packagist.org/packages/moc/varnish)
-[![Total Downloads](https://poser.pugx.org/moc/varnish/downloads)](https://packagist.org/packages/moc/varnish)
-[![License](https://poser.pugx.org/moc/varnish/license)](https://packagist.org/packages/moc/varnish)
+[![Build Status](https://travis-ci.org/flowpackdk/Flowpack.Varnish.svg?branch=master)](https://travis-ci.org/flowpackdk/Flowpack.Varnish)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/flowpackdk/Flowpack.Varnish/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/flowpackdk/Flowpack.Varnish/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/flowpack/varnish/v/stable)](https://packagist.org/packages/flowpack/varnish)
+[![Total Downloads](https://poser.pugx.org/flowpack/varnish/downloads)](https://packagist.org/packages/flowpack/varnish)
+[![License](https://poser.pugx.org/flowpack/varnish/license)](https://packagist.org/packages/flowpack/varnish)
 
 Introduction
 ------------

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace Moc\Varnish\Http;
+namespace Flowpack\Varnish\Http;
 
-use MOC\Varnish\Aspects\ContentCacheAspect;
-use MOC\Varnish\Cache\MetadataAwareStringFrontend;
-use MOC\Varnish\Service\CacheTagService;
-use MOC\Varnish\Service\TokenStorage;
+use Flowpack\Varnish\Aspects\ContentCacheAspect;
+use Flowpack\Varnish\Cache\MetadataAwareStringFrontend;
+use Flowpack\Varnish\Service\CacheTagService;
+use Flowpack\Varnish\Service\TokenStorage;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Http\Component\ComponentContext;
@@ -71,7 +71,7 @@ class CacheControlHeaderComponent implements ComponentInterface
     public function handle(ComponentContext $componentContext)
     {
         if ($this->cacheHeaderSettings['disabled'] ?? false) {
-            $this->logger->debug(sprintf('Varnish cache headers disabled (see configuration setting MOC.Varnish.cacheHeaders.disabled)'), LogEnvironment::fromMethodName(__METHOD__));
+            $this->logger->debug(sprintf('Varnish cache headers disabled (see configuration setting Flowpack.Varnish.cacheHeaders.disabled)'), LogEnvironment::fromMethodName(__METHOD__));
             return;
         }
 

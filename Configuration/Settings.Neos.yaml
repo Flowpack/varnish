@@ -6,7 +6,7 @@ Neos:
           chain:
             addCacheHeader:
               position: 'after setHeader'
-              component: 'MOC\Varnish\Http\CacheControlHeaderComponent'
+              component: 'Flowpack\Varnish\Http\CacheControlHeaderComponent'
 
   Neos:
     modules:
@@ -14,13 +14,13 @@ Neos:
         submodules:
           varnish:
             label: 'Varnish cache purging'
-            controller: \MOC\Varnish\Controller\VarnishCacheController
+            controller: \Flowpack\Varnish\Controller\VarnishCacheController
             description: 'Clear Varnish cache.'
             icon: 'fa fa-bolt'
             additionalResources:
               styleSheets:
-                - 'resource://MOC.Varnish/Public/Styles/Module.css'
-            privilegeTarget: 'MOC.Varnish:BackendModuleClearCache'
+                - 'resource://Flowpack.Varnish/Public/Styles/Module.css'
+            privilegeTarget: 'Flowpack.Varnish:BackendModuleClearCache'
     fusion:
       autoInclude:
-        MOC.Varnish: true
+        Flowpack.Varnish: true

@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish\Service;
+namespace Flowpack\Varnish\Service;
 
 use FOS\HttpCache\CacheInvalidator;
 use FOS\HttpCache\Exception\ExceptionCollection;
 use FOS\HttpCache\Exception\ProxyResponseException;
 use FOS\HttpCache\Exception\ProxyUnreachableException;
 use FOS\HttpCache\ProxyClient;
-use MOC\Varnish\Service\ProxyClient\Varnish;
+use Flowpack\Varnish\Service\ProxyClient\Varnish;
 use Neos\Flow\Annotations as Flow;
 
 /**
@@ -25,7 +25,7 @@ class VarnishBanService
 
     /**
      * @Flow\Inject
-     * @var \MOC\Varnish\Service\TokenStorage
+     * @var \Flowpack\Varnish\Service\TokenStorage
      */
     protected $tokenStorage;
 

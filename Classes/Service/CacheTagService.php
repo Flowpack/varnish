@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish\Service;
+namespace Flowpack\Varnish\Service;
 
 use Neos\Flow\Annotations as Flow;
 
@@ -34,8 +34,8 @@ class CacheTagService
      * Generate short md5 for cache tags if enabled
      *
      * See these two configuration options:
-     * * MOC.Varnish.cacheHeaders.shortenCacheTags
-     * * MOC.Varnish.cacheHeaders.cacheTagLength
+     * * Flowpack.Varnish.cacheHeaders.shortenCacheTags
+     * * Flowpack.Varnish.cacheHeaders.cacheTagLength
      *
      * @param array $tags
      * @return array

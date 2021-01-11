@@ -1,4 +1,4 @@
-MOC\Varnish\Http\CacheControlHeaderComponent:
+Flowpack\Varnish\Http\CacheControlHeaderComponent:
   properties:
     contentCacheFrontend:
       object:
@@ -8,7 +8,7 @@ MOC\Varnish\Http\CacheControlHeaderComponent:
           1:
             value: Neos_Fusion_Content
 
-MOC\Varnish\Service\TokenStorage:
+Flowpack\Varnish\Service\TokenStorage:
   properties:
     cache:
       object:
@@ -16,4 +16,4 @@ MOC\Varnish\Service\TokenStorage:
         factoryMethodName: getCache
         arguments:
           1:
-            value: Moc_Varnish_Site_Token
+            value: Flowpack_Varnish_Site_Token

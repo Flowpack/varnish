@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace MOC\Varnish\Service\ProxyClient;
+namespace Flowpack\Varnish\Service\ProxyClient;
 
 use FOS\HttpCache\ProxyClient\Varnish as FOSVarnish;
 

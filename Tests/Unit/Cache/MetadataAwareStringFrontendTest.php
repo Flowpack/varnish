@@ -1,7 +1,7 @@
 <?php
-namespace MOC\Varnish\Tests\Unit\Cache;
+namespace Flowpack\Varnish\Tests\Unit\Cache;
 
-use MOC\Varnish\Cache\MetadataAwareStringFrontend;
+use Flowpack\Varnish\Cache\MetadataAwareStringFrontend;
 use Neos\Cache\Backend\TransientMemoryBackend;
 use Neos\Cache\EnvironmentConfiguration;
 

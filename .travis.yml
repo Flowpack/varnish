@@ -17,7 +17,7 @@ before_script:
       },
       "require": {
           "neos/neos": "^5.0",
-          "moc/varnish": "${VERSION}"
+          "flowpack/varnish": "${VERSION}"
       },
       "require-dev": {
           "neos/buildessentials": "~5.0",
@@ -34,4 +34,4 @@ before_script:
   - cat composer.json
   - composer update
 
-script: bin/phpunit -c Build/BuildEssentials/PhpUnit/UnitTests.xml Packages/Application/MOC.Varnish/Tests/Unit
+script: bin/phpunit -c Build/BuildEssentials/PhpUnit/UnitTests.xml Packages/Application/Flowpack.Varnish/Tests/Unit

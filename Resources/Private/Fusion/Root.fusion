@@ -1,6 +1,6 @@
 prototype(Neos.Neos:Page) {
 	# These uncached segments should not result in a "no-cache" Cache-Control header
-	head.neosBackendHeader.@cache.mocVarnishIgnoreUncached = true
-	head.neosBackendEndpoints.@cache.mocVarnishIgnoreUncached = true
-	neosBackendContainer.@cache.mocVarnishIgnoreUncached = true
+	head.neosBackendHeader.@cache.flowpackVarnishIgnoreUncached = true
+	head.neosBackendEndpoints.@cache.flowpackVarnishIgnoreUncached = true
+	neosBackendContainer.@cache.flowpackVarnishIgnoreUncached = true
 }

@@ -1,4 +1,4 @@
-MOC:
+Flowpack:
   Varnish:
     # Disables Varnish caching if set to false
     enabled: true

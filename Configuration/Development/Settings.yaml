@@ -1,0 +1,4 @@
+Flowpack:
+  Varnish:
+    cacheHeaders:
+      debug: true

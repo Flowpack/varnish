@@ -143,6 +143,10 @@ class CacheControlHeaderComponent implements MiddlewareInterface
             $this->logger->debug(sprintf('Varnish cache headers not sent for node "%s" (%s) due to no max-age', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
         }
 
+        if ($this->cacheHeaderSettings['debug'] ?? false) {
+            $response = $response->withAddedHeader('X-Cache-Debug', '1');
+        }
+
         return $response;
     }
 

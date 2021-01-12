@@ -10,6 +10,7 @@ use FOS\HttpCache\Exception\ProxyUnreachableException;
 use FOS\HttpCache\ProxyClient;
 use Flowpack\Varnish\Service\ProxyClient\Varnish;
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Log\Utility\LogEnvironment;
 
 /**
  * @Flow\Scope("singleton")
@@ -61,9 +62,9 @@ class VarnishBanService
 
     public function initializeObject(): void
     {
-        $varnishUrls = is_array($this->settings['varnishUrl']) ? $this->settings['varnishUrl'] : array($this->settings['varnishUrl'] ?: 'http://127.0.0.1');
+        $varnishUrls = is_array($this->settings['varnishUrl']) ? $this->settings['varnishUrl'] : [$this->settings['varnishUrl'] ?: 'http://127.0.0.1'];
         // Remove trailing slash as it will break the Varnish ProxyClient
-        array_walk($varnishUrls, function (&$varnishUrl) {
+        array_walk($varnishUrls, static function (&$varnishUrl) {
             $varnishUrl = rtrim($varnishUrl, '/');
         });
         $httpDispatcher = new ProxyClient\HttpDispatcher($varnishUrls);
@@ -93,7 +94,7 @@ class VarnishBanService
     {
         $this->varnishProxyClient->forHosts(...$this->domainsToArray($domains));
         $this->cacheInvalidator->invalidateRegex('.*', $contentType, $domains);
-        $this->logger->debug(sprintf('Clearing all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''));
+        $this->logger->debug(sprintf('Clearing all Varnish cache%s%s', $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : '', $contentType ? ' with content type "' . $contentType . '"' : ''), LogEnvironment::fromMethodName(__METHOD__));
         $this->execute();
     }
 
@@ -120,7 +121,7 @@ class VarnishBanService
 
         $this->varnishProxyClient->forHosts(...$this->domainsToArray($domains));
         $this->cacheInvalidator->invalidateTags($tags);
-        $this->logger->debug(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''));
+        $this->logger->debug(sprintf('Cleared Varnish cache for tags "%s"%s', implode(',', $tags), $domains ? ' for domains "' . (is_array($domains) ? implode(', ', $domains) : $domains) . '"' : ''), LogEnvironment::fromMethodName(__METHOD__));
         $this->execute();
     }
 

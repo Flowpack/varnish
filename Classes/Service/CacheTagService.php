@@ -47,13 +47,13 @@ class CacheTagService
         }
 
         return array_map(function (string $tag) {
-            return substr(md5($tag), 0, (int)$this->cacheHeaderConfiguration['cacheTagLength'] ?? 8);
+            return substr(md5($tag), 0, (int)($this->cacheHeaderConfiguration['cacheTagLength'] ?? 8));
         }, $tags);
     }
 
     protected function shouldShortenTags(): bool
     {
-        return (bool)$this->cacheHeaderConfiguration['shortenCacheTags'] ?? false;
+        return (bool)($this->cacheHeaderConfiguration['shortenCacheTags'] ?? false);
     }
 
 }

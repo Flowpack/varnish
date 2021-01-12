@@ -94,12 +94,15 @@ class ContentCacheFlusherService
     {
         $this->tagsToFlush[ContentCache::TAG_EVERYTHING] = 'which were tagged with "Everything".';
 
+
         if (empty($this->workspacesToFlush[$node->getWorkspace()->getName()])) {
             $this->resolveWorkspaceChain($node->getWorkspace());
         }
+
         if (!array_key_exists($node->getWorkspace()->getName(), $this->workspacesToFlush)) {
             return;
         }
+
         $nodeIdentifier = $node->getIdentifier();
         foreach ($this->workspacesToFlush[$node->getWorkspace()->getName()] as $workspaceName => $workspaceHash) {
             $this->generateCacheTagsForNodeIdentifier($workspaceHash .'_'. $nodeIdentifier);

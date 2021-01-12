@@ -112,6 +112,7 @@ class CacheControlHeaderComponent implements MiddlewareInterface
             $this->logger->debug(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
             return $response->withAddedHeader(self::HEADER_CACHE_CONTROL, 'no-cache');
         }
+
         list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
 
         if (count($tags) > 0) {

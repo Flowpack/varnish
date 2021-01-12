@@ -156,6 +156,7 @@ class CacheControlHeaderComponent implements MiddlewareInterface
         $lifetime = null;
         $tags = [];
         $entriesMetadata = $this->contentCacheFrontend->getAllMetadata();
+
         foreach ($entriesMetadata as $identifier => $metadata) {
             $entryTags = $metadata['tags'] ?? [];
             $entryLifetime = $metadata['lifetime'] ?? null;

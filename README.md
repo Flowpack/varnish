@@ -9,12 +9,12 @@ Varnish
 Introduction
 ------------
 
-This package provides a out-of-the-box seamless integration between Varnish and Neos. It basically makes Neos send
+This package provides an out-of-the-box seamless integration between Varnish and Neos. It basically makes Neos send
 ``Cache-Control`` headers and ``BAN`` requests to Varnish for all document nodes.
 
-When installed, Neos send headers for cache lifetime and cache invalidation requests.
+When installed, Neos sends headers for cache lifetime and cache invalidation requests.
 
-Compatible with Neos 1.x-5.x
+Compatible with Neos 7.x+
 
 Documentation
 -------------

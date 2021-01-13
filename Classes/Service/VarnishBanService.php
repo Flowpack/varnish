@@ -157,7 +157,8 @@ class VarnishBanService
 
         // Remove trailing slash as it will break the Varnish ProxyClient
         return array_map(static function ($varnishUrl) {
-            return trim(rtrim($varnishUrl, '/'));
+            $varnishUrl = trim(rtrim($varnishUrl, '/'));
+            return strpos($varnishUrl, 'http') !== 0 ? 'http://' . $varnishUrl : $varnishUrl;
         }, $varnishUrls);
     }
 }

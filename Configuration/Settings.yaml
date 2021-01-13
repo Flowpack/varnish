@@ -2,10 +2,14 @@ Flowpack:
   Varnish:
     # Disables Varnish caching if set to false
     enabled: true
+
     # URL or URLs (if array) Varnish is running on for purge requests (skip trailing slash)
     varnishUrl: 'http://127.0.0.1'
+
     # Cache header sending configuration
     cacheHeaders:
+      # If enabled, sends an "X-Cache-Debug" to varnish to output additional header information
+      debug: false
       # Disable sending headers (useful for staging environments)
       disabled: false
       # Default and maximum TTL in seconds

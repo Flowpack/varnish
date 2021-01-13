@@ -1,13 +1,12 @@
-Varnish
-===========
+# Varnish
 
 [![Build Status](https://travis-ci.com/Flowpack/Varnish.svg?branch=master)](https://travis-ci.com/github/Flowpack/varnish)
 [![Latest Stable Version](https://poser.pugx.org/lowpack/varnish/v/stable)](https://packagist.org/packages/flowpack/varnish)
 [![Total Downloads](https://poser.pugx.org/flowpack/varnish/downloads)](https://packagist.org/packages/flowpack/varnish)
 [![License](https://poser.pugx.org/flowpack/varnish/license)](https://packagist.org/packages/flowpack/varnish)
 
-Introduction
-------------
+## Introduction
+
 
 This package provides an out-of-the-box seamless integration between Varnish and Neos. It basically makes Neos send
 ``Cache-Control`` headers and ``BAN`` requests to Varnish for all document nodes.
@@ -16,7 +15,10 @@ When installed, Neos sends headers for cache lifetime and cache invalidation req
 
 Compatible with Neos 7.x+
 
-Documentation
--------------
+## Documentation
 
 For more information, see [the documentation](Documentation/Index.rst)
+
+## Thanks 
+
+This package was originally developed at MOC A/S, published as MOC.Varnish and eventually moved to the Flowpack namespace. You find previous PRs and issues [there](https://github.com/mocdk/MOC.Varnish).

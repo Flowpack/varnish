@@ -152,11 +152,9 @@ class VarnishBanService
         $varnishUrls = $this->settings['varnishUrl'] ?? ['http://127.0.0.1'];
 
         if (is_string($varnishUrls)) {
-            if (strpos($varnishUrls, ',') > 0) {
-                $varnishUrls = explode(',', $varnishUrls);
-            } else {
-                $varnishUrls = [$varnishUrls];
-            }
+            $varnishUrls = array_filter(explode(',', $varnishUrls));
+        } else {
+            $varnishUrls = [$varnishUrls];
         }
 
         // Remove trailing slash as it will break the Varnish ProxyClient

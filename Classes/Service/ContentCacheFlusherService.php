@@ -6,7 +6,6 @@ namespace Flowpack\Varnish\Service;
 use Neos\ContentRepository\Domain\Model\NodeData;
 use Neos\ContentRepository\Domain\Model\NodeInterface;
 use Neos\ContentRepository\Domain\Model\NodeType;
-use Neos\ContentRepository\Domain\Model\Workspace;
 use Neos\ContentRepository\Domain\Repository\WorkspaceRepository;
 use Neos\ContentRepository\Domain\Service\NodeTypeManager;
 use Neos\ContentRepository\Exception\NodeTypeNotFoundException;
@@ -36,12 +35,6 @@ class ContentCacheFlusherService
 
     /**
      * @Flow\Inject
-     * @var WorkspaceRepository
-     */
-    protected $workspaceRepository;
-
-    /**
-     * @Flow\Inject
      * @var NodeTypeManager
      */
     protected $nodeTypeManager;
@@ -50,11 +43,6 @@ class ContentCacheFlusherService
      * @var array
      */
     protected $tagsToFlush = [];
-
-    /**
-     * @var array
-     */
-    protected $workspacesToFlush = [];
 
     /**
      * @var array
@@ -84,8 +72,6 @@ class ContentCacheFlusherService
     /**
      * Generates cache tags to be flushed for a node which is flushed on shutdown.
      *
-     * Code duplicated from Neos' ContentCacheFlusher class
-     *
      * @param NodeInterface|NodeData $node The node which has changed in some way
      * @return void
      * @throws NodeTypeNotFoundException
@@ -94,28 +80,21 @@ class ContentCacheFlusherService
     {
         $this->tagsToFlush[ContentCache::TAG_EVERYTHING] = 'which were tagged with "Everything".';
 
-
-        if (empty($this->workspacesToFlush[$node->getWorkspace()->getName()])) {
-            $this->resolveWorkspaceChain($node->getWorkspace());
-        }
-
-        if (!array_key_exists($node->getWorkspace()->getName(), $this->workspacesToFlush)) {
-            return;
-        }
+        $workspaceHash = $this->getCachingHelper()->renderWorkspaceTagForContextNode('live');
 
         $nodeIdentifier = $node->getIdentifier();
-        foreach ($this->workspacesToFlush[$node->getWorkspace()->getName()] as $workspaceName => $workspaceHash) {
-            $this->generateCacheTagsForNodeIdentifier($workspaceHash .'_'. $nodeIdentifier);
-            $this->generateCacheTagsForNodeType($node->getNodeType()->getName(), $nodeIdentifier, $workspaceHash);
-            $nodeInWorkspace = $node;
-            while ($nodeInWorkspace->getDepth() > 1) {
-                $nodeInWorkspace = $nodeInWorkspace->getParent();
-                // Workaround for issue #56566 in Neos.ContentRepository
-                if ($nodeInWorkspace === null) {
-                    break;
-                }
-                $this->generateCacheTagsForDescendantOf($workspaceHash . '_' . $nodeInWorkspace->getIdentifier());
+
+        $this->generateCacheTagsForNodeIdentifier($workspaceHash .'_'. $nodeIdentifier);
+        $this->generateCacheTagsForNodeType($node->getNodeType()->getName(), $nodeIdentifier, $workspaceHash);
+
+        $traversedNode = $node;
+        while ($traversedNode->getDepth() > 1) {
+            $traversedNode = $traversedNode->getParent();
+            // Workaround for issue #56566 in Neos.ContentRepository
+            if ($traversedNode === null) {
+                break;
             }
+            $this->generateCacheTagsForDescendantOf($workspaceHash . '_' . $traversedNode->getIdentifier());
         }
 
         if ($node instanceof NodeInterface && $node->getContext() instanceof ContentContext) {
@@ -152,7 +131,7 @@ class ContentCacheFlusherService
 
     /**
      * @param string $nodeTypeName
-     * @param string $referenceNodeIdentifier
+     * @param string|null $referenceNodeIdentifier
      * @param string $nodeTypePrefix
      *
      * @throws NodeTypeNotFoundException
@@ -161,42 +140,12 @@ class ContentCacheFlusherService
     {
         $nodeTypesToFlush = $this->getAllImplementedNodeTypeNames($this->nodeTypeManager->getNodeType($nodeTypeName));
 
-        if (strlen($nodeTypePrefix) > 0) {
+        if ($nodeTypePrefix !== '') {
             $nodeTypePrefix = rtrim($nodeTypePrefix, '_') . '_';
         }
         foreach ($nodeTypesToFlush as $nodeTypeNameToFlush) {
             $tagName = 'NodeType_' . $nodeTypePrefix . $nodeTypeNameToFlush;
             $this->tagsToFlush[$tagName] = sprintf('which were tagged with "%s" because node "%s" has changed and was of type "%s".', $tagName, $referenceNodeIdentifier ?: '', $nodeTypeName);
-        }
-    }
-
-    /**
-     * @param Workspace $workspace
-     * @return void
-     */
-    protected function resolveWorkspaceChain(Workspace $workspace): void
-    {
-        $cachingHelper = $this->getCachingHelper();
-
-        $this->workspacesToFlush[$workspace->getName()][$workspace->getName()] = $cachingHelper->renderWorkspaceTagForContextNode($workspace->getName());
-        $this->resolveTagsForChildWorkspaces($workspace, $workspace->getName());
-    }
-
-    /**
-     * @param Workspace $workspace
-     * @param string $startingPoint
-     * @return void
-     */
-    protected function resolveTagsForChildWorkspaces(Workspace $workspace, string $startingPoint): void
-    {
-        $cachingHelper = $this->getCachingHelper();
-        $this->workspacesToFlush[$startingPoint][$workspace->getName()] = $cachingHelper->renderWorkspaceTagForContextNode($workspace->getName());
-
-        $childWorkspaces = $this->workspaceRepository->findByBaseWorkspace($workspace->getName());
-        if ($childWorkspaces->valid()) {
-            foreach ($childWorkspaces as $childWorkspace) {
-                $this->resolveTagsForChildWorkspaces($childWorkspace, $startingPoint);
-            }
         }
     }
 
@@ -219,7 +168,7 @@ class ContentCacheFlusherService
     protected function getAllImplementedNodeTypeNames(NodeType $nodeType): array
     {
         $self = $this;
-        $types = array_reduce($nodeType->getDeclaredSuperTypes(), function (array $types, NodeType $superType) use ($self) {
+        $types = array_reduce($nodeType->getDeclaredSuperTypes(), static function (array $types, NodeType $superType) use ($self) {
             return array_merge($types, $self->getAllImplementedNodeTypeNames($superType));
         }, [$nodeType->getName()]);
         $types = array_unique($types);

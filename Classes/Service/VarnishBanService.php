@@ -132,11 +132,11 @@ class VarnishBanService
         } catch (ExceptionCollection $exceptions) {
             foreach ($exceptions as $exception) {
                 if ($exception instanceof ProxyResponseException) {
-                    $this->logger->error(sprintf('Error calling Varnish with BAN request (caching proxy returned an error response). Error %s', $exception->getMessage()));
+                    $this->logger->error(sprintf('Error calling Varnish with BAN request (caching proxy returned an error response). Error %s', $exception->getMessage()), LogEnvironment::fromMethodName(__METHOD__));
                 } elseif ($exception instanceof ProxyUnreachableException) {
-                    $this->logger->error(sprintf('Error calling Varnish with BAN request (cannot connect to the caching proxy). Error %s', $exception->getMessage()));
+                    $this->logger->error(sprintf('Error calling Varnish with BAN request (cannot connect to the caching proxy). Error %s', $exception->getMessage()), LogEnvironment::fromMethodName(__METHOD__));
                 } else {
-                    $this->logger->error(sprintf('Error calling Varnish with BAN request. Error %s', $exception->getMessage()));
+                    $this->logger->error(sprintf('Error calling Varnish with BAN request. Error %s', $exception->getMessage()), LogEnvironment::fromMethodName(__METHOD__));
                 }
             }
         }

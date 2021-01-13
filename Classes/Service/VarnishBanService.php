@@ -148,6 +148,8 @@ class VarnishBanService
      */
     private function domainsToArray($domains = null): array
     {
-        return is_array($domains) ? $domains : (is_string($domains) ? [$domains] : []);
+        $domains = $domains ?? [];
+        return is_array($domains) ? $domains : [$domains];
+    }
     }
 }

@@ -62,12 +62,7 @@ class VarnishBanService
 
     public function initializeObject(): void
     {
-        $varnishUrls = is_array($this->settings['varnishUrl']) ? $this->settings['varnishUrl'] : [$this->settings['varnishUrl'] ?: 'http://127.0.0.1'];
-        // Remove trailing slash as it will break the Varnish ProxyClient
-        array_walk($varnishUrls, static function (&$varnishUrl) {
-            $varnishUrl = rtrim($varnishUrl, '/');
-        });
-        $httpDispatcher = new ProxyClient\HttpDispatcher($varnishUrls);
+        $httpDispatcher = new ProxyClient\HttpDispatcher($this->prepareVarnishUrls());
         $options = [
             'header_length' => $this->settings['maximumHeaderLength'] ?? 7500,
             'default_ban_headers' => [
@@ -151,5 +146,24 @@ class VarnishBanService
         $domains = $domains ?? [];
         return is_array($domains) ? $domains : [$domains];
     }
+
+    private function prepareVarnishUrls(): array
+    {
+        $varnishUrls = $this->settings['varnishUrl'] ?? ['http://127.0.0.1'];
+
+        if (is_string($varnishUrls)) {
+            if (strpos($varnishUrls, ',') > 0) {
+                $varnishUrls = explode(',', $varnishUrls);
+            } else {
+                $varnishUrls = [$varnishUrls];
+            }
+        }
+
+        // Remove trailing slash as it will break the Varnish ProxyClient
+        array_walk($varnishUrls, static function (&$varnishUrl) {
+            $varnishUrl = rtrim($varnishUrl, '/');
+        });
+
+        return $varnishUrls;
     }
 }

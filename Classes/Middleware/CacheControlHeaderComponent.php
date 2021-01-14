@@ -98,6 +98,10 @@ class CacheControlHeaderComponent implements MiddlewareInterface
             return $response;
         }
 
+        if (!$node instanceof NodeInterface) {
+            return $response;
+        }
+
         if ($node->getContext()->getWorkspaceName() !== 'live') {
             return $response;
         }

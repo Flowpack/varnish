@@ -149,10 +149,16 @@ class VarnishBanService
 
     protected function prepareVarnishUrls(): array
     {
-        $varnishUrls = $this->settings['varnishUrl'] ?? ['http://127.0.0.1'];
+        $varnishUrls = $this->settings['varnishUrl'] ?? null;
+
+        if (!is_string($this->settings['varnishUrl']) && !is_array($this->settings['varnishUrl'])) {
+            return ['http://127.0.0.1'];
+        }
+
         if (is_string($varnishUrls)) {
             $varnishUrls = explode(',', $varnishUrls);
         }
+
         $varnishUrls = array_filter($varnishUrls);
 
         // Remove trailing slash as it will break the Varnish ProxyClient

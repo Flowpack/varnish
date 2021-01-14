@@ -39,6 +39,10 @@ class VarnishBanServiceTest extends UnitTestCase
                 'urls' => null,
                 'expected' => ['http://127.0.0.1']
             ],
+            [
+                'urls' => false,
+                'expected' => ['http://127.0.0.1']
+            ],
         ];
     }
 

@@ -131,8 +131,6 @@ class ContentCacheAspect
         $object = $joinPoint->getProxy();
 
         $tags = array_keys(ObjectAccess::getProperty($object, 'tagsToFlush', true));
-        $tags = $this->cacheTagService->sanitizeTags($tags);
-        $tags = $this->cacheTagService->shortenTags($tags);
 
         $this->varnishBanService->banByTags($tags);
     }

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Flowpack\Varnish\Aspects;
 
+use Flowpack\Varnish\Service\CacheTagService;
+use Flowpack\Varnish\Service\VarnishBanService;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Aop\JoinPointInterface;
 use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
@@ -29,6 +31,18 @@ class ContentCacheAspect
      * @var LoggerInterface
      */
     protected $logger;
+
+    /**
+     * @Flow\Inject
+     * @var VarnishBanService
+     */
+    protected $varnishBanService;
+
+    /**
+     * @Flow\Inject
+     * @var CacheTagService
+     */
+    protected $cacheTagService;
 
     /**
      * @var bool
@@ -104,6 +118,21 @@ class ContentCacheAspect
             $this->logger->debug('Varnish cache disabled due content cache being disabled (e.g. because an exception was handled)', LogEnvironment::fromMethodName(__METHOD__));
             $this->evaluatedUncached = true;
         }
+    }
+
+    /**
+     * @Flow\Before("setting(Flowpack.Varnish.enabled) && method(Neos\Neos\Fusion\Cache\ContentCacheFlusher->shutdownObject())")
+     * @param JoinPointInterface $joinPoint
+     *
+     * @throws PropertyNotAccessibleException
+     */
+    public function interceptContentCacheFlush(JoinPointInterface $joinPoint)
+    {
+        $object = $joinPoint->getProxy();
+
+        $tags = array_keys(ObjectAccess::getProperty($object, 'tagsToFlush', true));
+
+        $this->varnishBanService->banByTags($tags);
     }
 
     /**

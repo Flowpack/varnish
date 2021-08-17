@@ -18,6 +18,8 @@ use Neos\Neos\Fusion\Helper\CachingHelper;
 
 /**
  * @Flow\Scope("singleton")
+ *
+ * @deprecated will be removed with 6.0
  */
 class ContentCacheFlusherService
 {

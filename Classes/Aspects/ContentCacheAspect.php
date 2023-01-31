@@ -129,8 +129,10 @@ class ContentCacheAspect
     public function interceptContentCacheFlush(JoinPointInterface $joinPoint)
     {
         $object = $joinPoint->getProxy();
-
         $tags = array_keys(ObjectAccess::getProperty($object, 'tagsToFlush', true));
+        if ($tags === []) {
+          return;
+        }
 
         $this->varnishBanService->banByTags($tags);
     }

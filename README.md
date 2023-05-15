@@ -7,9 +7,16 @@
 
 ## Introduction
 
-
 This package provides an out-of-the-box seamless integration between Varnish and Neos. It basically makes Neos send
 ``Cache-Control`` headers and ``BAN`` requests to Varnish for all document nodes.
+
+### Installation
+
+You can install the package as usual with composer:
+
+```bash
+composer require flowpack/varnish
+```
 
 When installed, Neos sends headers for cache lifetime and cache invalidation requests.
 

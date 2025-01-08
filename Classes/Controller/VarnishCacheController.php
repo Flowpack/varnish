@@ -5,10 +5,13 @@ namespace Flowpack\Varnish\Controller;
 
 use Flowpack\Varnish\Service\ContentCacheFlusherService;
 use Flowpack\Varnish\Service\VarnishBanService;
-use Neos\ContentRepository\Domain\Model\Node;
-use Neos\ContentRepository\Domain\Service\NodeTypeManager;
+use Neos\ContentRepository\Core\NodeType\NodeTypeNames;
+use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\FindDescendantNodesFilter;
+use Neos\ContentRepository\Core\Projection\ContentGraph\Filter\NodeType\NodeTypeCriteria;
+use Neos\ContentRepository\Core\SharedModel\Node\NodeAddress;
+use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
+use Neos\ContentRepositoryRegistry\ContentRepositoryRegistry;
 use Neos\Flow\Annotations as Flow;
-use Neos\Error\Messages\Message;
 use Neos\Flow\Http\Client\CurlEngine;
 use Neos\Flow\Mvc\View\JsonView;
 use Neos\FluidAdaptor\View\TemplateView;
@@ -16,44 +19,10 @@ use Neos\Neos\Controller\Module\AbstractModuleController;
 use Neos\Neos\Domain\Model\Domain;
 use Neos\Neos\Domain\Model\Site;
 use Neos\Neos\Domain\Repository\SiteRepository;
-use Neos\Neos\Domain\Service\ContentContext;
-use Neos\Neos\Domain\Service\ContentContextFactory;
-use Neos\Neos\Domain\Service\ContentDimensionPresetSourceInterface;
-use Neos\Neos\Domain\Service\NodeSearchService;
+use Neos\Neos\Domain\Service\SiteNodeUtility;
 
 class VarnishCacheController extends AbstractModuleController
 {
-
-    /**
-     * @Flow\Inject
-     * @var NodeTypeManager
-     */
-    protected $nodeTypeManager;
-
-    /**
-     * @Flow\Inject
-     * @var ContentContextFactory
-     */
-    protected $contextFactory;
-
-    /**
-     * @Flow\Inject
-     * @var NodeSearchService
-     */
-    protected $nodeSearchService;
-
-    /**
-     * @Flow\Inject
-     * @var SiteRepository
-     */
-    protected $siteRepository;
-
-    /**
-     * @Flow\Inject
-     * @var ContentDimensionPresetSourceInterface
-     */
-    protected $contentDimensionPresetSource;
-
     /**
      * @var array
      */
@@ -61,6 +30,18 @@ class VarnishCacheController extends AbstractModuleController
         'html' => TemplateView::class,
         'json' => JsonView::class,
     ];
+
+    #[Flow\Inject]
+    protected SiteRepository $siteRepository;
+
+    #[Flow\Inject]
+    protected ContentRepositoryRegistry $contentRepositoryRegistry;
+
+    #[Flow\Inject]
+    protected SiteNodeUtility $siteNodeUtility;
+
+    #[Flow\Inject]
+    protected ContentCacheFlusherService $contentCacheFlusherService;
 
     public function indexAction(): void
     {
@@ -71,7 +52,6 @@ class VarnishCacheController extends AbstractModuleController
      * @param string $searchWord
      * @param Site $selectedSite
      * @return void
-     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
      * @throws \Neos\Flow\Mvc\Exception\ForwardException
      */
     public function searchForNodeAction(string $searchWord = '', Site $selectedSite = null): void
@@ -81,38 +61,53 @@ class VarnishCacheController extends AbstractModuleController
             $this->forward('index');
         }
 
-        $documentNodeTypes = $this->nodeTypeManager->getSubNodeTypes('Neos.Neos:Document');
-        $shortcutNodeType = $this->nodeTypeManager->getNodeType('Neos.Neos:Shortcut');
-        $nodeTypes = array_diff($documentNodeTypes, array($shortcutNodeType));
         $sites = [];
         $activeSites = $this->siteRepository->findOnline();
         foreach ($selectedSite ? [$selectedSite] : $activeSites as $site) {
-            /** @var Site $site */
-            $contextProperties = [
-                'workspaceName' => 'live',
-                'currentSite' => $site
-            ];
-            $contentDimensionPresets = $this->contentDimensionPresetSource->getAllPresets();
-            if (count($contentDimensionPresets) > 0) {
-                $mergedContentDimensions = [];
-                foreach ($contentDimensionPresets as $contentDimensionIdentifier => $contentDimension) {
-                    $mergedContentDimensions[$contentDimensionIdentifier] = [$contentDimension['default']];
-                    foreach ($contentDimension['presets'] as $contentDimensionPreset) {
-                        $mergedContentDimensions[$contentDimensionIdentifier] = array_merge($mergedContentDimensions[$contentDimensionIdentifier], $contentDimensionPreset['values']);
-                    }
-                    $mergedContentDimensions[$contentDimensionIdentifier] = array_values(array_unique($mergedContentDimensions[$contentDimensionIdentifier]));
+            $contentRepository = $this->contentRepositoryRegistry->get($site->getConfiguration()->contentRepositoryId);
+            $nodeTypeManager = $contentRepository->getNodeTypeManager();
+
+            $documentNodeTypes = $nodeTypeManager->getSubNodeTypes('Neos.Neos:Document');
+            $shortcutNodeType = $nodeTypeManager->getNodeType('Neos.Neos:Shortcut');
+
+            $nodes = [];
+
+            $contentDimensionSpacePoints = $contentRepository->getVariationGraph()->getDimensionSpacePoints();
+            foreach ($contentDimensionSpacePoints as $contentDimensionSpacePoint) {
+                $currentSiteNode = $this->siteNodeUtility->findSiteNodeBySite(
+                    $site,
+                    WorkspaceName::forLive(),
+                    $contentDimensionSpacePoint
+                );
+                $subgraph = $this->contentRepositoryRegistry->subgraphForNode($currentSiteNode);
+
+                $descendantNodes = $subgraph->findDescendantNodes(
+                    $currentSiteNode->aggregateId,
+                    filter: FindDescendantNodesFilter::create(
+                        nodeTypes: NodeTypeCriteria::create(
+                            NodeTypeNames::fromArray(array_map(static fn ($documentNodeType) => $documentNodeType->name, $documentNodeTypes)),
+                            NodeTypeNames::fromArray([$shortcutNodeType->name])),
+                        searchTerm: $searchWord)
+                );
+
+
+                if ($descendantNodes->count()) {
+                    $nodes[] = array_map(fn ($node) => [
+                        'node' => $node,
+                        'nodeAddress' => NodeAddress::fromNode($node)->toJson(),
+                        'nodeTypeIcon' => $nodeTypeManager->getNodeType($node->nodeTypeName)->getConfiguration('ui.icon'),
+                        'nodeTypeLabel' => $nodeTypeManager->getNodeType($node->nodeTypeName)->getLabel(),
+                    ], iterator_to_array($descendantNodes->getIterator()));
                 }
-                $contextProperties['dimensions'] = $mergedContentDimensions;
             }
-            /** @var ContentContext $liveContext */
-            $liveContext = $this->contextFactory->create($contextProperties);
-            $nodes = $this->nodeSearchService->findByProperties($searchWord, $nodeTypes, $liveContext, $liveContext->getCurrentSiteNode());
+
             if (count($nodes) > 0) {
-                $sites[$site->getNodeName()] = [
+                $sites[$site->getNodeName()->value] = [
                     'site' => $site,
-                    'nodes' => $nodes
+                    'nodes' => array_merge(...$nodes)
                 ];
             }
+
         }
         $this->view->assignMultiple([
             'searchWord' => $searchWord,
@@ -122,22 +117,19 @@ class VarnishCacheController extends AbstractModuleController
         ]);
     }
 
-    /**
-     * @param Node $node
-     * @return void
-     * @throws \Neos\ContentRepository\Exception\NodeTypeNotFoundException
-     */
-    public function purgeCacheAction(Node $node): void
+    public function purgeCacheAction(string $nodeAddress): void
     {
-        $service = new ContentCacheFlusherService();
-        $service->flushForNode($node);
+        $nodeAddress = NodeAddress::fromJsonString($nodeAddress);
+        $contentRepository = $this->contentRepositoryRegistry->get($nodeAddress->contentRepositoryId);
+        $subgraph = $contentRepository->getContentSubgraph($nodeAddress->workspaceName, $nodeAddress->dimensionSpacePoint);
+        $node = $subgraph->findNodeById($nodeAddress->aggregateId);
+
+        $this->contentCacheFlusherService->flushForNode($node);
+
         $this->view->assign('value', true);
     }
 
     /**
-     * @param string $tags
-     * @param Site $site
-     * @return void
      * @throws \Neos\Flow\Mvc\Exception\StopActionException
      */
     public function purgeCacheByTagsAction(string $tags, Site $site = null): void
@@ -157,9 +149,6 @@ class VarnishCacheController extends AbstractModuleController
     }
 
     /**
-     * @param Site $site
-     * @param string $contentType
-     * @return void
      * @throws \Neos\Flow\Mvc\Exception\StopActionException
      */
     public function purgeAllVarnishCacheAction(Site $site = null, $contentType = null): void
@@ -177,8 +166,6 @@ class VarnishCacheController extends AbstractModuleController
     }
 
     /**
-     * @param string $url
-     * @return void
      * @throws \Neos\Flow\Http\Client\CurlEngineException
      * @throws \Neos\Flow\Http\Exception
      */
@@ -194,13 +181,13 @@ class VarnishCacheController extends AbstractModuleController
         $engine->setOption(CURLOPT_SSL_VERIFYPEER, false);
         $engine->setOption(CURLOPT_SSL_VERIFYHOST, false);
         $response = $engine->sendRequest($request);
-        $this->view->assign('value', array(
+        $this->view->assign('value', [
             'statusCode' => $response->getStatusCode(),
             'host' => parse_url($url, PHP_URL_HOST),
             'url' => $url,
             'headers' => array_map(function ($value) {
                 return current($value);
             }, $response->getHeaders())
-        ));
+        ]);
     }
 }

@@ -14,7 +14,8 @@
         "flow"
     ],
     "require": {
-        "neos/neos": "^7.0 || ^8.0",
+        "ext-curl": "*",
+        "neos/neos": "^9.0",
         "friendsofsymfony/http-cache": "^2.0",
         "php-http/curl-client": "^2.2"
     },
@@ -25,7 +26,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "4.1.x-dev"
+            "dev-main": "6.0.x-dev"
         },
         "applied-flow-migrations": [
             "TYPO3.FLOW3-201201261636",

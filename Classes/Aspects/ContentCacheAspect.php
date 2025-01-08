@@ -3,46 +3,31 @@ declare(strict_types=1);
 
 namespace Flowpack\Varnish\Aspects;
 
-use Flowpack\Varnish\Service\CacheTagService;
 use Flowpack\Varnish\Service\VarnishBanService;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Aop\JoinPointInterface;
 use Neos\Flow\Configuration\Exception\InvalidConfigurationException;
 use Neos\Flow\Log\Utility\LogEnvironment;
 use Neos\Flow\Mvc\Exception\StopActionException;
+use Neos\Fusion\Core\Runtime;
 use Neos\Fusion\Exception;
 use Neos\Fusion\Exception\RuntimeException;
 use Neos\Utility\Exception\PropertyNotAccessibleException;
 use Neos\Utility\ObjectAccess;
-use Neos\Fusion\Core\Runtime;
 use Psr\Log\LoggerInterface;
 
 /**
  * Advice the RuntimeContentCache to check for uncached segments that should prevent caching
- *
- * @Flow\Aspect
- * @Flow\Scope("singleton")
  */
+#[Flow\Aspect]
+#[Flow\Scope("singleton")]
 class ContentCacheAspect
 {
+    #[Flow\Inject]
+    protected LoggerInterface $logger;
 
-    /**
-     * @Flow\Inject
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
-     * @Flow\Inject
-     * @var VarnishBanService
-     */
-    protected $varnishBanService;
-
-    /**
-     * @Flow\Inject
-     * @var CacheTagService
-     */
-    protected $cacheTagService;
+    #[Flow\Inject]
+    protected VarnishBanService $varnishBanService;
 
     /**
      * @var bool
@@ -53,7 +38,6 @@ class ContentCacheAspect
      * Advice for uncached segments when rendering the initial output (without replacing an uncached marker in cached output)
      *
      * @Flow\AfterReturning("setting(Flowpack.Varnish.enabled) && method(Neos\Fusion\Core\Cache\RuntimeContentCache->postProcess())")
-     * @param JoinPointInterface $joinPoint
      * @throws PropertyNotAccessibleException
      * @throws InvalidConfigurationException
      * @throws StopActionException
@@ -82,7 +66,6 @@ class ContentCacheAspect
      * Advice for uncached segments when rendering from a cached version
      *
      * @Flow\AfterReturning("setting(Flowpack.Varnish.enabled) && method(Neos\Fusion\Core\Cache\RuntimeContentCache->evaluateUncached())")
-     * @param JoinPointInterface $joinPoint
      * @throws PropertyNotAccessibleException
      * @throws InvalidConfigurationException
      * @throws StopActionException
@@ -109,7 +92,6 @@ class ContentCacheAspect
      * Advice for a disabled content cache (e.g. because an exception was handled)
      *
      * @Flow\AfterReturning("setting(Flowpack.Varnish.enabled) && method(Neos\Fusion\Core\Cache\RuntimeContentCache->setEnableContentCache())")
-     * @param JoinPointInterface $joinPoint
      */
     public function registerDisableContentCache(JoinPointInterface $joinPoint): void
     {
@@ -121,17 +103,15 @@ class ContentCacheAspect
     }
 
     /**
-     * @Flow\Before("setting(Flowpack.Varnish.enabled) && method(Neos\Neos\Fusion\Cache\ContentCacheFlusher->shutdownObject())")
-     * @param JoinPointInterface $joinPoint
+     * @Flow\Before("setting(Flowpack.Varnish.enabled) && method(Neos\Neos\Fusion\Cache\ContentCacheFlusher->flushTagsImmediately())")
      *
      * @throws PropertyNotAccessibleException
      */
-    public function interceptContentCacheFlush(JoinPointInterface $joinPoint)
+    public function interceptContentCacheFlush(JoinPointInterface $joinPoint): void
     {
-        $object = $joinPoint->getProxy();
-        $tags = array_keys(ObjectAccess::getProperty($object, 'tagsToFlush', true));
+        $tags = array_keys($joinPoint->getMethodArgument('tagsToFlush'));
         if ($tags === []) {
-          return;
+            return;
         }
 
         $this->varnishBanService->banByTags($tags);

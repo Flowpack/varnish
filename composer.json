@@ -25,7 +25,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "4.1.x-dev"
+            "dev-main": "4.1.x-dev"
         },
         "applied-flow-migrations": [
             "TYPO3.FLOW3-201201261636",

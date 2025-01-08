@@ -278,4 +278,4 @@ This can be done by using the following example vcl:
 
 ***Note*** Example_ of full VCL configuration file (Varnish 3) – Use with care!
 
-.. _Example: https://github.com/flowpack/varnish/blob/master/Documentation/example.vcl
+.. _Example: https://github.com/flowpack/varnish/blob/main/Documentation/example.vcl

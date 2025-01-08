@@ -27,24 +27,25 @@
 									</td>
 								</tr>
 							</f:if>
-							<f:for each="{site.nodes}" as="node">
-								<f:alias map="{url: '{neos:uri.node(node: node, absolute: 1)}'}">
+							<f:for each="{site.nodes}" as="item">
+								<f:alias map="{url: '{neos:uri.node(node: item.node, absolute: 1)}'}">
 									<tr class="fold-{site.site.nodeName}">
-										<td title="{node.identifier}">
-											<f:if condition="{node.nodeType.fullConfiguration.ui.icon}">
-												<i title="{node.nodeType.label}" class="{node.nodeType.fullConfiguration.ui.icon}"></i>
+										<td title="{item.node.aggregateId}">
+
+											<f:if condition="{item.nodeTypeIcon}">
+												<i title="{item.nodeTypeLabel}" class="{item.nodeTypeIcon}"></i>
 											</f:if>
-											<a href="{url}" target="_blank">{node.label}</a>
+											<a href="{url}" target="_blank">{neos:node.label(node: item.node)}</a>
 										</td>
-										<td title="{node.path}"><a href="{url}" target="_blank">{neos:uri.node(node: node)}</a></td>
-										<td><f:if condition="{node.properties.disableVarnishCache}">
+										<td title="{item.node.path}">2<a href="{url}" target="_blank">{neos:uri.node(node: item.node)}</a></td>
+										<td><f:if condition="{item.node.properties.disableVarnishCache}">
 											<f:then><i class="fa fa-warning-sign"></i> Caching disabled</f:then>
-											<f:else>{f:if(condition: node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="fa fa-time"></i> {node.properties.cacheTimeToLive} s')}</span></f:else>
+											<f:else>{f:if(condition: item.node.properties.cacheTimeToLive, then: '<span title="Time-to-live"><i class="fa fa-time"></i> {item.node.properties.cacheTimeToLive} s')}</span></f:else>
 										</f:if></td>
 										<td class="neos-action">
-											<button class="neos-button" data-toggle="modal" href="#{node.identifier}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: url})}"><i class="fa fa-info-circle"></i></button>
-											<f:link.action action="purgeCache" format="json" arguments="{node: node}" class="neos-button clear-cache" title="Clear cache" data="{node-label: node.label}"><i class="fa fa-bolt"></i></f:link.action>
-											<div class="neos-hide" id="{node.identifier}">
+											<button class="neos-button" data-toggle="modal" href="#{item.node.aggregateId}" title="Additional info" data-check-url="{f:uri.action(action: 'checkUrl', format: 'json', arguments: {url: url})}"><i class="fa fa-info-circle"></i></button>
+											<f:link.action action="purgeCache" format="json" arguments="{nodeAddress: item.nodeAddress}" class="neos-button clear-cache" title="Clear cache" data="{node-label: item.node.label}"><i class="fa fa-bolt"></i></f:link.action>
+											<div class="neos-hide" id="{item.node.aggregateId}">
 												<div class="neos-modal">
 													<div class="neos-modal-header">
 														<button type="button" class="neos-close neos-button" data-dismiss="modal"></button>
@@ -130,8 +131,8 @@
 					$('#url-check-loading', modalContent).hide();
 					console.error(jqXHR);
 					var message = 'An error occurred while fetching additional information: ' + errorThrown;
-					if (window.Typo3Neos) {
-						window.Typo3Neos.Notification.error(message);
+					if (window.NeosCMS) {
+						window.NeosCMS.Notification.error(message);
 					} else {
 						alert(message);
 					}
@@ -143,8 +144,8 @@
 				button.html('<span class="neos-ellipsis"></span>');
 				$.ajax($(this).attr('href')).done(function(data, textStatus, jqXHR) {
 					button.html('<i class="fa fa-bolt"></i>');
-					if (window.Typo3Neos) {
-						window.Typo3Neos.Notification.ok('Cleared cache for node "' + button.data('node-label') + '"');
+					if (window.NeosCMS) {
+						window.NeosCMS.Notification.ok('Cleared cache for node "' + button.data('node-label') + '"');
 					} else {
 						alert(message);
 					}
@@ -152,8 +153,8 @@
 					button.html('<i class="fa fa-bolt"></i>');
 					console.error(jqXHR);
 					var message = 'An error occurred while clearing the cache: ' + errorThrown;
-					if (window.Typo3Neos) {
-						window.Typo3Neos.Notification.error(message);
+					if (window.NeosCMS) {
+						window.NeosCMS.Notification.error(message);
 					} else {
 						alert(message);
 					}

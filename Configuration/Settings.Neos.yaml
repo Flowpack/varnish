@@ -16,6 +16,8 @@ Neos:
             description: 'Clear Varnish cache.'
             icon: 'fa fa-bolt'
             additionalResources:
+              javaScripts:
+                - 'resource://Flowpack.Varnish/Public/Libraries/jquery/jquery-3.6.0.min.js'
               styleSheets:
                 - 'resource://Flowpack.Varnish/Public/Styles/Module.css'
             privilegeTarget: 'Flowpack.Varnish:BackendModuleClearCache'

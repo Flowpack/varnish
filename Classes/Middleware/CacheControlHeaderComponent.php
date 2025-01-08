@@ -7,12 +7,13 @@ use Flowpack\Varnish\Aspects\ContentCacheAspect;
 use Flowpack\Varnish\Cache\MetadataAwareStringFrontend;
 use Flowpack\Varnish\Service\CacheTagService;
 use Flowpack\Varnish\Service\TokenStorage;
-use Neos\ContentRepository\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Core\Projection\ContentGraph\Node;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Http\ServerRequestAttributes;
 use Neos\Flow\Log\Utility\LogEnvironment;
 use Neos\Flow\Mvc\ActionRequestFactory;
 use Neos\Flow\Property\PropertyMapper;
+use Neos\Neos\Domain\NodeLabel\NodeLabelGeneratorInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -27,48 +28,33 @@ class CacheControlHeaderComponent implements MiddlewareInterface
      * @var array
      * @Flow\InjectConfiguration(path="cacheHeaders")
      */
-    protected $cacheHeaderSettings;
+    protected array $cacheHeaderSettings;
 
-    /**
-     * @var ContentCacheAspect
-     * @Flow\Inject
-     */
-    protected $contentCacheAspect;
+    #[Flow\Inject]
+    protected ContentCacheAspect $contentCacheAspect;
 
-    /**
-     * @var TokenStorage
-     * @Flow\Inject
-     */
-    protected $tokenStorage;
+    #[Flow\Inject]
+    protected TokenStorage $tokenStorage;
 
-    /**
-     * @var LoggerInterface
-     * @Flow\Inject
-     */
-    protected $logger;
+    #[Flow\Inject]
+    protected LoggerInterface $logger;
 
-    /**
-     * @var PropertyMapper
-     * @Flow\Inject
-     */
-    protected $propertyMapper;
+    #[Flow\Inject]
+    protected PropertyMapper$propertyMapper;
 
-    /**
-     * @var CacheTagService
-     * @Flow\Inject
-     */
-    protected $cacheTagService;
+    #[Flow\Inject]
+    protected CacheTagService $cacheTagService;
 
     /**
      * @var MetadataAwareStringFrontend
      */
     protected $contentCacheFrontend;
 
-    /**
-     * @Flow\Inject(lazy=false)
-     * @var ActionRequestFactory
-     */
-    protected $actionRequestFactory;
+    #[Flow\Inject(lazy: false)]
+    protected ActionRequestFactory $actionRequestFactory;
+
+    #[Flow\Inject]
+    protected NodeLabelGeneratorInterface $nodeLabelGenerator;
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -92,32 +78,32 @@ class CacheControlHeaderComponent implements MiddlewareInterface
         }
 
         try {
-            $node = $this->propertyMapper->convert($actionRequest->getArgument('node'), NodeInterface::class);
+            $node = $this->propertyMapper->convert($actionRequest->getArgument('node'), Node::class);
         } catch (\Exception $exception) {
             $this->logger->error(sprintf('The node argument was set to "%s", but it could not be converted into a node: %s', $actionRequest->getArgument('node'), $exception->getMessage()));
             return $response;
         }
 
-        if (!$node instanceof NodeInterface) {
+        if (!$node instanceof Node) {
             return $response;
         }
 
-        if ($node->getContext()->getWorkspaceName() !== 'live') {
+        if (!$node->workspaceName->isLive()) {
             return $response;
         }
 
         if ($node->hasProperty('disableVarnishCache') && $node->getProperty('disableVarnishCache') === true) {
-            $this->logger->debug(sprintf('Varnish cache headers skipped due to property "disableVarnishCache" for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
+            $this->logger->debug(sprintf('Varnish cache headers skipped due to property "disableVarnishCache" for node "%s" (%s)', $this->nodeLabelGenerator->getLabel($node), $node->aggregateId->value), LogEnvironment::fromMethodName(__METHOD__));
 
             return $response->withAddedHeader(self::HEADER_CACHE_CONTROL, 'no-cache');
         }
 
         if ($this->contentCacheAspect->isEvaluatedUncached()) {
-            $this->logger->debug(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
+            $this->logger->debug(sprintf('Varnish cache disabled due to uncachable content for node "%s" (%s)', $this->nodeLabelGenerator->getLabel($node), $node->aggregateId->value), LogEnvironment::fromMethodName(__METHOD__));
             return $response->withAddedHeader(self::HEADER_CACHE_CONTROL, 'no-cache');
         }
 
-        list($tags, $cacheLifetime) = $this->getCacheTagsAndLifetime();
+        [$tags, $cacheLifetime] = $this->getCacheTagsAndLifetime();
 
         if (count($tags) > 0) {
             $shortenedTags = $this->cacheTagService->shortenTags($tags);
@@ -142,9 +128,9 @@ class CacheControlHeaderComponent implements MiddlewareInterface
 
         if ($timeToLive !== null) {
             $response = $response->withAddedHeader(self::HEADER_CACHE_CONTROL, sprintf('public, s-maxage=%d', $timeToLive));
-            $this->logger->debug(sprintf('Varnish cache enabled for node "%s" (%s) with max-age "%u"', $node->getLabel(), $node->getPath(), $timeToLive), LogEnvironment::fromMethodName(__METHOD__));
+            $this->logger->debug(sprintf('Varnish cache enabled for node "%s" (%s) with max-age "%u"', $this->nodeLabelGenerator->getLabel($node), $node->aggregateId->value, $timeToLive), LogEnvironment::fromMethodName(__METHOD__));
         } else {
-            $this->logger->debug(sprintf('Varnish cache headers not sent for node "%s" (%s) due to no max-age', $node->getLabel(), $node->getPath()), LogEnvironment::fromMethodName(__METHOD__));
+            $this->logger->debug(sprintf('Varnish cache headers not sent for node "%s" (%s) due to no max-age', $this->nodeLabelGenerator->getLabel($node), $node->aggregateId->value), LogEnvironment::fromMethodName(__METHOD__));
         }
 
         if ($this->cacheHeaderSettings['debug'] ?? false) {

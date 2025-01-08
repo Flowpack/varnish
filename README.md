@@ -1,7 +1,7 @@
 # Varnish
 
 [![Build Status](https://travis-ci.com/Flowpack/Varnish.svg?branch=master)](https://travis-ci.com/github/Flowpack/varnish)
-[![Latest Stable Version](https://poser.pugx.org/lowpack/varnish/v/stable)](https://packagist.org/packages/flowpack/varnish)
+[![Latest Stable Version](https://poser.pugx.org/flowpack/varnish/v/stable)](https://packagist.org/packages/flowpack/varnish)
 [![Total Downloads](https://poser.pugx.org/flowpack/varnish/downloads)](https://packagist.org/packages/flowpack/varnish)
 [![License](https://poser.pugx.org/flowpack/varnish/license)](https://packagist.org/packages/flowpack/varnish)
 

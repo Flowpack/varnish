@@ -27,7 +27,7 @@ There are several configuration options can/needs to be set:
    ``Flowpack.Varnish.reverseLookupPort`` accepts integer (defaults to ``NULL``)
 - Ignored cache tags can be used to ignore certain cache tags from being cleared at all (useful for optimizing)
    ``Flowpack.Varnish.ignoredCacheTags`` accepts array of strings (defaults to ``NULL``)
-   E.g. 'TYPO3.Neos:Document' which is used in 'TYPO3.Neos:Menu' elements
+   E.g. 'Neos.Neos:Document' which is used in 'Neos.Neos:Menu' elements
 - To disable the Varnish caching for deployment reasons you can set this option to ``FALSE``
    ``Flowpack.Varnish.enabled`` accepts boolean value (defaults to ``TRUE``)
 
@@ -69,10 +69,10 @@ Example::
 ***Note*** For a page to be cached, it must not contains any uncached parts (e.g. plugins which are uncachable by default).
 
 When a node is published to the ``live`` workspace a ban request is send to the
-Varnish proxy with the node's cache tags. This is done by listening to the ``nodePublished`` event from the
-``PublishingService`` which calls ``flushForNode`` in ``ContentCacheFlusherService``. For custom flushing of the cache,
-e.g. on node import, either use ``flushForNode`` or alternatively ``flushForNodeData`` if working directly with NodeData.
-The ``ContentCacheFlusherService`` generates cache tags for all published nodes and during shutdown it will send one ban
+Varnish proxy with the node's cache tags.
+
+For custom flushing of the cache, e.g. on node import, either use ``flushForNode``.
+The ``ContentCacheFlusherService`` generates cache tags for all published nodes and will send one ban
 request, using the ``VarnishBanService``, containing all the tags to be cleared. The ``VarnishBanService`` has two methods
 ``banAll`` accepting ``domain`` & ``contentType`` (MIME type) and ``banByTags`` accepting ``tags`` and ``domain``.
 

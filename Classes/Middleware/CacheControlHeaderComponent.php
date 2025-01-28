@@ -40,7 +40,7 @@ class CacheControlHeaderComponent implements MiddlewareInterface
     protected LoggerInterface $logger;
 
     #[Flow\Inject]
-    protected PropertyMapper$propertyMapper;
+    protected PropertyMapper $propertyMapper;
 
     #[Flow\Inject]
     protected CacheTagService $cacheTagService;

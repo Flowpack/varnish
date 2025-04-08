@@ -5,23 +5,21 @@ namespace Flowpack\Varnish\Service;
 
 use Neos\Flow\Annotations as Flow;
 
-/**
- * @Flow\Scope("singleton")
- */
+#[Flow\Scope("singleton")]
 class CacheTagService
 {
 
     /**
-     * @var int
+     * @var array
      * @Flow\InjectConfiguration(path="cacheHeaders")
      */
     protected $cacheHeaderConfiguration;
 
     /**
+     * @param array<string> $tags
+     * @return array
      * @see \Neos\Fusion\Core\Cache\ContentCache::sanitizeTags()
      *
-     * @param array $tags
-     * @return array
      */
     public function sanitizeTags(array $tags): array
     {
@@ -37,8 +35,8 @@ class CacheTagService
      * * Flowpack.Varnish.cacheHeaders.shortenCacheTags
      * * Flowpack.Varnish.cacheHeaders.cacheTagLength
      *
-     * @param array $tags
-     * @return array
+     * @param array<string> $tags
+     * @return array<string>
      */
     public function shortenTags(array $tags = []): array
     {
